@@ -3,23 +3,21 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "PDF Crafting",
-  description: "Build your pdf files like a lego bricks",
+	title: "PDF Crafting",
+	description: "Build your pdf files like a lego bricks",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`antialiased`}
-      >
-        {children}
-        <Toaster />
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body className={`antialiased`}>
+				{children}
+				<Toaster />
+			</body>
+		</html>
+	);
 }
