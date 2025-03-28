@@ -1,9 +1,10 @@
+"use client"
 
-import React, { FC, useState } from 'react';
-import { CanvasContainer } from './canvas/CanvasContainer';
+import {FC, useState } from 'react';
 import { ImageUploader } from '../shared/ImageUploader';
 import { PDFDocument, Tool, PDFElement } from '@/types';
 import { useCanvasKeyboardHandler } from './CanvasKeyboardHandler';
+import { CanvasContainer } from './CanvasContainer';
 
 interface CanvasProps {
   document: PDFDocument;
@@ -25,7 +26,7 @@ export const Canvas: FC<CanvasProps> = ({
   onDeleteElement,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  
+
   useCanvasKeyboardHandler({
     selectedElement,
     onDeleteElement,
@@ -49,8 +50,6 @@ export const Canvas: FC<CanvasProps> = ({
       {activeTool === 'image' && !isEditing && (
         <ImageUploader
           onUpload={(src) => {
-            // Calculate center position for new image based on a default canvas size
-            // This is an approximation since we don't have direct access to canvas dimensions here
             const centerX = 595 / 2 - 100; // Using A4 default width
             const centerY = 842 / 2 - 100; // Using A4 default height
             

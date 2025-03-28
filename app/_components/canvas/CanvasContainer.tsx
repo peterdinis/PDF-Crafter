@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { PDFDocument, Tool, PDFElement, TextElement, ShapeElement, TableElement } from '@/types';
 import { DragDropArea } from './DragAndDrop';
+import { CanvasElement } from './CanvasElement';
 
 interface CanvasContainerProps {
   document: PDFDocument;
