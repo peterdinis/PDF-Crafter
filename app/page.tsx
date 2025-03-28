@@ -1,11 +1,7 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
 
 const Homepage: NextPage = () => {
-  return (
-    <>
-      TODO: Home
-    </> 
-  )
-}
+	return <>TODO: Home</>;
+};
 
-export default Homepage
+export default Homepage;
