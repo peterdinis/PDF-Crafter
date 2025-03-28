@@ -1,4 +1,6 @@
-import React, { useRef } from 'react';
+"use client"
+
+import { ChangeEvent, FC, useRef, useState, DragEvent } from 'react';
 import { Image, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle} from '@/components/ui/dialog';
@@ -8,11 +10,11 @@ interface ImageUploaderProps {
   onUpload: (imageSrc: string) => void;
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
+export const ImageUploader: FC<ImageUploaderProps> = ({ onUpload }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -36,7 +38,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -59,7 +61,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
