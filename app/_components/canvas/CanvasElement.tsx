@@ -22,12 +22,9 @@ export const CanvasElement: FC<CanvasElementProps> = ({
   isSelected,
   onMouseDown,
   onUpdate,
-  activeTool,
-  onAddElement,
   isEditing,
   setIsEditing
 }) => {
-  // Determine which component to render based on element type
   switch (element.type) {
     case 'text':
       return (
@@ -65,7 +62,6 @@ export const CanvasElement: FC<CanvasElementProps> = ({
   }
 };
 
-// A separate component for image elements
 const ImageElement: FC<{
   element: PDFElement;
   isSelected: boolean;

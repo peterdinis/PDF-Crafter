@@ -11,7 +11,7 @@ import { X } from 'lucide-react';
 import { ModeToggle } from '../shared/ModeToggle';
 import { PDFDocument } from '@/types';
 
-interface DocumentSettingsProps {
+interface PdfSettingsProps {
   document: PDFDocument;
   onUpdate: (settings: Partial<PDFDocument>) => void;
   onClose: () => void;
@@ -43,7 +43,7 @@ const paperSizes = [
   { value: 'custom', label: 'Custom Size' }
 ];
 
-export const DocumentSettings: FC<DocumentSettingsProps> = ({
+export const PdfSettings: FC<PdfSettingsProps> = ({
   document,
   onUpdate,
   onClose,
