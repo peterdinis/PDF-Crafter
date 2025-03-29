@@ -7,8 +7,8 @@ import { Download } from "lucide-react";
 import { type FC, useState } from "react";
 import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
-import { DocumentSettings } from "../documents/DocumentSettings";
 import { Toolbar } from "../editor/Toolbar";
+import { PdfSettings } from "./PdfSettings";
 
 const Editor: FC = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -111,7 +111,7 @@ const Editor: FC = () => {
 			</div>
 
 			{showSettings && (
-				<DocumentSettings
+				<PdfSettings
 					document={document}
 					onUpdate={updateDocumentSettings}
 					onClose={() => setShowSettings(false)}

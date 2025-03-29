@@ -19,7 +19,6 @@ interface CanvasContainerProps {
   setIsEditing: (isEditing: boolean) => void;
 }
 
-// Paper size dimensions in points (72 points per inch)
 const paperSizesPoints: Record<string, { width: number; height: number }> = {
   a3: { width: 842, height: 1191 },
   a4: { width: 595, height: 842 },
@@ -41,7 +40,6 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
   onSelectElement,
   onAddElement,
   onUpdateElement,
-  onDeleteElement,
   isEditing,
   setIsEditing,
 }) => {

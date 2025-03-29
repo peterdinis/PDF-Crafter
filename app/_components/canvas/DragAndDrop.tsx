@@ -21,7 +21,6 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
   canvasRef,
   canvasDimensions,
   onCanvasClick,
-  activeTool,
   onAddElement,
   children,
   isEditing,
