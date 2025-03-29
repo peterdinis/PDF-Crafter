@@ -1,4 +1,4 @@
-import { PDFDocument, TextElement, ImageElement, ShapeElement } from '@/types';
+import { PDFDocument, TextElement, ImageElement, ShapeElement, TableElement } from '@/components/PDFEditor';
 import { jsPDF } from 'jspdf';
 
 // Function to convert base64 data URI to array buffer
@@ -13,14 +13,37 @@ const dataURItoBlob = (dataURI: string) => {
   return new Blob([ab], { type: mimeString });
 };
 
+// Get the proper font style string for jsPDF
+const getFontStyle = (fontWeight: string, fontStyle: string) => {
+  if (fontWeight === 'bold' && fontStyle === 'italic') return 'bolditalic';
+  if (fontWeight === 'bold') return 'bold';
+  if (fontStyle === 'italic') return 'italic';
+  return 'normal';
+};
+
 export const generatePDF = async (document: PDFDocument) => {
   // Initialize jsPDF with the right page size and orientation
-  let format = 'a4';
-  if (document.pageSize === 'letter') format = 'letter';
-  if (document.pageSize === 'legal') format = 'legal';
-  if (document.pageSize === 'tabloid') format = 'tabloid';
-  if (document.pageSize === 'executive') format = 'executive';
-  if (document.pageSize === 'b5') format = 'b5';
+  let format: string | [number, number] = 'a4';
+  
+  // Set standard paper formats
+  if (['a3', 'a4', 'a5', 'letter', 'legal', 'tabloid', 'executive', 'b5', 'b4'].includes(document.pageSize)) {
+    format = document.pageSize;
+  }
+  
+  // Handle custom and non-standard sizes
+  if (document.pageSize === 'custom' && document.customWidth && document.customHeight) {
+    // Convert mm to points for jsPDF (1mm = 2.83465 points)
+    const width = document.customWidth * 2.83465;
+    const height = document.customHeight * 2.83465;
+    format = [width, height];
+  } else if (['jisb4', 'jisb5'].includes(document.pageSize)) {
+    // Handle JIS B sizes which aren't standard in jsPDF
+    if (document.pageSize === 'jisb4') {
+      format = [729, 1032]; // JIS B4 in points
+    } else if (document.pageSize === 'jisb5') {
+      format = [516, 729]; // JIS B5 in points
+    }
+  }
   
   const orientation = document.orientation === 'portrait' ? 'p' : 'l';
   
@@ -40,17 +63,23 @@ export const generatePDF = async (document: PDFDocument) => {
   for (const element of document.elements) {
     if (element.type === 'text') {
       const textElement = element as TextElement;
-      pdf.setFont(textElement.fontFamily || 'Helvetica');
-      pdf.setFontSize(textElement.fontSize);
-      pdf.setTextColor(textElement.color);
       
-      const style = '';
-      if (textElement.fontWeight === 'bold') pdf.setFont(textElement.fontFamily, 'bold');
-      if (textElement.fontStyle === 'italic') pdf.setFont(textElement.fontFamily, 'italic');
+      // Set font family and style
+      const fontStyle = getFontStyle(textElement.fontWeight, textElement.fontStyle);
+      pdf.setFont(textElement.fontFamily || 'Helvetica', fontStyle);
+      
+      // Set font size (explicitly convert to number if needed)
+      const fontSize = typeof textElement.fontSize === 'string' 
+        ? parseInt(textElement.fontSize, 10) 
+        : textElement.fontSize;
+      pdf.setFontSize(fontSize);
+      
+      // Set text color
+      pdf.setTextColor(textElement.color);
       
       // Split text into lines to handle wrapping
       const lines = pdf.splitTextToSize(textElement.content, textElement.width);
-      pdf.text(lines, textElement.x, textElement.y + textElement.fontSize); // Add fontSize to y to align properly
+      pdf.text(lines, textElement.x, textElement.y + fontSize); // Add fontSize to y to align properly
       
     } else if (element.type === 'image') {
       const imageElement = element as ImageElement;
@@ -122,6 +151,28 @@ export const generatePDF = async (document: PDFDocument) => {
           shapeElement.y
         );
       }
+    } else if (element.type === 'table') {
+      const tableElement = element as TableElement;
+      
+      // Set border color if specified
+      if (tableElement.borderColor) {
+        pdf.setDrawColor(tableElement.borderColor);
+      } else {
+        pdf.setDrawColor(0, 0, 0); // Default black
+      }
+      
+      // Draw table border
+      pdf.rect(
+        tableElement.x,
+        tableElement.y,
+        tableElement.width,
+        tableElement.height,
+        'D'
+      );
+      
+      // jsPDF has limited table capabilities
+      // For a full implementation, you'd need to draw cells individually
+      // or use a plugin like jspdf-autotable
     }
   }
   
