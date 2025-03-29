@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import { useState, RefObject, MouseEvent, FC, ReactNode, DragEvent } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { Tool, PDFElement, TextElement, ShapeElement, TableElement } from '@/types';
+import { useState, RefObject, MouseEvent, FC, ReactNode, DragEvent } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Tool, PDFElement, TextElement, ShapeElement, TableElement } from "@/types";
+import { motion } from "framer-motion";
 
 interface DragDropAreaProps {
   canvasRef: RefObject<HTMLDivElement>;
@@ -23,7 +24,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
   activeTool,
   onAddElement,
   children,
-  isEditing
+  isEditing,
 }) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
@@ -39,83 +40,86 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setIsDraggingOver(false);
-    
+
     if (!canvasRef.current || isEditing) return;
-    
-    // Get drop position relative to canvas
+
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // Handle element data from drag operation
-    const data = e.dataTransfer.getData('application/json');
+
+    const data = e.dataTransfer.getData("application/json");
     if (data) {
       try {
         const elementData = JSON.parse(data);
+        let newElement: PDFElement | null = null;
+
         switch (elementData.type) {
-          case 'text':
-            const newText: TextElement = {
+          case "text":
+            newElement = {
               id: uuidv4(),
-              type: 'text',
-              content: elementData.content || 'Dropped text',
+              type: "text",
+              content: elementData.content || "Dropped text",
               x,
               y,
               fontSize: 16,
-              fontFamily: 'Arial',
-              fontWeight: 'normal',
-              fontStyle: 'normal',
-              color: '#000000',
+              fontFamily: "Arial",
+              fontWeight: "normal",
+              fontStyle: "normal",
+              color: "#000000",
               width: 200,
               height: 30,
-            };
-            onAddElement(newText);
+            } as TextElement;
             break;
-          case 'shape':
-            const newShape: ShapeElement = {
+          case "shape":
+            newElement = {
               id: uuidv4(),
-              type: 'shape',
-              shapeType: elementData.shapeType || 'rectangle',
+              type: "shape",
+              shapeType: elementData.shapeType || "rectangle",
               x,
               y,
               width: 100,
               height: 80,
-              fill: '#e5e7eb',
-              stroke: '#9ca3af',
+              fill: "#e5e7eb",
+              stroke: "#9ca3af",
               strokeWidth: 1,
-            };
-            onAddElement(newShape);
+            } as ShapeElement;
             break;
-          case 'table':
-            const newTable: TableElement = {
+          case "table":
+            newElement = {
               id: uuidv4(),
-              type: 'table',
-              tableStyle: elementData.tableStyle || 'simple',
+              type: "table",
+              tableStyle: elementData.tableStyle || "simple",
               x,
               y,
               width: 300,
               height: 200,
               columns: elementData.columns || 3,
               rows: elementData.rows || 4,
-              headerType: elementData.headerType || 'simple',
-              data: elementData.data || [
-                ['Header 1', 'Header 2', 'Header 3'],
-                ['Data 1', 'Data 2', 'Data 3'],
-                ['Data 4', 'Data 5', 'Data 6'],
-                ['Data 7', 'Data 8', 'Data 9'],
-              ],
-            };
-            onAddElement(newTable);
+              headerType: elementData.headerType || "simple",
+              data:
+                elementData.data ||
+                [
+                  ["Header 1", "Header 2", "Header 3"],
+                  ["Data 1", "Data 2", "Data 3"],
+                  ["Data 4", "Data 5", "Data 6"],
+                  ["Data 7", "Data 8", "Data 9"],
+                ],
+            } as TableElement;
             break;
         }
-        toast.success('Element dropped');
+
+        if (newElement) {
+          onAddElement(newElement);
+          toast.success("Element dropped");
+        }
       } catch (error) {
-        console.error('Error parsing dropped data:', error);
+        console.error("Error parsing dropped data:", error);
       }
     }
   };
 
   return (
-    <div
+    <motion.div
       ref={canvasRef}
       className={cn(
         "pdf-page relative",
@@ -129,8 +133,22 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
       {children}
-    </div>
+      {isDraggingOver && !isEditing && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center bg-editor-primary/20"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <p className="text-editor-primary font-semibold">Drop here!</p>
+        </motion.div>
+      )}
+    </motion.div>
   );
 };

@@ -75,7 +75,7 @@ const ImageElement: FC<{
   
   return (
     <div
-      className={`absolute cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
+      className={`absolute shadow-2xl cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
       style={{
         left: `${element.x}px`,
         top: `${element.y}px`,
