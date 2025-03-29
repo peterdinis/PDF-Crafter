@@ -6,6 +6,8 @@ import { Download } from "lucide-react";
 import { type FC, useState } from "react";
 import { toast } from "sonner";
 import { Toolbar } from "../editor/Toolbar";
+import { Canvas } from "../canvas/Canvas";
+import { DocumentSettings } from "../documents/DocumentSettings";
 
 const Editor: FC = () => {
 	const [document, setDocument] = useState<PDFDocument>({

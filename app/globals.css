@@ -134,9 +134,9 @@
 }
 
 .tool-item {
-	@apply flex items-center gap-2 px-3 py-2 rounded-md bg-editor-tool hover:bg-editor-tool-hover transition-colors cursor-pointer;
+	@apply flex items-center gap-2 px-3 py-2 rounded-md transition-colors cursor-pointer;
 }
 
 .tool-item.active {
-	@apply bg-editor-primary text-white;
+	@apply text-white;
 }

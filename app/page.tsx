@@ -1,7 +1,12 @@
 import type { NextPage } from "next";
+import Editor from "./_components/pdf/Editor";
 
 const Homepage: NextPage = () => {
-	return <>TODO: Home</>;
+	return (
+		<>
+			<Editor />
+		</>
+	)
 };
 
 export default Homepage;
