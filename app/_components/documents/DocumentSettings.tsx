@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { PDFDocument } from "@/types";
 import { X } from "lucide-react";
 import type { FC } from "react";
+import { ModeToggle } from "../shared/ModeToggle";
 
 interface DocumentSettingsProps {
 	document: PDFDocument;
@@ -119,6 +120,11 @@ export const DocumentSettings: FC<DocumentSettingsProps> = ({
 							maxLength={7}
 						/>
 					</div>
+				</div>
+
+				<div className="flex justify-between">
+					<Label>Enable Dark Mode</Label>
+					<ModeToggle />
 				</div>
 			</div>
 		</div>
