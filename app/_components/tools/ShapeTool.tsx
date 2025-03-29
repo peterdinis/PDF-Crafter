@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { ShapeElement } from "@/types";
-import type { FC, MouseEvent } from "react";
+import { type FC, type MouseEvent, useState } from "react";
+import { ColorPicker } from "../shared/ColorPicker";
 
 interface ShapeToolProps {
 	element: ShapeElement;
@@ -17,6 +18,8 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 	onMouseDown,
 	onUpdate,
 }) => {
+	const [showColorPickers, setShowColorPickers] = useState(false);
+
 	const renderShape = () => {
 		const { shapeType, fill, stroke, strokeWidth } = element;
 
@@ -56,6 +59,29 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 		return null;
 	};
 
+	const handleFillColorChange = (color: string) => {
+		onUpdate({
+			...element,
+			fill: color,
+		});
+	};
+
+	const handleStrokeColorChange = (color: string) => {
+		onUpdate({
+			...element,
+			stroke: color,
+		});
+	};
+
+	const handleDoubleClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		setShowColorPickers(true);
+	};
+
+	const handleBlur = () => {
+		setShowColorPickers(false);
+	};
+
 	return (
 		<div
 			className={cn(
@@ -69,8 +95,29 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 				height: element.shapeType === "line" ? "1px" : `${element.height}px`,
 			}}
 			onMouseDown={onMouseDown}
+			onDoubleClick={handleDoubleClick}
+			onBlur={handleBlur}
 		>
 			{renderShape()}
+
+			{isSelected && showColorPickers && (
+				<div className="absolute top-full left-0 mt-2 bg-white p-3 border border-gray-200 rounded shadow-md z-50 min-w-[240px]">
+					<div className="space-y-4">
+						{element.shapeType !== "line" && (
+							<ColorPicker
+								label="Fill Color"
+								color={element.fill}
+								onChange={handleFillColorChange}
+							/>
+						)}
+						<ColorPicker
+							label="Border Color"
+							color={element.stroke}
+							onChange={handleStrokeColorChange}
+						/>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };

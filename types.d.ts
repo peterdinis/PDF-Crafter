@@ -1,8 +1,24 @@
 export type PDFDocument = {
 	title: string;
-	pageSize: "a4" | "letter" | "legal" | "tabloid" | "executive" | "b5";
+	pageSize:
+		| "a3"
+		| "a4"
+		| "a5"
+		| "letter"
+		| "legal"
+		| "tabloid"
+		| "executive"
+		| "b5"
+		| "b4"
+		| "jisb4"
+		| "jisb5"
+		| "custom";
+	customWidth?: number;
+	customHeight?: number;
 	orientation: "portrait" | "landscape";
 	defaultTextColor: string;
+	defaultFontFamily: string;
+	defaultFontSize: number;
 	elements: PDFElement[];
 };
 
@@ -62,6 +78,10 @@ export type TableElement = {
 	rows: number;
 	headerType: "none" | "simple" | "divided";
 	data: string[][];
+	borderColor?: string;
+	headerColor?: string;
+	cellColor?: string;
+	textColor?: string;
 };
 
 export type Tool =

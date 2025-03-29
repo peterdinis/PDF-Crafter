@@ -1,28 +1,39 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { TextElement } from "@/types";
-import {
-	type ChangeEvent,
-	type FC,
-	type KeyboardEvent,
-	type MouseEvent,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/ColorPicker";
 
 interface TextEditorProps {
 	element: TextElement;
 	isSelected: boolean;
-	onMouseDown: (e: MouseEvent) => void;
+	onMouseDown: (e: React.MouseEvent) => void;
 	onUpdate: (element: TextElement) => void;
 	isEditing?: boolean;
 	setIsEditing?: (isEditing: boolean) => void;
 }
 
-export const TextEditor: FC<TextEditorProps> = ({
+// Available font options
+const fontOptions = [
+	{ value: "Arial", label: "Arial" },
+	{ value: "Times-Roman", label: "Times New Roman" },
+	{ value: "Courier", label: "Courier" },
+	{ value: "Helvetica", label: "Helvetica" },
+	{ value: "Georgia", label: "Georgia" },
+	{ value: "Verdana", label: "Verdana" },
+];
+
+export const TextEditor: React.FC<TextEditorProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -32,7 +43,11 @@ export const TextEditor: FC<TextEditorProps> = ({
 }) => {
 	const [internalEditing, setInternalEditing] = useState(false);
 	const [showFormatting, setShowFormatting] = useState(false);
+	const [customFontSize, setCustomFontSize] = useState(
+		element.fontSize.toString(),
+	);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const editorRef = useRef<HTMLDivElement>(null);
 
 	// Use the parent editing state if provided, otherwise use internal state
 	const editing =
@@ -51,24 +66,44 @@ export const TextEditor: FC<TextEditorProps> = ({
 		}
 	}, [editing]);
 
-	const handleDoubleClick = (e: MouseEvent) => {
+	// Add click outside handler to close editor
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				editorRef.current &&
+				!editorRef.current.contains(event.target as Node)
+			) {
+				// Only close if clicking outside the editor completely
+				setEditing(false);
+				setShowFormatting(false);
+			}
+		};
+
+		if (editing) {
+			document.addEventListener("mousedown", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [editing, setEditing]);
+
+	const handleDoubleClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		setEditing(true);
 	};
 
-	const handleBlur = () => {
-		setEditing(false);
-		setShowFormatting(false);
-	};
+	// Remove the blur handler that was causing the issue
+	// handleBlur removed here
 
-	const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		onUpdate({
 			...element,
 			content: e.target.value,
 		});
 	};
 
-	const handleKeyDown = (e: KeyboardEvent) => {
+	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && e.shiftKey === false) {
 			e.preventDefault();
 			setEditing(false);
@@ -81,6 +116,60 @@ export const TextEditor: FC<TextEditorProps> = ({
 			...element,
 			color,
 		});
+	};
+
+	const handleFontChange = (font: string) => {
+		onUpdate({
+			...element,
+			fontFamily: font,
+		});
+	};
+
+	const handleFontSizeChange = (size: number) => {
+		onUpdate({
+			...element,
+			fontSize: size,
+		});
+		setCustomFontSize(size.toString());
+	};
+
+	const handleCustomFontSizeChange = (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		e.stopPropagation();
+		setCustomFontSize(e.target.value);
+	};
+
+	const handleCustomFontSizeBlur = (e: React.FocusEvent) => {
+		e.stopPropagation();
+		const size = Number.parseInt(customFontSize, 10);
+		if (!isNaN(size) && size > 0) {
+			onUpdate({
+				...element,
+				fontSize: size,
+			});
+		} else {
+			setCustomFontSize(element.fontSize.toString());
+		}
+	};
+
+	const handleFontWeightChange = (weight: string) => {
+		onUpdate({
+			...element,
+			fontWeight: weight,
+		});
+	};
+
+	const handleFontStyleChange = (style: string) => {
+		onUpdate({
+			...element,
+			fontStyle: style,
+		});
+	};
+
+	// Prevent closing the editor when interacting with form controls
+	const handleFormClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
 	};
 
 	return (
@@ -97,6 +186,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 			}}
 			onMouseDown={editing ? undefined : onMouseDown}
 			onDoubleClick={handleDoubleClick}
+			ref={editorRef}
 		>
 			{editing ? (
 				<div className="flex flex-col gap-2">
@@ -104,7 +194,6 @@ export const TextEditor: FC<TextEditorProps> = ({
 						ref={textareaRef}
 						value={element.content}
 						onChange={handleChange}
-						onBlur={handleBlur}
 						onKeyDown={handleKeyDown}
 						style={{
 							fontSize: `${element.fontSize}px`,
@@ -120,7 +209,100 @@ export const TextEditor: FC<TextEditorProps> = ({
 						onClick={(e) => e.stopPropagation()}
 					/>
 
-					<div className="bg-white p-2 border border-gray-200 rounded shadow-md z-10">
+					<div
+						className="bg-white p-4 border border-gray-200 rounded shadow-md z-10 space-y-4"
+						onClick={handleFormClick}
+					>
+						<div className="space-y-2">
+							<label className="text-sm font-medium">Font</label>
+							<Select
+								value={element.fontFamily}
+								onValueChange={handleFontChange}
+							>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Select Font" />
+								</SelectTrigger>
+								<SelectContent>
+									{fontOptions.map((font) => (
+										<SelectItem key={font.value} value={font.value}>
+											{font.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="space-y-2">
+							<Label className="text-sm font-medium">Font Size</Label>
+							<div className="flex items-center gap-2">
+								<Select
+									value={element.fontSize.toString()}
+									onValueChange={(value) => handleFontSizeChange(Number(value))}
+								>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Select Size" />
+									</SelectTrigger>
+									<SelectContent>
+										{[
+											8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72,
+										].map((size) => (
+											<SelectItem key={size} value={size.toString()}>
+												{size}px
+											</SelectItem>
+										))}
+										<SelectItem value="custom">Custom</SelectItem>
+									</SelectContent>
+								</Select>
+
+								<div className="w-24">
+									<Input
+										type="number"
+										min="1"
+										value={customFontSize}
+										onChange={handleCustomFontSizeChange}
+										onBlur={handleCustomFontSizeBlur}
+										onClick={(e) => e.stopPropagation()}
+										className="h-9"
+									/>
+								</div>
+								<span className="text-sm">px</span>
+							</div>
+						</div>
+
+						<div className="grid grid-cols-2 gap-2">
+							<div className="space-y-2">
+								<label className="text-sm font-medium">Style</label>
+								<Select
+									value={element.fontStyle}
+									onValueChange={handleFontStyleChange}
+								>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Style" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="normal">Normal</SelectItem>
+										<SelectItem value="italic">Italic</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+
+							<div className="space-y-2">
+								<label className="text-sm font-medium">Weight</label>
+								<Select
+									value={element.fontWeight}
+									onValueChange={handleFontWeightChange}
+								>
+									<SelectTrigger className="w-full">
+										<SelectValue placeholder="Weight" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="normal">Normal</SelectItem>
+										<SelectItem value="bold">Bold</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+						</div>
+
 						<ColorPicker
 							label="Text Color"
 							color={element.color}

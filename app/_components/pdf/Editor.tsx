@@ -1,10 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { generatePDF } from "@/lib/pdfUtils";
 import type { PDFDocument, PDFElement, TextElement, Tool } from "@/types";
 import { Download } from "lucide-react";
 import { type FC, useState } from "react";
 import { toast } from "sonner";
+import { Canvas } from "../canvas/Canvas";
+import { DocumentSettings } from "../documents/DocumentSettings";
 import { Toolbar } from "../editor/Toolbar";
 
 const Editor: FC = () => {
@@ -13,9 +16,10 @@ const Editor: FC = () => {
 		pageSize: "a4",
 		orientation: "portrait",
 		defaultTextColor: "#000000",
+		defaultFontFamily: "Arial",
+		defaultFontSize: 16,
 		elements: [],
 	});
-
 	const [activeTool, setActiveTool] = useState<Tool>("select");
 	const [selectedElement, setSelectedElement] = useState<string | null>(null);
 	const [showSettings, setShowSettings] = useState(false);
@@ -35,9 +39,10 @@ const Editor: FC = () => {
 	};
 
 	const addElement = (element: PDFElement) => {
-		// If it's a text element, apply the default text color
 		if (element.type === "text") {
 			(element as TextElement).color = document.defaultTextColor;
+			(element as TextElement).fontFamily = document.defaultFontFamily;
+			(element as TextElement).fontSize = document.defaultFontSize;
 		}
 
 		setDocument({
@@ -92,7 +97,7 @@ const Editor: FC = () => {
 					</Button>
 				</div>
 
-				<div className="flex-1 overflow-auto p-8">
+				<div className="flex-1 overflow-auto">
 					<Canvas
 						document={document}
 						activeTool={activeTool}

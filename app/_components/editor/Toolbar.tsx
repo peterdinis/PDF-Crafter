@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Tool } from "@/types";
@@ -15,7 +13,7 @@ import {
 	TableProperties,
 	Type,
 } from "lucide-react";
-import type { FC } from "react";
+import type React from "react";
 
 interface ToolbarProps {
 	activeTool: Tool;
@@ -23,7 +21,7 @@ interface ToolbarProps {
 	onSettingsToggle: () => void;
 }
 
-export const Toolbar: FC<ToolbarProps> = ({
+export const Toolbar: React.FC<ToolbarProps> = ({
 	activeTool,
 	onToolSelect,
 	onSettingsToggle,
