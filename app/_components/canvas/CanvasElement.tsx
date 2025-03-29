@@ -8,8 +8,8 @@ import type {
 	Tool,
 } from "@/types";
 import type { FC, MouseEvent } from "react";
-import { ShapeTool } from "../editor/ShapeTool";
-import { TableTool } from "../editor/TableTool";
+import { ShapeTool } from "../tools/ShapeTool";
+import { TableTool } from "../tools/TableTool";
 import { TextEditor } from "../editor/TextEditor";
 
 interface CanvasElementProps {
