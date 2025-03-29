@@ -15,7 +15,7 @@ const Editor: FC = () => {
 		title: "Untitled Document",
 		pageSize: "a4",
 		orientation: "portrait",
-		defaultTextColor: "#000000",
+		defaultTextColor: "#000000", 
 		elements: [],
 	});
 
