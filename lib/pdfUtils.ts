@@ -1,4 +1,4 @@
-import { PDFDocument, TextElement, ImageElement, ShapeElement, TableElement } from '@/components/PDFEditor';
+import { PDFDocument, TextElement, ImageElement, ShapeElement, TableElement } from '@/types';
 import { jsPDF } from 'jspdf';
 
 // Function to convert base64 data URI to array buffer
