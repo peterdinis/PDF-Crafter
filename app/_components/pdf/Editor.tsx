@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Toolbar } from "../editor/Toolbar";
 import { Canvas } from "../canvas/Canvas";
 import { DocumentSettings } from "../documents/DocumentSettings";
+import { generatePDF } from "@/lib/pdfUtils";
 
 const Editor: FC = () => {
 	const [document, setDocument] = useState<PDFDocument>({
