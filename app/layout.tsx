@@ -17,6 +17,10 @@ export const metadata: Metadata = {
 		"custom PDF creator",
 		"PDF generator",
 	],
+	authors: {
+		name: "Peter Dinis",
+		url: "https://dinis-portfolio.vercel.app/"
+	},
 	robots: "index, follow",
 	openGraph: {
 		title: "PDF Builder – Create, Edit & Customize PDF Files Online",
