@@ -8,9 +8,9 @@ import type {
 	Tool,
 } from "@/types";
 import type { FC, MouseEvent } from "react";
+import { TextEditor } from "../editor/TextEditor";
 import { ShapeTool } from "../tools/ShapeTool";
 import { TableTool } from "../tools/TableTool";
-import { TextEditor } from "../editor/TextEditor";
 
 interface CanvasElementProps {
 	element: PDFElement;

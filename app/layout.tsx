@@ -15,18 +15,18 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-        <head />
-        <body>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-			<Toaster />
-          </ThemeProvider>
-        </body>
-      </html>
+			<head />
+			<body>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					{children}
+					<Toaster />
+				</ThemeProvider>
+			</body>
+		</html>
 	);
 }

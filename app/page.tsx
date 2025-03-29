@@ -6,7 +6,7 @@ const Homepage: NextPage = () => {
 		<>
 			<Editor />
 		</>
-	)
+	);
 };
 
 export default Homepage;
