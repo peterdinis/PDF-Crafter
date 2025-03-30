@@ -178,7 +178,7 @@ const PDFEditor = () => {
 		  </div>
 		  
 		  <div className="flex-1 overflow-auto relative">
-			<div className="flex items-center justify-center p-4 bg-gray-100 border-b border-editor-border">
+			<div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-800 border-b border-editor-border">
 			  <div className="flex items-center space-x-2">
 				{document.pages.map((page, index) => (
 				  <Button
@@ -204,7 +204,7 @@ const PDFEditor = () => {
 					variant="outline"
 					size="sm"
 					onClick={() => deletePage(document.currentPage)}
-					className="text-red-500 hover:text-red-700 h-8"
+					className="bg-red-600 dark:bg-red-900 text-blue-50 hover:text-blue-100 h-8"
 				  >
 					Delete
 				  </Button>
