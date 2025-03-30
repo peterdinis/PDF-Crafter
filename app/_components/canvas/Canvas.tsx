@@ -1,8 +1,9 @@
 "use client"
 
 import { PDFDocument, Tool, PDFElement } from '@/types';
-import{ FC, useState } from 'react';
+import React, { useState } from 'react';
 import { ImageUploader } from '../shared/ImageUploader';
+import { PencilColorPicker } from '../shared/PencilColorPicker';
 import { CanvasContainer } from './CanvasContainer';
 import { useCanvasKeyboardHandler } from './CanvasKeyboardHandler';
 
@@ -16,7 +17,7 @@ interface CanvasProps {
   onDeleteElement: (id: string) => void;
 }
 
-export const Canvas: FC<CanvasProps> = ({
+export const Canvas: React.FC<CanvasProps> = ({
   document,
   activeTool,
   selectedElement,
@@ -26,6 +27,9 @@ export const Canvas: FC<CanvasProps> = ({
   onDeleteElement,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [pencilColor, setPencilColor] = useState('#000000');
+  const [pencilStrokeWidth, setPencilStrokeWidth] = useState(2);
+  const [currentDrawingId, setCurrentDrawingId] = useState<string | null>(null);
 
   // Set up keyboard handlers (Delete key for removing elements)
   useCanvasKeyboardHandler({
@@ -33,6 +37,9 @@ export const Canvas: FC<CanvasProps> = ({
     onDeleteElement,
     isEditing,
   });
+
+  // Get the current page elements
+  const currentPageElements = document.pages[document.currentPage]?.elements || [];
 
   return (
     <div className="flex-1 overflow-auto p-8">
@@ -44,6 +51,7 @@ export const Canvas: FC<CanvasProps> = ({
           // Only change selection if we're not currently editing
           if (!isEditing || id === null) {
             onSelectElement(id);
+            setCurrentDrawingId(null);
           }
         }}
         onAddElement={onAddElement}
@@ -51,6 +59,11 @@ export const Canvas: FC<CanvasProps> = ({
         onDeleteElement={onDeleteElement}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
+        pageElements={currentPageElements}
+        pencilColor={pencilColor}
+        pencilStrokeWidth={pencilStrokeWidth}
+        currentDrawingId={currentDrawingId}
+        setCurrentDrawingId={setCurrentDrawingId}
       />
       
       {activeTool === 'image' && !isEditing && (
@@ -71,6 +84,15 @@ export const Canvas: FC<CanvasProps> = ({
               height: 200,
             });
           }}
+        />
+      )}
+
+      {activeTool === 'pencil' && !isEditing && (
+        <PencilColorPicker 
+          color={pencilColor}
+          strokeWidth={pencilStrokeWidth}
+          onColorChange={setPencilColor}
+          onStrokeWidthChange={setPencilStrokeWidth}
         />
       )}
     </div>
