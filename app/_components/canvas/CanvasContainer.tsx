@@ -1,10 +1,10 @@
 "use client"
 
-import { useRef, useState, useEffect, FC, MouseEvent, RefObject } from 'react';
+import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { CanvasElement } from './CanvasElement';
-import { PDFDocument, Tool, PDFElement, TextElement, ShapeElement, TableElement } from '@/types';
+import { PDFDocument, PDFElement, PencilDrawingElement, ShapeElement, TableElement, TextElement, Tool } from '@/types';
 import { DragDropArea } from './DragAndDrop';
 
 interface CanvasContainerProps {
@@ -17,6 +17,11 @@ interface CanvasContainerProps {
   onDeleteElement: (id: string) => void;
   isEditing: boolean;
   setIsEditing: (isEditing: boolean) => void;
+  pageElements: PDFElement[];
+  pencilColor?: string;
+  pencilStrokeWidth?: number;
+  currentDrawingId: string | null;
+  setCurrentDrawingId: (id: string | null) => void;
 }
 
 const paperSizesPoints: Record<string, { width: number; height: number }> = {
@@ -33,32 +38,37 @@ const paperSizesPoints: Record<string, { width: number; height: number }> = {
   jisb5: { width: 516, height: 729 },
 };
 
-export const CanvasContainer: FC<CanvasContainerProps> = ({
+export const CanvasContainer: React.FC<CanvasContainerProps> = ({
   document,
   activeTool,
   selectedElement,
   onSelectElement,
   onAddElement,
   onUpdateElement,
+  onDeleteElement,
   isEditing,
   setIsEditing,
+  pageElements,
+  pencilColor = '#000000',
+  pencilStrokeWidth = 2,
+  currentDrawingId,
+  setCurrentDrawingId
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [canvasDimensions, setCanvasDimensions] = useState({ width: 595, height: 842 }); // Default A4
   const [draggedElement, setDraggedElement] = useState<{ id: string; startX: number; startY: number; offsetX: number; offsetY: number } | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
-    // Set canvas dimensions based on page size and orientation
     let width: number;
     let height: number;
     
     if (document.pageSize === 'custom' && document.customWidth && document.customHeight) {
-      // Convert mm to points (1mm = 2.83465 points)
       width = Math.round(document.customWidth * 2.83465);
       height = Math.round(document.customHeight * 2.83465);
     } else {
       const sizeKey = document.pageSize;
-      const defaultSize = { width: 595, height: 842 }; // Default A4 as fallback
+      const defaultSize = { width: 595, height: 842 };
       const size = paperSizesPoints[sizeKey] || defaultSize;
       
       width = size.width;
@@ -72,15 +82,13 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
     setCanvasDimensions({ width, height });
   }, [document.pageSize, document.orientation, document.customWidth, document.customHeight]);
 
-  const handleCanvasClick = (e: MouseEvent) => {
+  const handleCanvasClick = (e: React.MouseEvent) => {
     if (!canvasRef.current || isEditing) return;
     
-    // Get click position relative to canvas
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    // Handle adding new elements based on active tool
     if (activeTool === 'text') {
       const newText: TextElement = {
         id: uuidv4(),
@@ -118,7 +126,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
         shapeType: 'circle',
         x,
         y,
-        width: 80, // diameter
+        width: 80,
         height: 80,
         fill: '#e5e7eb',
         stroke: '#9ca3af',
@@ -161,56 +169,110 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
       };
       onAddElement(newTable);
     } else if (activeTool === 'select') {
-      // Deselect if clicking on empty canvas area
       onSelectElement(null);
       setIsEditing(false);
     }
   };
 
-  const handleElementMouseDown = (e: MouseEvent, element: PDFElement) => {
+  const handleElementMouseDown = (e: React.MouseEvent, element: PDFElement) => {
     e.stopPropagation();
     
     if (activeTool === 'select') {
       onSelectElement(element.id);
       
-      // Start dragging only if not editing
       if (!isEditing) {
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
+          // For pencil drawings, we don't need actual x/y coordinates for dragging
+          let offsetX = 0;
+          let offsetY = 0;
+          
+          if (element.type !== 'pencil') {
+            offsetX = e.clientX - rect.left - element.x;
+            offsetY = e.clientY - rect.top - element.y;
+          }
+          
           setDraggedElement({
             id: element.id,
             startX: e.clientX,
             startY: e.clientY,
-            offsetX: e.clientX - rect.left - element.x,
-            offsetY: e.clientY - rect.top - element.y,
+            offsetX,
+            offsetY,
           });
         }
       }
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!draggedElement || !canvasRef.current || isEditing) return;
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (activeTool !== 'pencil' || !canvasRef.current || isEditing) return;
+    
+    e.preventDefault();
+    setIsDrawing(true);
     
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - draggedElement.offsetX;
-    const y = e.clientY - rect.top - draggedElement.offsetY;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
-    const element = document.elements.find(el => el.id === draggedElement.id);
-    if (element) {
-      onUpdateElement({
-        ...element,
-        x,
-        y,
-      });
+    const newDrawingId = uuidv4();
+    const newDrawing: PencilDrawingElement = {
+      id: newDrawingId,
+      type: 'pencil',
+      points: [{ x, y }],
+      color: pencilColor,
+      strokeWidth: pencilStrokeWidth,
+      x: 0, // Default x position (not really used for pencil)
+      y: 0, // Default y position (not really used for pencil)
+    };
+    
+    onAddElement(newDrawing);
+    setCurrentDrawingId(newDrawingId);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!canvasRef.current || isEditing) return;
+    
+    if (draggedElement) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left - draggedElement.offsetX;
+      const y = e.clientY - rect.top - draggedElement.offsetY;
+      
+      const element = pageElements.find(el => el.id === draggedElement.id);
+      if (element) {
+        // Skip position updates for pencil drawings
+        if (element.type === 'pencil') {
+          return;
+        }
+        
+        onUpdateElement({
+          ...element,
+          x,
+          y,
+        });
+      }
+    } else if (isDrawing && currentDrawingId && activeTool === 'pencil') {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const drawing = pageElements.find(el => el.id === currentDrawingId) as PencilDrawingElement | undefined;
+      if (drawing && drawing.type === 'pencil') {
+        onUpdateElement({
+          ...drawing,
+          points: [...drawing.points, { x, y }]
+        });
+      }
     }
   };
 
   const handleMouseUp = () => {
-    if (draggedElement && !isEditing) {
+    if (isDrawing && activeTool === 'pencil') {
+      setIsDrawing(false);
+      toast.success('Drawing added');
+    } else if (draggedElement && !isEditing) {
       toast.success('Element moved');
+      setDraggedElement(null);
     }
-    setDraggedElement(null);
   };
 
   return (
@@ -224,11 +286,12 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
         canvasRef={canvasRef as unknown as RefObject<HTMLDivElement>}
         canvasDimensions={canvasDimensions}
         onCanvasClick={handleCanvasClick}
+        onMouseDown={handleMouseDown}
         activeTool={activeTool}
         onAddElement={onAddElement}
         isEditing={isEditing}
       >
-        {document.elements.map(element => (
+        {pageElements.map(element => (
           <CanvasElement
             key={element.id}
             element={element}
