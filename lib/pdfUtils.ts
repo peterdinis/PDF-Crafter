@@ -199,7 +199,7 @@ export const generatePDF = async (document: PDFDocument) => {
   // Set metadata
   pdf.setProperties({
     title: document.title,
-    creator: 'PDF Crafter Ninja',
+    creator: 'PDF Crafter',
   });
   
   // Process all pages
