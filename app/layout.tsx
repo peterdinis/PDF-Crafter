@@ -5,7 +5,8 @@ import { ThemeProvider } from "./_components/shared/theme-provider";
 
 export const metadata: Metadata = {
 	title: "PDF Crafter – Create, Edit & Customize PDF Files Online",
-	description: "Build professional PDF documents effortlessly. Merge, split, edit, and annotate PDFs with an intuitive drag-and-drop interface. Perfect for work, study, and personal projects.",
+	description:
+		"Build professional PDF documents effortlessly. Merge, split, edit, and annotate PDFs with an intuitive drag-and-drop interface. Perfect for work, study, and personal projects.",
 	keywords: [
 		"PDF editor",
 		"online PDF Builder",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 	],
 	authors: {
 		name: "Peter Dinis",
-		url: "https://dinis-portfolio.vercel.app/"
+		url: "https://dinis-portfolio.vercel.app/",
 	},
 	robots: "index, follow",
 	openGraph: {
