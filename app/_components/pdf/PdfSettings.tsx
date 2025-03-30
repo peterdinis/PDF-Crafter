@@ -1,15 +1,13 @@
-
 "use client"
 
-import { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PDFDocument } from '@/types';
 import { X } from 'lucide-react';
 import { ModeToggle } from '../shared/ModeToggle';
-import { PDFDocument } from '@/types';
 
 interface PdfSettingsProps {
   document: PDFDocument;
@@ -43,7 +41,7 @@ const paperSizes = [
   { value: 'custom', label: 'Custom Size' }
 ];
 
-export const PdfSettings: FC<PdfSettingsProps> = ({
+export const PdfSettings: React.FC<PdfSettingsProps> = ({
   document,
   onUpdate,
   onClose,
@@ -173,10 +171,10 @@ export const PdfSettings: FC<PdfSettingsProps> = ({
           </div>
         </div>
 
-		<div className='flex justify-between'>
-			<Label>Enable dark mode</Label>
-			<ModeToggle />
-		</div>
+        <div className='flex justify-between'>
+          <Label>Enable Dark Mode</Label>
+          <ModeToggle />
+        </div>
       </div>
     </div>
   );

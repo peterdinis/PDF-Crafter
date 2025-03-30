@@ -1,15 +1,14 @@
-"use client"
-
-import { PDFElement, Tool, TextElement, ShapeElement, TableElement } from "@/types";
-import {FC, MouseEvent} from "react"
-import { TextEditor } from "../editor/TextEditor";
-import { ShapeTool } from "../tools/ShapeTool";
-import { TableTool } from "../tools/TableTool";
+import { PDFElement, Tool, TextElement, ShapeElement, TableElement, PencilDrawingElement } from '@/types';
+import React from 'react';
+import { TextEditor } from '../editor/TextEditor';
+import { PencilTool } from '../tools/PencilTool';
+import { ShapeTool } from '../tools/ShapeTool';
+import { TableTool } from '../tools/TableTool';
 
 interface CanvasElementProps {
   element: PDFElement;
   isSelected: boolean;
-  onMouseDown: (e: MouseEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
   onUpdate: (element: PDFElement) => void;
   activeTool: Tool;
   onAddElement: (element: PDFElement) => void;
@@ -17,7 +16,7 @@ interface CanvasElementProps {
   setIsEditing: (isEditing: boolean) => void;
 }
 
-export const CanvasElement: FC<CanvasElementProps> = ({
+export const CanvasElement: React.FC<CanvasElementProps> = ({
   element,
   isSelected,
   onMouseDown,
@@ -25,6 +24,7 @@ export const CanvasElement: FC<CanvasElementProps> = ({
   isEditing,
   setIsEditing
 }) => {
+  // Determine which component to render based on element type
   switch (element.type) {
     case 'text':
       return (
@@ -57,21 +57,30 @@ export const CanvasElement: FC<CanvasElementProps> = ({
           onUpdate={onUpdate}
         />
       );
+    case 'pencil':
+      return (
+        <PencilTool
+          element={element as PencilDrawingElement}
+          isSelected={isSelected}
+          onMouseDown={onMouseDown}
+        />
+      );
     default:
       return null;
   }
 };
 
-const ImageElement: FC<{
+// A separate component for image elements
+const ImageElement: React.FC<{
   element: PDFElement;
   isSelected: boolean;
-  onMouseDown: (e: MouseEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
 }> = ({ element, isSelected, onMouseDown }) => {
   if (element.type !== 'image') return null;
   
   return (
     <div
-      className={`absolute shadow-2xl cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
+      className={`absolute cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
       style={{
         left: `${element.x}px`,
         top: `${element.y}px`,
