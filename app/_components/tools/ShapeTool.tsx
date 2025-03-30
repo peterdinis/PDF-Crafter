@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { ShapeElement } from "@/types";
 import { type FC, type MouseEvent, useState } from "react";
-import { ColorPicker } from "../shared/ColorPicker";
+import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface ShapeToolProps {
 	element: ShapeElement;
@@ -73,7 +73,7 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 		});
 	};
 
-	const handleDoubleClick = (e: React.MouseEvent) => {
+	const handleDoubleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowColorPickers(true);
 	};

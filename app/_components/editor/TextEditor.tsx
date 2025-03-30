@@ -1,14 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { TextElement } from "@/types";
 import {
@@ -18,10 +9,8 @@ import {
 	useEffect,
 	useRef,
 	useState,
-	FocusEvent,
 	KeyboardEvent,
 } from "react";
-import { ColorPicker } from "../shared/ColorPicker";
 
 interface TextEditorProps {
 	element: TextElement;
@@ -31,15 +20,6 @@ interface TextEditorProps {
 	isEditing?: boolean;
 	setIsEditing?: (isEditing: boolean) => void;
 }
-
-const fontOptions = [
-	{ value: "Arial", label: "Arial" },
-	{ value: "Times-Roman", label: "Times New Roman" },
-	{ value: "Courier", label: "Courier" },
-	{ value: "Helvetica", label: "Helvetica" },
-	{ value: "Georgia", label: "Georgia" },
-	{ value: "Verdana", label: "Verdana" },
-];
 
 export const TextEditor: FC<TextEditorProps> = ({
 	element,
@@ -80,19 +60,6 @@ export const TextEditor: FC<TextEditorProps> = ({
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
 			setEditing(false);
-		}
-	};
-
-	const handleCustomFontSizeChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setCustomFontSize(e.target.value);
-	};
-
-	const handleCustomFontSizeBlur = (e: FocusEvent<HTMLInputElement>) => {
-		const size = Number.parseInt(customFontSize, 10);
-		if (!isNaN(size) && size > 0) {
-			onUpdate({ ...element, fontSize: size });
-		} else {
-			setCustomFontSize(element.fontSize.toString());
 		}
 	};
 

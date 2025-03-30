@@ -1,4 +1,6 @@
-import type React from "react";
+"use client"
+
+import { FC, MouseEvent } from "react";
 import { ColorPicker } from "./ColorPicker";
 
 interface PencilColorPickerProps {
@@ -8,7 +10,7 @@ interface PencilColorPickerProps {
 	onStrokeWidthChange: (width: number) => void;
 }
 
-export const PencilColorPicker: React.FC<PencilColorPickerProps> = ({
+export const PencilColorPicker: FC<PencilColorPickerProps> = ({
 	color,
 	strokeWidth,
 	onColorChange,
@@ -28,7 +30,7 @@ export const PencilColorPicker: React.FC<PencilColorPickerProps> = ({
 	const strokeWidths = [1, 2, 3, 5, 8];
 
 	// Prevent event propagation to avoid closing modals when clicking inside this component
-	const handleClick = (e: React.MouseEvent) => {
+	const handleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 	};
 

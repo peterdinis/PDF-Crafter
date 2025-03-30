@@ -168,8 +168,6 @@ const PDFEditor = () => {
 		});
 	};
 
-	const currentPageElements = document.pages[document.currentPage].elements;
-
 	return (
 		<div className="flex h-screen overflow-hidden bg-editor-background">
 			<Toolbar

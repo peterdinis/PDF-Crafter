@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type React from "react";
+import {FC, MouseEvent,ChangeEvent} from "react"
 
 interface ColorPickerProps {
 	label: string;
@@ -11,22 +11,22 @@ interface ColorPickerProps {
 	className?: string;
 }
 
-export const ColorPicker: React.FC<ColorPickerProps> = ({
+export const ColorPicker: FC<ColorPickerProps> = ({
 	label,
 	color,
 	onChange,
 	className = "",
 }) => {
 	// Prevent event propagation to avoid closing modals
-	const handleMouseDown = (e: React.MouseEvent) => {
+	const handleMouseDown = (e: MouseEvent) => {
 		e.stopPropagation();
 	};
 
-	const handleClick = (e: React.MouseEvent) => {
+	const handleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 	};
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		e.stopPropagation();
 		onChange(e.target.value);
 	};

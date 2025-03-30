@@ -2,10 +2,10 @@
 
 import type { PDFDocument, PDFElement, Tool } from "@/types";
 import { FC, useState } from "react";
-import { ImageUploader } from "../shared/ImageUploader";
-import { PencilColorPicker } from "../shared/PencilColorPicker";
+import { ImageUploader } from "../uploader/ImageUploader";
+import { PencilColorPicker } from "../shared/pickers/PencilColorPicker";
 import { CanvasContainer } from "./CanvasContainer";
-import { useCanvasKeyboardHandler } from "./CanvasKeyboardHandler";
+import { useCanvasKeyboardHandler } from "@/app/_hooks/useCanvasKeyboardHandler";
 
 interface CanvasProps {
 	document: PDFDocument;
