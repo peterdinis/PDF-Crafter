@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { TableElement } from "@/types";
 import { type FC, type MouseEvent, useState } from "react";
-import { ColorPicker } from "../shared/ColorPicker";
+import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TableToolProps {
 	element: TableElement;
