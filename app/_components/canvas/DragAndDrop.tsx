@@ -10,22 +10,22 @@ import type {
 	Tool,
 } from "@/types";
 import type React from "react";
-import { type RefObject, useState } from "react";
+import { type RefObject, useState, ReactNode, DragEvent, MouseEvent, FC } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
 interface DragDropAreaProps {
 	canvasRef: RefObject<HTMLDivElement>;
 	canvasDimensions: { width: number; height: number };
-	onCanvasClick: (e: React.MouseEvent) => void;
-	onMouseDown?: (e: React.MouseEvent) => void;
+	onCanvasClick: (e: MouseEvent) => void;
+	onMouseDown?: (e: MouseEvent) => void;
 	activeTool: Tool;
 	onAddElement: (element: PDFElement) => void;
-	children: React.ReactNode;
+	children: ReactNode;
 	isEditing: boolean;
 }
 
-export const DragDropArea: React.FC<DragDropAreaProps> = ({
+export const DragDropArea: FC<DragDropAreaProps> = ({
 	canvasRef,
 	canvasDimensions,
 	onCanvasClick,
@@ -37,7 +37,7 @@ export const DragDropArea: React.FC<DragDropAreaProps> = ({
 }) => {
 	const [isDraggingOver, setIsDraggingOver] = useState(false);
 
-	const handleDragOver = (e: React.DragEvent) => {
+	const handleDragOver = (e: DragEvent) => {
 		e.preventDefault();
 		setIsDraggingOver(true);
 	};
@@ -46,7 +46,7 @@ export const DragDropArea: React.FC<DragDropAreaProps> = ({
 		setIsDraggingOver(false);
 	};
 
-	const handleDrop = (e: React.DragEvent) => {
+	const handleDrop = (e: DragEvent) => {
 		e.preventDefault();
 		setIsDraggingOver(false);
 
@@ -124,7 +124,7 @@ export const DragDropArea: React.FC<DragDropAreaProps> = ({
 		}
 	};
 
-	const handleClick = (e: React.MouseEvent) => {
+	const handleClick = (e: MouseEvent) => {
 		if (activeTool !== "pencil") {
 			onCanvasClick(e);
 		}

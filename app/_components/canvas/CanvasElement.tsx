@@ -6,7 +6,7 @@ import type {
 	TextElement,
 	Tool,
 } from "@/types";
-import type React from "react";
+import {FC, MouseEvent} from "react"
 import { TextEditor } from "../editor/TextEditor";
 import { PencilTool } from "../tools/PencilTool";
 import { ShapeTool } from "../tools/ShapeTool";
@@ -15,7 +15,7 @@ import { TableTool } from "../tools/TableTool";
 interface CanvasElementProps {
 	element: PDFElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: PDFElement) => void;
 	activeTool: Tool;
 	onAddElement: (element: PDFElement) => void;
@@ -23,7 +23,7 @@ interface CanvasElementProps {
 	setIsEditing: (isEditing: boolean) => void;
 }
 
-export const CanvasElement: React.FC<CanvasElementProps> = ({
+export const CanvasElement: FC<CanvasElementProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -84,10 +84,10 @@ export const CanvasElement: React.FC<CanvasElementProps> = ({
 };
 
 // A separate component for image elements
-const ImageElement: React.FC<{
+const ImageElement: FC<{
 	element: PDFElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 }> = ({ element, isSelected, onMouseDown }) => {
 	if (element.type !== "image") return null;
 

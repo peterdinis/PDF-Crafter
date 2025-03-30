@@ -11,14 +11,13 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { TextElement } from "@/types";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { FC, MouseEvent, ChangeEvent, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/ColorPicker";
 
 interface TextEditorProps {
 	element: TextElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: TextElement) => void;
 	isEditing?: boolean;
 	setIsEditing?: (isEditing: boolean) => void;
@@ -34,7 +33,7 @@ const fontOptions = [
 	{ value: "Verdana", label: "Verdana" },
 ];
 
-export const TextEditor: React.FC<TextEditorProps> = ({
+export const TextEditor: FC<TextEditorProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -102,19 +101,19 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 		};
 	}, [editing, setEditing]);
 
-	const handleDoubleClick = (e: React.MouseEvent) => {
+	const handleDoubleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setEditing(true);
 	};
 
-	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+	const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
 		onUpdate({
 			...element,
 			content: e.target.value,
 		});
 	};
 
-	const handleKeyDown = (e: React.KeyboardEvent) => {
+	const handleKeyDown = (e: KeyboardEvent) => {
 		if (e.key === "Enter" && e.shiftKey === false) {
 			e.preventDefault();
 			setEditing(false);
@@ -146,13 +145,13 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	};
 
 	const handleCustomFontSizeChange = (
-		e: React.ChangeEvent<HTMLInputElement>,
+		e: ChangeEvent<HTMLInputElement>,
 	) => {
 		e.stopPropagation();
 		setCustomFontSize(e.target.value);
 	};
 
-	const handleCustomFontSizeBlur = (e: React.FocusEvent) => {
+	const handleCustomFontSizeBlur = (e: FocusEvent) => {
 		e.stopPropagation();
 		const size = Number.parseInt(customFontSize, 10);
 		if (!isNaN(size) && size > 0) {
@@ -180,7 +179,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	};
 
 	// Prevent closing the editor when interacting with form controls
-	const handleFormClick = (e: React.MouseEvent) => {
+	const handleFormClick = (e: MouseEvent) => {
 		e.stopPropagation();
 	};
 
