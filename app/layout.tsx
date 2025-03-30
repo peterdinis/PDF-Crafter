@@ -4,11 +4,12 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "./_components/shared/theme-provider";
 
 export const metadata: Metadata = {
-	title: "PDF Builder – Create, Edit & Customize PDF Files Online",
+	title: "PDF Crafter – Create, Edit & Customize PDF Files Online",
 	description: "Build professional PDF documents effortlessly. Merge, split, edit, and annotate PDFs with an intuitive drag-and-drop interface. Perfect for work, study, and personal projects.",
 	keywords: [
 		"PDF editor",
-		"online PDF builder",
+		"online PDF Builder",
+		"online PDF crafter",
 		"create PDF files",
 		"edit PDFs",
 		"merge PDFs",
@@ -23,14 +24,14 @@ export const metadata: Metadata = {
 	},
 	robots: "index, follow",
 	openGraph: {
-		title: "PDF Builder – Create, Edit & Customize PDF Files Online",
+		title: "PDF Crafter – Create, Edit & Customize PDF Files Online",
 		description:
 			"Build professional PDF documents effortlessly. Merge, split, edit, and annotate PDFs with an intuitive drag-and-drop interface.",
 		type: "website",
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "PDF Builder – Create, Edit & Customize PDF Files Online",
+		title: "PDF Crafter – Create, Edit & Customize PDF Files Online",
 		description:
 			"Build professional PDF documents effortlessly. Merge, split, edit, and annotate PDFs with an intuitive drag-and-drop interface.",
 	},
