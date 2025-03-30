@@ -6,6 +6,7 @@
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
+		"test": "vitest",
 		"lint": "pnpm biome check --write ."
 	},
 	"dependencies": {
