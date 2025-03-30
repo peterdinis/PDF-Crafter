@@ -1,5 +1,6 @@
 "use client";
 
+import { logger } from "@/lib/pino";
 import { cn } from "@/lib/utils";
 import type {
 	PDFElement,
@@ -118,7 +119,7 @@ export const DragDropArea: React.FC<DragDropAreaProps> = ({
 				}
 				toast.success("Element dropped");
 			} catch (error) {
-				console.error("Error parsing dropped data:", error);
+				logger.fatal("Error parsing dropped data:", error)
 			}
 		}
 	};
