@@ -73,7 +73,7 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 		});
 	};
 
-	const handleDoubleClick = (e: React.MouseEvent) => {
+	const handleDoubleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowColorPickers(true);
 	};
