@@ -5,7 +5,7 @@ import { FC, useState } from "react";
 import { ImageUploader } from "../shared/ImageUploader";
 import { PencilColorPicker } from "../shared/PencilColorPicker";
 import { CanvasContainer } from "./CanvasContainer";
-import { useCanvasKeyboardHandler } from "./CanvasKeyboardHandler";
+import { useCanvasKeyboardHandler } from "@/app/_hooks/useCanvasKeyboardHandler";
 
 interface CanvasProps {
 	document: PDFDocument;
