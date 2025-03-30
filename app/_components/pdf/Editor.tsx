@@ -192,7 +192,7 @@ const PDFEditor = () => {
 
 				<div className="flex-1 overflow-auto relative">
 					<div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-800 border-b border-editor-border">
-						<div className="flex items-center space-x-2">
+						<div className="flex flex-wrap items-center gap-2">
 							{document.pages.map((page, index) => (
 								<Button
 									key={page.id}
