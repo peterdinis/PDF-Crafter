@@ -53,7 +53,6 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 	onSelectElement,
 	onAddElement,
 	onUpdateElement,
-	onDeleteElement,
 	isEditing,
 	setIsEditing,
 	pageElements,
