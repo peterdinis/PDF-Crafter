@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
 import { Toolbar } from "../editor/Toolbar";
 import { PdfSettings } from "./PdfSettings";
+import { logger } from "@/lib/pino";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -46,7 +47,7 @@ const PDFEditor = () => {
 			await generatePDF(document);
 			toast.success("PDF downloaded successfully!");
 		} catch (error) {
-			console.error("Failed to download PDF:", error);
+			logger.fatal("Failed to download PDF:", error);
 			toast.error("Failed to download PDF. Please try again.");
 		}
 	};

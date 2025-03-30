@@ -7,6 +7,7 @@ import type {
 	TextElement,
 } from "@/types";
 import { jsPDF } from "jspdf";
+import { logger } from "./pino";
 
 // Define the PDFElement type by combining all possible element types
 type PDFElement =
@@ -75,7 +76,7 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					imageElement.height,
 				);
 			} catch (error) {
-				console.error("Failed to add image to PDF:", error);
+				logger.fatal("Failed to add image to PDF:", error);
 			}
 		} else if (element.type === "shape") {
 			const shapeElement = element as ShapeElement;

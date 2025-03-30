@@ -9,8 +9,7 @@ import type {
 	TextElement,
 	Tool,
 } from "@/types";
-import type React from "react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { FC, MouseEvent, type RefObject, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { CanvasElement } from "./CanvasElement";
@@ -47,14 +46,13 @@ const paperSizesPoints: Record<string, { width: number; height: number }> = {
 	jisb5: { width: 516, height: 729 },
 };
 
-export const CanvasContainer: React.FC<CanvasContainerProps> = ({
+export const CanvasContainer: FC<CanvasContainerProps> = ({
 	document,
 	activeTool,
 	selectedElement,
 	onSelectElement,
 	onAddElement,
 	onUpdateElement,
-	onDeleteElement,
 	isEditing,
 	setIsEditing,
 	pageElements,
@@ -109,7 +107,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 		document.customHeight,
 	]);
 
-	const handleCanvasClick = (e: React.MouseEvent) => {
+	const handleCanvasClick = (e: MouseEvent) => {
 		if (!canvasRef.current || isEditing) return;
 
 		const rect = canvasRef.current.getBoundingClientRect();
@@ -204,7 +202,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 		}
 	};
 
-	const handleElementMouseDown = (e: React.MouseEvent, element: PDFElement) => {
+	const handleElementMouseDown = (e: MouseEvent, element: PDFElement) => {
 		e.stopPropagation();
 
 		if (activeTool === "select") {
@@ -234,7 +232,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 		}
 	};
 
-	const handleMouseDown = (e: React.MouseEvent) => {
+	const handleMouseDown = (e: MouseEvent) => {
 		if (activeTool !== "pencil" || !canvasRef.current || isEditing) return;
 
 		e.preventDefault();
@@ -259,7 +257,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
 		setCurrentDrawingId(newDrawingId);
 	};
 
-	const handleMouseMove = (e: React.MouseEvent) => {
+	const handleMouseMove = (e: MouseEvent) => {
 		if (!canvasRef.current || isEditing) return;
 
 		if (draggedElement) {

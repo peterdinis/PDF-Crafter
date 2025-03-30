@@ -1,8 +1,7 @@
 "use client";
 
 import type { PDFDocument, PDFElement, Tool } from "@/types";
-import type React from "react";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { ImageUploader } from "../shared/ImageUploader";
 import { PencilColorPicker } from "../shared/PencilColorPicker";
 import { CanvasContainer } from "./CanvasContainer";
@@ -18,7 +17,7 @@ interface CanvasProps {
 	onDeleteElement: (id: string) => void;
 }
 
-export const Canvas: React.FC<CanvasProps> = ({
+export const Canvas: FC<CanvasProps> = ({
 	document,
 	activeTool,
 	selectedElement,
