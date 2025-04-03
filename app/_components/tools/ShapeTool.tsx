@@ -4,18 +4,17 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ShapeElement } from "@/types/types";
 import { Label } from "@radix-ui/react-label";
-import type React from "react";
-import { useState } from "react";
+import { useState, MouseEvent, FC, ChangeEvent } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface ShapeToolProps {
 	element: ShapeElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: ShapeElement) => void;
 }
 
-export const ShapeTool: React.FC<ShapeToolProps> = ({
+export const ShapeTool: FC<ShapeToolProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -76,7 +75,7 @@ export const ShapeTool: React.FC<ShapeToolProps> = ({
 		});
 	};
 
-	const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleStrokeWidthChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = Number.parseInt(e.target.value);
 		if (!isNaN(value) && value > 0) {
 			onUpdate({
@@ -86,7 +85,7 @@ export const ShapeTool: React.FC<ShapeToolProps> = ({
 		}
 	};
 
-	const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleWidthChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = Number.parseInt(e.target.value);
 		if (!isNaN(value) && value > 0) {
 			onUpdate({
@@ -96,7 +95,7 @@ export const ShapeTool: React.FC<ShapeToolProps> = ({
 		}
 	};
 
-	const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleHeightChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = Number.parseInt(e.target.value);
 		if (!isNaN(value) && value > 0) {
 			onUpdate({
@@ -106,7 +105,7 @@ export const ShapeTool: React.FC<ShapeToolProps> = ({
 		}
 	};
 
-	const handleRotationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleRotationChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const value = Number.parseInt(e.target.value);
 		if (!isNaN(value)) {
 			onUpdate({
@@ -116,7 +115,7 @@ export const ShapeTool: React.FC<ShapeToolProps> = ({
 		}
 	};
 
-	const handleDoubleClick = (e: React.MouseEvent) => {
+	const handleDoubleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowControls(true);
 	};
