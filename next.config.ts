@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	reactStrictMode: true,
-	serverExternalPackages: ['pino', 'pino-pretty'],
+	serverExternalPackages: ["pino", "pino-pretty"],
 	images: {
 		remotePatterns: [
 			{
