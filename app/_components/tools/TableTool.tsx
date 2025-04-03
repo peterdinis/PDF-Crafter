@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,9 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Plus, Minus } from 'lucide-react';
 import { TableElement } from '@/types';
 import { ColorPicker } from '../shared/pickers/ColorPicker';
 
@@ -28,6 +31,7 @@ export const TableTool: React.FC<TableToolProps> = ({
 }) => {
   const { tableStyle, headerType, data, columns, rows } = element;
   const [showColorPickers, setShowColorPickers] = useState(false);
+  const [showSizeControls, setShowSizeControls] = useState(false);
 
   // Fill default data if empty
   const tableData = data && data.length > 0 ? data : Array(rows).fill(Array(columns).fill(""));
@@ -78,8 +82,76 @@ export const TableTool: React.FC<TableToolProps> = ({
     setShowColorPickers(true);
   };
 
+  const handleTableClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowSizeControls(true);
+  };
+
   const handleBlur = () => {
     setShowColorPickers(false);
+    setShowSizeControls(false);
+  };
+
+  const handleRowsAdd = () => {
+    const newRows = rows + 1;
+    const newData = [...tableData];
+    
+    // Add a new row with empty cells
+    newData.push(Array(columns).fill(""));
+    
+    onUpdate({
+      ...element,
+      rows: newRows,
+      data: newData,
+    });
+  };
+
+  const handleRowsRemove = () => {
+    if (rows <= 1) return;
+    
+    const newRows = rows - 1;
+    const newData = tableData.slice(0, newRows);
+    
+    onUpdate({
+      ...element,
+      rows: newRows,
+      data: newData,
+    });
+  };
+
+  const handleColumnsAdd = () => {
+    const newColumns = columns + 1;
+    
+    // Add a new column to each row
+    const newData = tableData.map(row => [...row, ""]);
+    
+    onUpdate({
+      ...element,
+      columns: newColumns,
+      data: newData,
+    });
+  };
+
+  const handleColumnsRemove = () => {
+    if (columns <= 1) return;
+    
+    const newColumns = columns - 1;
+    
+    // Remove the last column from each row
+    const newData = tableData.map(row => row.slice(0, newColumns));
+    
+    onUpdate({
+      ...element,
+      columns: newColumns,
+      data: newData,
+    });
+  };
+
+  const handleHeaderTypeChange = (value: string) => {
+    onUpdate({
+      ...element,
+      headerType: value as 'none' | 'simple' | 'divided',
+    });
   };
 
   // Apply custom colors to the table
@@ -112,6 +184,7 @@ export const TableTool: React.FC<TableToolProps> = ({
       }}
       onMouseDown={onMouseDown}
       onDoubleClick={handleDoubleClick}
+      onClick={handleTableClick}
       onBlur={handleBlur}
     >
       <div className="w-full h-full overflow-auto bg-white">
@@ -167,6 +240,68 @@ export const TableTool: React.FC<TableToolProps> = ({
               color={element.textColor || '#000000'} 
               onChange={handleTextColorChange} 
             />
+          </div>
+        </div>
+      )}
+
+      {isSelected && showSizeControls && (
+        <div className="absolute top-0 right-0 mt-2 bg-white p-3 border border-gray-200 rounded shadow-md z-50">
+          <div className="space-y-4">
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium">Header Type</label>
+              <Select defaultValue={headerType} onValueChange={handleHeaderTypeChange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Header Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Header</SelectItem>
+                  <SelectItem value="simple">Simple Header</SelectItem>
+                  <SelectItem value="divided">Divided Header</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium">Rows: {rows}</label>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRowsRemove}
+                  disabled={rows <= 1}
+                >
+                  <Minus size={16} />
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRowsAdd}
+                >
+                  <Plus size={16} />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium">Columns: {columns}</label>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleColumnsRemove}
+                  disabled={columns <= 1}
+                >
+                  <Minus size={16} />
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={handleColumnsAdd}
+                >
+                  <Plus size={16} />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}

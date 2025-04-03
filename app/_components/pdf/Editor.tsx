@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
 import { Toolbar } from "../editor/Toolbar";
 import { PdfSettings } from "./PdfSettings";
-import { logger } from "@/lib/pino";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({

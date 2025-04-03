@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { PencilDrawingElement } from '@/types';
 import React from 'react';
