@@ -1,25 +1,24 @@
 "use client";
 
 
-import React, { useRef } from 'react';
+import { FC, useState, useRef, ChangeEvent, DragEvent } from 'react';
 import { Image, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 interface ImageUploaderProps {
   onUpload: (imageSrc: string) => void;
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
+export const ImageUploader: FC<ImageUploaderProps> = ({ onUpload }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Accept both images and SVG files
     if (!file.type.startsWith('image/') && !file.type.includes('svg')) {
       toast.error('Please select a valid image or SVG file');
       return;
@@ -30,13 +29,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
       if (event.target?.result) {
         onUpload(event.target.result as string);
         setOpen(false);
-        
-        // Clear the file input
+
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
 
-        // Show success message with file type
         const fileType = file.type.includes('svg') ? 'SVG' : 'image';
         toast.success(`${fileType} uploaded successfully`);
       }
@@ -44,14 +41,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      
-      // Accept both images and SVG files
+
       if (!file.type.startsWith('image/') && !file.type.includes('svg')) {
         toast.error('Please select a valid image or SVG file');
         return;
@@ -63,7 +59,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
           onUpload(event.target.result as string);
           setOpen(false);
           
-          // Show success message with file type
           const fileType = file.type.includes('svg') ? 'SVG' : 'image';
           toast.success(`${fileType} uploaded successfully`);
         }
@@ -72,7 +67,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };

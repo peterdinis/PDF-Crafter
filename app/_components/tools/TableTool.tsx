@@ -19,18 +19,17 @@ import {
 import { cn } from "@/lib/utils";
 import type { TableElement } from "@/types/types";
 import { Minus, Plus } from "lucide-react";
-import type React from "react";
-import { useState } from "react";
+import { useState, FC, MouseEvent } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TableToolProps {
 	element: TableElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: TableElement) => void;
 }
 
-export const TableTool: React.FC<TableToolProps> = ({
+export const TableTool: FC<TableToolProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -85,12 +84,12 @@ export const TableTool: React.FC<TableToolProps> = ({
 		});
 	};
 
-	const handleDoubleClick = (e: React.MouseEvent) => {
+	const handleDoubleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowColorPickers(true);
 	};
 
-	const handleTableClick = (e: React.MouseEvent) => {
+	const handleTableClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowSizeControls(true);
 	};
