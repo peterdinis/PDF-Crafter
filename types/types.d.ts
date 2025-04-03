@@ -113,3 +113,10 @@ export type Tool =
 	| "table_striped"
 	| "table_bordered"
 	| "pencil";
+
+export type PDFElement =
+	| TextElement
+	| ImageElement
+	| ShapeElement
+	| TableElement
+	| PencilDrawingElement;

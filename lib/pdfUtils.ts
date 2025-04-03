@@ -1,6 +1,7 @@
 import type {
 	ImageElement,
 	PDFDocument,
+	PDFElement,
 	PencilDrawingElement,
 	ShapeElement,
 	TableElement,
@@ -8,27 +9,6 @@ import type {
 } from "@/types/types";
 import { jsPDF } from "jspdf";
 
-// Define the PDFElement type by combining all possible element types
-type PDFElement =
-	| TextElement
-	| ImageElement
-	| ShapeElement
-	| TableElement
-	| PencilDrawingElement;
-
-// Function to convert base64 data URI to array buffer
-const dataURItoBlob = (dataURI: string) => {
-	const byteString = atob(dataURI.split(",")[1]);
-	const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
-	const ab = new ArrayBuffer(byteString.length);
-	const ia = new Uint8Array(ab);
-	for (let i = 0; i < byteString.length; i++) {
-		ia[i] = byteString.charCodeAt(i);
-	}
-	return new Blob([ab], { type: mimeString });
-};
-
-// Get the proper font style string for jsPDF
 const getFontStyle = (fontWeight: string, fontStyle: string) => {
 	if (fontWeight === "bold" && fontStyle === "italic") return "bolditalic";
 	if (fontWeight === "bold") return "bold";
@@ -36,41 +16,34 @@ const getFontStyle = (fontWeight: string, fontStyle: string) => {
 	return "normal";
 };
 
-// Add elements of a single page to the PDF
 const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 	for (const element of elements) {
 		if (element.type === "text") {
 			const textElement = element as TextElement;
 
-			// Set font family and style
 			const fontStyle = getFontStyle(
 				textElement.fontWeight,
 				textElement.fontStyle,
 			);
 			pdf.setFont(textElement.fontFamily || "Helvetica", fontStyle);
 
-			// Set font size (explicitly convert to number if needed)
 			const fontSize =
 				typeof textElement.fontSize === "string"
 					? Number.parseInt(textElement.fontSize, 10)
 					: textElement.fontSize;
 			pdf.setFontSize(fontSize);
 
-			// Set text color
 			pdf.setTextColor(textElement.color);
 
-			// Split text into lines to handle wrapping
 			const lines = pdf.splitTextToSize(textElement.content, textElement.width);
-			pdf.text(lines, textElement.x, textElement.y + fontSize); // Add fontSize to y to align properly
+			pdf.text(lines, textElement.x, textElement.y + fontSize);
 		} else if (element.type === "image") {
 			const imageElement = element as ImageElement;
 			try {
-				// Check if this is an SVG image
 				const isSvg =
 					imageElement.src.toLowerCase().endsWith(".svg") ||
 					imageElement.src.toLowerCase().includes("image/svg+xml");
 
-				// Add image to PDF - convert data URI if needed
 				pdf.addImage(
 					imageElement.src,
 					isSvg ? "SVG" : "AUTO",
@@ -85,7 +58,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 		} else if (element.type === "shape") {
 			const shapeElement = element as ShapeElement;
 
-			// Save current transformation state
 			pdf.saveGraphicsState();
 
 			if (shapeElement.fill && shapeElement.fill !== "transparent") {
@@ -97,40 +69,32 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				pdf.setLineWidth(shapeElement.strokeWidth);
 			}
 
-			// If there's rotation, we have to handle the shape drawing differently
 			if (shapeElement.rotation && shapeElement.rotation !== 0) {
 				const angleInRadians = (shapeElement.rotation * Math.PI) / 180;
 				const cos = Math.cos(angleInRadians);
 				const sin = Math.sin(angleInRadians);
 
-				// Calculate the center of the shape
 				const centerX = shapeElement.x + shapeElement.width / 2;
 				const centerY = shapeElement.y + shapeElement.height / 2;
 
 				if (shapeElement.shapeType === "rectangle") {
-					// For rotated rectangles, we'll need to calculate the 4 corner points after rotation
-					// and draw using lines instead
 					const halfWidth = shapeElement.width / 2;
 					const halfHeight = shapeElement.height / 2;
 
-					// Calculate the 4 corner points relative to center
 					const points = [
-						[-halfWidth, -halfHeight], // top-left
-						[halfWidth, -halfHeight], // top-right
-						[halfWidth, halfHeight], // bottom-right
-						[-halfWidth, halfHeight], // bottom-left
+						[-halfWidth, -halfHeight],
+						[halfWidth, -halfHeight], 
+						[halfWidth, halfHeight],
+						[-halfWidth, halfHeight],
 					];
 
-					// Rotate each point and translate to actual position
 					const rotatedPoints = points.map(([x, y]) => {
 						const rotX = x * cos - y * sin + centerX;
 						const rotY = x * sin + y * cos + centerY;
 						return [rotX, rotY];
 					});
 
-					// Draw the rotated rectangle as a polygon
 					if (shapeElement.fill && shapeElement.fill !== "transparent") {
-						// For filled polygons, we need to use multiple triangles from center
 						for (let i = 0; i < rotatedPoints.length; i++) {
 							const p1 = rotatedPoints[i];
 							const p2 = rotatedPoints[(i + 1) % rotatedPoints.length];
@@ -139,7 +103,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 						}
 					}
 
-					// Draw the border if needed
 					if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
 						for (let i = 0; i < rotatedPoints.length; i++) {
 							const p1 = rotatedPoints[i];
