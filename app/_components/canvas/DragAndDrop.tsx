@@ -4,7 +4,7 @@ import React, { useState, RefObject } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { Tool, PDFElement, TextElement, ShapeElement, TableElement } from '@/types';
+import { Tool, PDFElement, TextElement, ShapeElement, TableElement } from '@/types/types';
 
 interface DragDropAreaProps {
   canvasRef: RefObject<HTMLDivElement>;

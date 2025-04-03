@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { CanvasElement } from './CanvasElement';
-import { PDFDocument, Tool, PDFElement, TextElement, ShapeElement, TableElement, PencilDrawingElement } from '@/types';
+import { PDFDocument, Tool, PDFElement, TextElement, ShapeElement, TableElement, PencilDrawingElement } from '@/types/types';
 import { DragDropArea } from './DragAndDrop';
 
 interface CanvasContainerProps {

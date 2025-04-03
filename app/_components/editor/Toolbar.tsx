@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Tool } from "@/types";
+import type { Tool } from "@/types/types";
 import {
 	Circle,
 	GripHorizontal,

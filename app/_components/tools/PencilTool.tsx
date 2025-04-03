@@ -1,6 +1,6 @@
 "use client";
 
-import type { PencilDrawingElement } from "@/types";
+import type { PencilDrawingElement } from "@/types/types";
 import type React from "react";
 
 interface PencilToolProps {

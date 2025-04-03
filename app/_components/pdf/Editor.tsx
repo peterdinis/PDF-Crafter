@@ -18,7 +18,7 @@ import type {
 	PDFPage,
 	TextElement,
 	Tool,
-} from "@/types";
+} from "@/types/types";
 import { Download, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

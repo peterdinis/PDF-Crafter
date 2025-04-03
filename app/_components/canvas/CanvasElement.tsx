@@ -1,6 +1,6 @@
 "use client";
 
-import { PDFElement, Tool, TextElement, ShapeElement, TableElement, PencilDrawingElement } from '@/types';
+import { PDFElement, Tool, TextElement, ShapeElement, TableElement, PencilDrawingElement } from '@/types/types';
 import React from 'react';
 import { TextEditor } from '../editor/TextEditor';
 import { PencilTool } from '../tools/PencilTool';

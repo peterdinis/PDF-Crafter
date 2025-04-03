@@ -17,7 +17,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { TableElement } from "@/types";
+import type { TableElement } from "@/types/types";
 import { Minus, Plus } from "lucide-react";
 import type React from "react";
 import { useState } from "react";

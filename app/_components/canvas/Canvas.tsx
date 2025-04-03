@@ -1,7 +1,7 @@
 "use client";
 
 import { useCanvasKeyboardHandler } from '@/app/_hooks/useCanvasKeyboardHandler';
-import { PDFDocument, Tool, PDFElement, PencilDrawingElement } from '@/types';
+import { PDFDocument, Tool, PDFElement, PencilDrawingElement } from '@/types/types';
 import React, { useState } from 'react';
 import { PencilColorPicker } from '../shared/pickers/PencilColorPicker';
 import { ImageUploader } from '../uploader/ImageUploader';

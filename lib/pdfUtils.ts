@@ -5,7 +5,7 @@ import type {
 	ShapeElement,
 	TableElement,
 	TextElement,
-} from "@/types";
+} from "@/types/types";
 import { jsPDF } from "jspdf";
 
 // Define the PDFElement type by combining all possible element types
