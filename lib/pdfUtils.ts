@@ -7,7 +7,6 @@ import type {
 	TextElement,
 } from "@/types";
 import { jsPDF } from "jspdf";
-import { logger } from "./pino";
 
 // Define the PDFElement type by combining all possible element types
 type PDFElement =
@@ -66,20 +65,28 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 		} else if (element.type === "image") {
 			const imageElement = element as ImageElement;
 			try {
+				// Check if this is an SVG image
+				const isSvg =
+					imageElement.src.toLowerCase().endsWith(".svg") ||
+					imageElement.src.toLowerCase().includes("image/svg+xml");
+
 				// Add image to PDF - convert data URI if needed
 				pdf.addImage(
 					imageElement.src,
-					"AUTO",
+					isSvg ? "SVG" : "AUTO",
 					imageElement.x,
 					imageElement.y,
 					imageElement.width,
 					imageElement.height,
 				);
 			} catch (error) {
-				logger.fatal("Failed to add image to PDF:", error);
+				console.error("Failed to add image to PDF:", error);
 			}
 		} else if (element.type === "shape") {
 			const shapeElement = element as ShapeElement;
+
+			// Save current transformation state
+			pdf.saveGraphicsState();
 
 			if (shapeElement.fill && shapeElement.fill !== "transparent") {
 				pdf.setFillColor(shapeElement.fill);
@@ -90,46 +97,126 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				pdf.setLineWidth(shapeElement.strokeWidth);
 			}
 
-			if (shapeElement.shapeType === "rectangle") {
-				if (shapeElement.fill && shapeElement.fill !== "transparent") {
-					pdf.rect(
+			// If there's rotation, we have to handle the shape drawing differently
+			if (shapeElement.rotation && shapeElement.rotation !== 0) {
+				const angleInRadians = (shapeElement.rotation * Math.PI) / 180;
+				const cos = Math.cos(angleInRadians);
+				const sin = Math.sin(angleInRadians);
+
+				// Calculate the center of the shape
+				const centerX = shapeElement.x + shapeElement.width / 2;
+				const centerY = shapeElement.y + shapeElement.height / 2;
+
+				if (shapeElement.shapeType === "rectangle") {
+					// For rotated rectangles, we'll need to calculate the 4 corner points after rotation
+					// and draw using lines instead
+					const halfWidth = shapeElement.width / 2;
+					const halfHeight = shapeElement.height / 2;
+
+					// Calculate the 4 corner points relative to center
+					const points = [
+						[-halfWidth, -halfHeight], // top-left
+						[halfWidth, -halfHeight], // top-right
+						[halfWidth, halfHeight], // bottom-right
+						[-halfWidth, halfHeight], // bottom-left
+					];
+
+					// Rotate each point and translate to actual position
+					const rotatedPoints = points.map(([x, y]) => {
+						const rotX = x * cos - y * sin + centerX;
+						const rotY = x * sin + y * cos + centerY;
+						return [rotX, rotY];
+					});
+
+					// Draw the rotated rectangle as a polygon
+					if (shapeElement.fill && shapeElement.fill !== "transparent") {
+						// For filled polygons, we need to use multiple triangles from center
+						for (let i = 0; i < rotatedPoints.length; i++) {
+							const p1 = rotatedPoints[i];
+							const p2 = rotatedPoints[(i + 1) % rotatedPoints.length];
+
+							pdf.triangle(centerX, centerY, p1[0], p1[1], p2[0], p2[1], "F");
+						}
+					}
+
+					// Draw the border if needed
+					if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
+						for (let i = 0; i < rotatedPoints.length; i++) {
+							const p1 = rotatedPoints[i];
+							const p2 = rotatedPoints[(i + 1) % rotatedPoints.length];
+
+							pdf.line(p1[0], p1[1], p2[0], p2[1]);
+						}
+					}
+				} else if (shapeElement.shapeType === "circle") {
+					// For circles, the center stays the same, just draw at the center
+					const radius = shapeElement.width / 2;
+
+					if (shapeElement.fill && shapeElement.fill !== "transparent") {
+						pdf.circle(centerX, centerY, radius, "F");
+					}
+
+					if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
+						pdf.circle(centerX, centerY, radius, "D");
+					}
+				} else if (shapeElement.shapeType === "line") {
+					// For rotated lines, we need to calculate the endpoints after rotation
+					const halfLength = shapeElement.width / 2;
+
+					// Calculate rotated endpoints
+					const x1 = centerX - halfLength * cos;
+					const y1 = centerY - halfLength * sin;
+					const x2 = centerX + halfLength * cos;
+					const y2 = centerY + halfLength * sin;
+
+					pdf.line(x1, y1, x2, y2);
+				}
+			} else {
+				// No rotation, handle normally
+				if (shapeElement.shapeType === "rectangle") {
+					if (shapeElement.fill && shapeElement.fill !== "transparent") {
+						pdf.rect(
+							shapeElement.x,
+							shapeElement.y,
+							shapeElement.width,
+							shapeElement.height,
+							"F",
+						);
+					}
+
+					if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
+						pdf.rect(
+							shapeElement.x,
+							shapeElement.y,
+							shapeElement.width,
+							shapeElement.height,
+							"D",
+						);
+					}
+				} else if (shapeElement.shapeType === "circle") {
+					const radius = shapeElement.width / 2;
+					const centerX = shapeElement.x + radius;
+					const centerY = shapeElement.y + radius;
+
+					if (shapeElement.fill && shapeElement.fill !== "transparent") {
+						pdf.circle(centerX, centerY, radius, "F");
+					}
+
+					if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
+						pdf.circle(centerX, centerY, radius, "D");
+					}
+				} else if (shapeElement.shapeType === "line") {
+					pdf.line(
 						shapeElement.x,
 						shapeElement.y,
-						shapeElement.width,
-						shapeElement.height,
-						"F",
-					);
-				}
-
-				if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
-					pdf.rect(
-						shapeElement.x,
+						shapeElement.x + shapeElement.width,
 						shapeElement.y,
-						shapeElement.width,
-						shapeElement.height,
-						"D",
 					);
 				}
-			} else if (shapeElement.shapeType === "circle") {
-				const radius = shapeElement.width / 2;
-				const centerX = shapeElement.x + radius;
-				const centerY = shapeElement.y + radius;
-
-				if (shapeElement.fill && shapeElement.fill !== "transparent") {
-					pdf.circle(centerX, centerY, radius, "F");
-				}
-
-				if (shapeElement.stroke && shapeElement.stroke !== "transparent") {
-					pdf.circle(centerX, centerY, radius, "D");
-				}
-			} else if (shapeElement.shapeType === "line") {
-				pdf.line(
-					shapeElement.x,
-					shapeElement.y,
-					shapeElement.x + shapeElement.width,
-					shapeElement.y,
-				);
 			}
+
+			// Restore transformation state
+			pdf.restoreGraphicsState();
 		} else if (element.type === "table") {
 			const tableElement = element as TableElement;
 
@@ -222,11 +309,11 @@ export const generatePDF = async (document: PDFDocument) => {
 	// Set metadata
 	pdf.setProperties({
 		title: document.title,
-		creator: "PDF Crafter",
+		creator: "PDF Crafter Ninja",
 	});
 
 	// Process all pages
-	document.pages.forEach((page, index) => {
+	document.pages.forEach((page: { elements: any[] }, index: number) => {
 		// Add new page for all pages after the first one
 		if (index > 0) {
 			pdf.addPage(format, orientation);

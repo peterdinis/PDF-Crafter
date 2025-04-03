@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ import {
 	TableProperties,
 	Type,
 } from "lucide-react";
-import { FC } from "react";
+import type React from "react";
 
 interface ToolbarProps {
 	activeTool: Tool;
@@ -24,7 +24,7 @@ interface ToolbarProps {
 	onSettingsToggle: () => void;
 }
 
-export const Toolbar: FC<ToolbarProps> = ({
+export const Toolbar: React.FC<ToolbarProps> = ({
 	activeTool,
 	onToolSelect,
 	onSettingsToggle,
@@ -54,7 +54,7 @@ export const Toolbar: FC<ToolbarProps> = ({
 		<div className="w-64 bg-editor-background border-r border-editor-border flex flex-col">
 			<div className="p-4 border-b border-editor-border">
 				<h2 className="text-lg font-semibold text-editor-foreground">
-					PDF Crafter
+					PDF Crafter Ninja
 				</h2>
 			</div>
 
