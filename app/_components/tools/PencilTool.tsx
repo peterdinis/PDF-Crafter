@@ -1,15 +1,15 @@
 "use client";
 
 import type { PencilDrawingElement } from "@/types/types";
-import type React from "react";
+import { MouseEvent, FC } from "react";
 
 interface PencilToolProps {
 	element: PencilDrawingElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 }
 
-export const PencilTool: React.FC<PencilToolProps> = ({
+export const PencilTool: FC<PencilToolProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -23,7 +23,7 @@ export const PencilTool: React.FC<PencilToolProps> = ({
 	}, "");
 
 	// Prevent propagation for clicks on the SVG
-	const handleMouseDownSvg = (e: React.MouseEvent) => {
+	const handleMouseDownSvg = (e: MouseEvent) => {
 		e.stopPropagation();
 		onMouseDown(e);
 	};

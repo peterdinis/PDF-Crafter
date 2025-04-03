@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import { FC, MouseEvent } from "react";
 import { ColorPicker } from "./ColorPicker";
 
 interface DrawingToolColorPickerProps {
@@ -11,7 +11,7 @@ interface DrawingToolColorPickerProps {
 	title?: string;
 }
 
-export const PencilColorPicker: React.FC<DrawingToolColorPickerProps> = ({
+export const PencilColorPicker: FC<DrawingToolColorPickerProps> = ({
 	color,
 	strokeWidth,
 	onColorChange,
@@ -32,7 +32,7 @@ export const PencilColorPicker: React.FC<DrawingToolColorPickerProps> = ({
 	const strokeWidths = [1, 2, 3, 5, 8];
 
 	// Prevent event propagation to avoid closing modals when clicking inside this component
-	const handleClick = (e: React.MouseEvent) => {
+	const handleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 	};
 
