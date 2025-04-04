@@ -1,21 +1,40 @@
-🧩 PDF Crafter – Vytvor si vlastné PDF jednoducho
-Tento projekt je interaktívna webová aplikácia, ktorá umožňuje používateľom vytvárať vlastné PDF dokumenty výberom preddefinovaných blokov. Aplikácia je ideálna pre tvorbu dokumentov ako sú zmluvy, certifikáty, reporty alebo šablónové dokumenty, ktoré si používateľ vie prispôsobiť podľa potreby.
+# 🧩 PDF Crafter – Vytvor si vlastné PDF jednoducho
 
-✨ Funkcie
-🧱 Výber z rôznych typov obsahových blokov (text, nadpis, obrázok, tabuľka…)
+**PDF Crafter** je interaktívna webová aplikácia, ktorá umožňuje používateľom vytvárať vlastné PDF dokumenty výberom preddefinovaných blokov. Aplikácia je ideálna pre tvorbu dokumentov ako sú zmluvy, certifikáty, reporty alebo šablónové dokumenty, ktoré si používateľ vie prispôsobiť podľa potreby.
 
-✍️ Jednoduchá úprava obsahu každého bloku
+---
 
-📥 Export výsledného dokumentu do formátu PDF
+## ✨ Funkcie
 
-🛠 Použité technológie
-Uprav podľa toho, čo si použil v projekte
+- 🧱 **Výber z rôznych typov obsahových blokov**  
+  (napr. text, nadpis, obrázok, tabuľka…)
 
-Frontend: Nextjs
+- ✍️ **Jednoduchá úprava obsahu** každého bloku
 
-Generovanie PDF: jsPDF
+- 📥 **Export výsledného dokumentu** do formátu PDF
 
-Štýlovanie: Tailwind CSS
+---
 
-📦 Export do PDF
-Po vytvorení dokumentu si môže používateľ kliknutím na tlačidlo Exportovať stiahnuť výsledné PDF. PDF sa generuje dynamicky na základe zvolených blokov a ich obsahu.
+## 🛠 Použité technológie
+
+> *(Uprav podľa potreby)*
+
+- **Frontend:** Next.js  
+- **Generovanie PDF:** jsPDF  
+- **Štýlovanie:** Tailwind CSS  
+- **Package manager:** pnpm
+
+---
+
+## 🚀 Spustenie projektu lokálne
+
+```bash
+# 1. Naklonuj repozitár
+git clone https://github.com/tvoje-meno/pdf-builder.git
+cd pdf-builder
+
+# 2. Inštaluj závislosti
+pnpm install
+
+# 3. Spusti vývojový server
+pnpm run dev
