@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, MouseEvent } from "react";
+import type { FC, MouseEvent } from "react";
 import { ColorPicker } from "./ColorPicker";
 
 interface DrawingToolColorPickerProps {

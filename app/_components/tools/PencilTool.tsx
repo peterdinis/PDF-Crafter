@@ -1,7 +1,7 @@
 "use client";
 
 import type { PencilDrawingElement } from "@/types/types";
-import { MouseEvent, FC } from "react";
+import type { FC, MouseEvent } from "react";
 
 interface PencilToolProps {
 	element: PencilDrawingElement;
@@ -34,7 +34,7 @@ export const PencilTool: FC<PencilToolProps> = ({
 				top: 0,
 				width: "100%",
 				height: "100%",
-				pointerEvents: "none", 
+				pointerEvents: "none",
 			}}
 		>
 			<svg

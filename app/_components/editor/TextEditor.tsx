@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { TextElement } from "@/types/types";
-import { FC, useEffect, useRef, useState } from "react";
+import { type FC, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TextEditorProps {
@@ -170,7 +170,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 			fontStyle: style,
 		});
 	};
-	
+
 	const handleFormClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 	};

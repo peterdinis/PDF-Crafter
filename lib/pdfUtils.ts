@@ -83,7 +83,7 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 
 					const points = [
 						[-halfWidth, -halfHeight],
-						[halfWidth, -halfHeight], 
+						[halfWidth, -halfHeight],
 						[halfWidth, halfHeight],
 						[-halfWidth, halfHeight],
 					];

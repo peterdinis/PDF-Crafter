@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { TableElement } from "@/types/types";
 import { Minus, Plus } from "lucide-react";
-import { useState, FC, MouseEvent } from "react";
+import { type FC, type MouseEvent, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TableToolProps {

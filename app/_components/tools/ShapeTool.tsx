@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ShapeElement } from "@/types/types";
 import { Label } from "@radix-ui/react-label";
-import { useState, MouseEvent, FC, ChangeEvent } from "react";
+import { type ChangeEvent, type FC, type MouseEvent, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface ShapeToolProps {
