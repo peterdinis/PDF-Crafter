@@ -2,7 +2,7 @@
 
 import { useCanvasKeyboardHandler } from '@/app/_hooks/useCanvasKeyboardHandler';
 import { PDFDocument, Tool, PDFElement, PencilDrawingElement } from '@/types/types';
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import { PencilColorPicker } from '../shared/pickers/PencilColorPicker';
 import { ImageUploader } from '../uploader/ImageUploader';
 import { CanvasContainer } from './CanvasContainer';
@@ -17,7 +17,7 @@ interface CanvasProps {
   onDeleteElement: (id: string) => void;
 }
 
-export const Canvas: React.FC<CanvasProps> = ({
+export const Canvas: FC<CanvasProps> = ({
   document,
   activeTool,
   selectedElement,
@@ -30,19 +30,16 @@ export const Canvas: React.FC<CanvasProps> = ({
   const [pencilColor, setPencilColor] = useState('#000000');
   const [pencilStrokeWidth, setPencilStrokeWidth] = useState(2);
   const [shapeColor, setShapeColor] = useState('#000000');
-  const [shapeFillColor, setShapeFillColor] = useState('#ffffff');
+  const [shapeFillColor] = useState('#ffffff');
   const [shapeStrokeWidth, setShapeStrokeWidth] = useState(2);
   const [tableColor, setTableColor] = useState('#000000');
   const [currentDrawingId, setCurrentDrawingId] = useState<string | null>(null);
-
-  // Set up keyboard handlers (Delete key for removing elements)
   useCanvasKeyboardHandler({
     selectedElement,
     onDeleteElement,
     isEditing,
   });
 
-  // Get the current page elements
   const currentPageElements = document.pages[document.currentPage]?.elements || [];
 
   const isShapeTool = activeTool === 'shape_rectangle' || activeTool === 'shape_circle' || activeTool === 'shape_line';
@@ -64,21 +61,18 @@ export const Canvas: React.FC<CanvasProps> = ({
         activeTool={activeTool}
         selectedElement={selectedElement}
         onSelectElement={(id) => {
-          // Only change selection if we're not currently editing
           if (!isEditing || id === null) {
             onSelectElement(id);
             setCurrentDrawingId(null);
           }
         }}
         onAddElement={(element) => {
-          // Apply appropriate colors based on tool type
           if (element.type === 'pencil') {
             (element as PencilDrawingElement).color = pencilColor;
             (element as PencilDrawingElement).strokeWidth = pencilStrokeWidth;
           } else if (element.type === 'shape') {
             element.stroke = shapeColor;
             element.strokeWidth = shapeStrokeWidth;
-            // Only set fill for rectangles and circles, not lines
             if (element.shapeType !== 'line') {
               element.fill = shapeFillColor;
             }
@@ -101,10 +95,8 @@ export const Canvas: React.FC<CanvasProps> = ({
       {activeTool === 'image' && !isEditing && (
         <ImageUploader
           onUpload={(src) => {
-            // Calculate center position for new image based on a default canvas size
-            // This is an approximation since we don't have direct access to canvas dimensions here
-            const centerX = 595 / 2 - 100; // Using A4 default width
-            const centerY = 842 / 2 - 100; // Using A4 default height
+            const centerX = 595 / 2 - 100;
+            const centerY = 842 / 2 - 100;
             
             onAddElement({
               id: crypto.randomUUID(),

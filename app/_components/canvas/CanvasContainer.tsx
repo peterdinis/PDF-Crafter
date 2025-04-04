@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect, RefObject } from 'react';
+import {FC, useRef, useState, useEffect, RefObject, MouseEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { CanvasElement } from './CanvasElement';
@@ -38,14 +38,13 @@ const paperSizesPoints: Record<string, { width: number; height: number }> = {
   jisb5: { width: 516, height: 729 },
 };
 
-export const CanvasContainer: React.FC<CanvasContainerProps> = ({
+export const CanvasContainer: FC<CanvasContainerProps> = ({
   document,
   activeTool,
   selectedElement,
   onSelectElement,
   onAddElement,
   onUpdateElement,
-  onDeleteElement,
   isEditing,
   setIsEditing,
   pageElements,
@@ -82,7 +81,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     setCanvasDimensions({ width, height });
   }, [document.pageSize, document.orientation, document.customWidth, document.customHeight]);
 
-  const handleCanvasClick = (e: React.MouseEvent) => {
+  const handleCanvasClick = (e: MouseEvent) => {
     if (!canvasRef.current || isEditing) return;
     
     const rect = canvasRef.current.getBoundingClientRect();
@@ -177,7 +176,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     }
   };
 
-  const handleElementMouseDown = (e: React.MouseEvent, element: PDFElement) => {
+  const handleElementMouseDown = (e: MouseEvent, element: PDFElement) => {
     e.stopPropagation();
     
     if (activeTool === 'select') {
@@ -206,7 +205,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = (e: MouseEvent) => {
     if (activeTool !== 'pencil' || !canvasRef.current || isEditing) return;
     
     e.preventDefault();
@@ -231,7 +230,7 @@ export const CanvasContainer: React.FC<CanvasContainerProps> = ({
     setCurrentDrawingId(newDrawingId);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: MouseEvent) => {
     if (!canvasRef.current || isEditing) return;
     
     if (draggedElement) {
