@@ -43,13 +43,11 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
     setIsDraggingOver(false);
     
     if (!canvasRef.current || isEditing) return;
-    
-    // Get drop position relative to canvas
+
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    // Handle element data from drag operation
     const data = e.dataTransfer.getData('application/json');
     if (data) {
       try {

@@ -23,12 +23,9 @@ export const CanvasElement: FC<CanvasElementProps> = ({
   isSelected,
   onMouseDown,
   onUpdate,
-  activeTool,
-  onAddElement,
   isEditing,
   setIsEditing
 }) => {
-  // Determine which component to render based on element type
   switch (element.type) {
     case 'text':
       return (
@@ -74,18 +71,13 @@ export const CanvasElement: FC<CanvasElementProps> = ({
   }
 };
 
-// A separate component for image elements
 const ImageElement: FC<{
   element: PDFElement;
   isSelected: boolean;
   onMouseDown: (e: MouseEvent) => void;
 }> = ({ element, isSelected, onMouseDown }) => {
   if (element.type !== 'image') return null;
-  
-  // Check if the image is an SVG (either by extension or by data URI type)
-  const isSvg = element.src.toLowerCase().endsWith('.svg') || 
-                element.src.toLowerCase().includes('image/svg+xml');
-  
+
   return (
     <div
       className={`absolute cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
