@@ -112,7 +112,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 						}
 					}
 				} else if (shapeElement.shapeType === "circle") {
-					// For circles, the center stays the same, just draw at the center
 					const radius = shapeElement.width / 2;
 
 					if (shapeElement.fill && shapeElement.fill !== "transparent") {
@@ -123,10 +122,7 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 						pdf.circle(centerX, centerY, radius, "D");
 					}
 				} else if (shapeElement.shapeType === "line") {
-					// For rotated lines, we need to calculate the endpoints after rotation
 					const halfLength = shapeElement.width / 2;
-
-					// Calculate rotated endpoints
 					const x1 = centerX - halfLength * cos;
 					const y1 = centerY - halfLength * sin;
 					const x2 = centerX + halfLength * cos;
@@ -135,7 +131,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					pdf.line(x1, y1, x2, y2);
 				}
 			} else {
-				// No rotation, handle normally
 				if (shapeElement.shapeType === "rectangle") {
 					if (shapeElement.fill && shapeElement.fill !== "transparent") {
 						pdf.rect(
@@ -178,19 +173,14 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				}
 			}
 
-			// Restore transformation state
 			pdf.restoreGraphicsState();
 		} else if (element.type === "table") {
 			const tableElement = element as TableElement;
-
-			// Set border color if specified
 			if (tableElement.borderColor) {
 				pdf.setDrawColor(tableElement.borderColor);
 			} else {
-				pdf.setDrawColor(0, 0, 0); // Default black
+				pdf.setDrawColor(0, 0, 0);
 			}
-
-			// Draw table border
 			pdf.rect(
 				tableElement.x,
 				tableElement.y,
@@ -198,10 +188,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				tableElement.height,
 				"D",
 			);
-
-			// jsPDF has limited table capabilities
-			// For a full implementation, you'd need to draw cells individually
-			// or use a plugin like jspdf-autotable
 		} else if (element.type === "pencil") {
 			const pencilElement = element as PencilDrawingElement;
 
@@ -209,7 +195,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				pdf.setDrawColor(pencilElement.color);
 				pdf.setLineWidth(pencilElement.strokeWidth);
 
-				// Draw the pencil path
 				for (let i = 1; i < pencilElement.points.length; i++) {
 					const prevPoint = pencilElement.points[i - 1];
 					const currentPoint = pencilElement.points[i];
@@ -222,10 +207,8 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 };
 
 export const generatePDF = async (document: PDFDocument) => {
-	// Initialize jsPDF with the right page size and orientation
 	let format: string | [number, number] = "a4";
 
-	// Set standard paper formats
 	if (
 		[
 			"a3",
@@ -241,23 +224,19 @@ export const generatePDF = async (document: PDFDocument) => {
 	) {
 		format = document.pageSize;
 	}
-
-	// Handle custom and non-standard sizes
 	if (
 		document.pageSize === "custom" &&
 		document.customWidth &&
 		document.customHeight
 	) {
-		// Convert mm to points for jsPDF (1mm = 2.83465 points)
 		const width = document.customWidth * 2.83465;
 		const height = document.customHeight * 2.83465;
 		format = [width, height];
 	} else if (["jisb4", "jisb5"].includes(document.pageSize)) {
-		// Handle JIS B sizes which aren't standard in jsPDF
 		if (document.pageSize === "jisb4") {
-			format = [729, 1032]; // JIS B4 in points
+			format = [729, 1032];
 		} else if (document.pageSize === "jisb5") {
-			format = [516, 729]; // JIS B5 in points
+			format = [516, 729];
 		}
 	}
 
@@ -269,23 +248,17 @@ export const generatePDF = async (document: PDFDocument) => {
 		format,
 	});
 
-	// Set metadata
 	pdf.setProperties({
 		title: document.title,
 		creator: "PDF Crafter Ninja",
 	});
 
-	// Process all pages
 	document.pages.forEach((page: { elements: any[] }, index: number) => {
-		// Add new page for all pages after the first one
 		if (index > 0) {
 			pdf.addPage(format, orientation);
 		}
 
-		// Add all elements from the current page
 		addPageElementsToPDF(pdf, page.elements);
 	});
-
-	// Save PDF with document title as filename
 	pdf.save(`${document.title.replace(/\s+/g, "_")}.pdf`);
 };

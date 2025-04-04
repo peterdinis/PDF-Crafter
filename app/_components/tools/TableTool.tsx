@@ -39,11 +39,9 @@ export const TableTool: FC<TableToolProps> = ({
 	const [showColorPickers, setShowColorPickers] = useState(false);
 	const [showSizeControls, setShowSizeControls] = useState(false);
 
-	// Fill default data if empty
 	const tableData =
 		data && data.length > 0 ? data : Array(rows).fill(Array(columns).fill(""));
 
-	// Apply different styling based on table style
 	const getTableClassName = () => {
 		switch (tableStyle) {
 			case "striped":
@@ -103,7 +101,6 @@ export const TableTool: FC<TableToolProps> = ({
 		const newRows = rows + 1;
 		const newData = [...tableData];
 
-		// Add a new row with empty cells
 		newData.push(Array(columns).fill(""));
 
 		onUpdate({
@@ -129,7 +126,6 @@ export const TableTool: FC<TableToolProps> = ({
 	const handleColumnsAdd = () => {
 		const newColumns = columns + 1;
 
-		// Add a new column to each row
 		const newData = tableData.map((row) => [...row, ""]);
 
 		onUpdate({
@@ -144,7 +140,6 @@ export const TableTool: FC<TableToolProps> = ({
 
 		const newColumns = columns - 1;
 
-		// Remove the last column from each row
 		const newData = tableData.map((row) => row.slice(0, newColumns));
 
 		onUpdate({
@@ -161,7 +156,6 @@ export const TableTool: FC<TableToolProps> = ({
 		});
 	};
 
-	// Apply custom colors to the table
 	const tableBorderStyle = {
 		...(element.borderColor && { borderColor: element.borderColor }),
 	};
