@@ -29,12 +29,9 @@
 ## 🚀 Spustenie projektu lokálne
 
 ```bash
-# 1. Naklonuj repozitár
 git clone https://github.com/tvoje-meno/pdf-builder.git
 cd pdf-builder
 
-# 2. Inštaluj závislosti
 pnpm install
 
-# 3. Spusti vývojový server
 pnpm run dev
