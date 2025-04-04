@@ -13,6 +13,7 @@ import { TextEditor } from "../editor/TextEditor";
 import { PencilTool } from "../tools/PencilTool";
 import { ShapeTool } from "../tools/ShapeTool";
 import { TableTool } from "../tools/TableTool";
+import Image from "next/image";
 
 interface CanvasElementProps {
 	element: PDFElement;
@@ -102,7 +103,7 @@ const ImageElement: FC<{
 			}}
 			onMouseDown={onMouseDown}
 		>
-			<img
+			<Image
 				src={element.src}
 				alt="PDF element"
 				className="w-full h-full object-contain"
