@@ -14,6 +14,7 @@ import {
 import type { PDFDocument } from "@/types/types";
 import { X } from "lucide-react";
 import type React from "react";
+import { ModeToggle } from "../shared/ModeToggle";
 
 interface PdfSettingsProps {
 	document: PDFDocument;
@@ -195,6 +196,11 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 							maxLength={7}
 						/>
 					</div>
+				</div>
+
+				<div  className="flex justify-between">
+					<Label>Enable Dark Mode</Label>
+					<ModeToggle />
 				</div>
 			</div>
 		</div>
