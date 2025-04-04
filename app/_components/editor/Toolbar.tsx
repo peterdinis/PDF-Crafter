@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Tool } from "@/types";
+import type { Tool } from "@/types/types";
 import {
 	Circle,
 	GripHorizontal,
@@ -87,7 +87,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 					onClick={onSettingsToggle}
 				>
 					<Settings size={16} />
-					Document Settings
+					PDF Settings
 				</Button>
 			</div>
 		</div>

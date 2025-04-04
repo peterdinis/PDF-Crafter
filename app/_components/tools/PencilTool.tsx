@@ -1,20 +1,19 @@
 "use client";
 
-import type { PencilDrawingElement } from "@/types";
-import type React from "react";
+import type { PencilDrawingElement } from "@/types/types";
+import type { FC, MouseEvent } from "react";
 
 interface PencilToolProps {
 	element: PencilDrawingElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 }
 
-export const PencilTool: React.FC<PencilToolProps> = ({
+export const PencilTool: FC<PencilToolProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
 }) => {
-	// Convert the points array to an SVG path string
 	const pathData = element.points.reduce((acc, point, index) => {
 		if (index === 0) {
 			return `M ${point.x} ${point.y}`;
@@ -22,8 +21,7 @@ export const PencilTool: React.FC<PencilToolProps> = ({
 		return `${acc} L ${point.x} ${point.y}`;
 	}, "");
 
-	// Prevent propagation for clicks on the SVG
-	const handleMouseDownSvg = (e: React.MouseEvent) => {
+	const handleMouseDownSvg = (e: MouseEvent) => {
 		e.stopPropagation();
 		onMouseDown(e);
 	};
@@ -32,18 +30,17 @@ export const PencilTool: React.FC<PencilToolProps> = ({
 		<div
 			className={`absolute ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
 			style={{
-				// Position at the leftmost and topmost points
 				left: 0,
 				top: 0,
 				width: "100%",
 				height: "100%",
-				pointerEvents: "none", // Make the container not capture mouse events
+				pointerEvents: "none",
 			}}
 		>
 			<svg
 				width="100%"
 				height="100%"
-				style={{ pointerEvents: "auto" }} // Enable mouse events for the SVG
+				style={{ pointerEvents: "auto" }}
 				onMouseDown={handleMouseDownSvg}
 			>
 				<path

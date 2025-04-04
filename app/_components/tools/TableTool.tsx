@@ -17,20 +17,19 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { TableElement } from "@/types";
+import type { TableElement } from "@/types/types";
 import { Minus, Plus } from "lucide-react";
-import type React from "react";
-import { useState } from "react";
+import { type FC, type MouseEvent, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TableToolProps {
 	element: TableElement;
 	isSelected: boolean;
-	onMouseDown: (e: React.MouseEvent) => void;
+	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: TableElement) => void;
 }
 
-export const TableTool: React.FC<TableToolProps> = ({
+export const TableTool: FC<TableToolProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -40,11 +39,9 @@ export const TableTool: React.FC<TableToolProps> = ({
 	const [showColorPickers, setShowColorPickers] = useState(false);
 	const [showSizeControls, setShowSizeControls] = useState(false);
 
-	// Fill default data if empty
 	const tableData =
 		data && data.length > 0 ? data : Array(rows).fill(Array(columns).fill(""));
 
-	// Apply different styling based on table style
 	const getTableClassName = () => {
 		switch (tableStyle) {
 			case "striped":
@@ -85,12 +82,12 @@ export const TableTool: React.FC<TableToolProps> = ({
 		});
 	};
 
-	const handleDoubleClick = (e: React.MouseEvent) => {
+	const handleDoubleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowColorPickers(true);
 	};
 
-	const handleTableClick = (e: React.MouseEvent) => {
+	const handleTableClick = (e: MouseEvent) => {
 		e.stopPropagation();
 		setShowSizeControls(true);
 	};
@@ -104,7 +101,6 @@ export const TableTool: React.FC<TableToolProps> = ({
 		const newRows = rows + 1;
 		const newData = [...tableData];
 
-		// Add a new row with empty cells
 		newData.push(Array(columns).fill(""));
 
 		onUpdate({
@@ -130,7 +126,6 @@ export const TableTool: React.FC<TableToolProps> = ({
 	const handleColumnsAdd = () => {
 		const newColumns = columns + 1;
 
-		// Add a new column to each row
 		const newData = tableData.map((row) => [...row, ""]);
 
 		onUpdate({
@@ -145,7 +140,6 @@ export const TableTool: React.FC<TableToolProps> = ({
 
 		const newColumns = columns - 1;
 
-		// Remove the last column from each row
 		const newData = tableData.map((row) => row.slice(0, newColumns));
 
 		onUpdate({
@@ -162,7 +156,6 @@ export const TableTool: React.FC<TableToolProps> = ({
 		});
 	};
 
-	// Apply custom colors to the table
 	const tableBorderStyle = {
 		...(element.borderColor && { borderColor: element.borderColor }),
 	};

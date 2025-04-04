@@ -10,9 +10,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { TextElement } from "@/types";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import type { TextElement } from "@/types/types";
+import { type FC, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TextEditorProps {
@@ -24,7 +23,6 @@ interface TextEditorProps {
 	setIsEditing?: (isEditing: boolean) => void;
 }
 
-// Available font options
 const fontOptions = [
 	{ value: "Arial", label: "Arial" },
 	{ value: "Times-Roman", label: "Times New Roman" },
@@ -34,7 +32,7 @@ const fontOptions = [
 	{ value: "Verdana", label: "Verdana" },
 ];
 
-export const TextEditor: React.FC<TextEditorProps> = ({
+export const TextEditor: FC<TextEditorProps> = ({
 	element,
 	isSelected,
 	onMouseDown,
@@ -43,14 +41,13 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	setIsEditing: parentSetIsEditing,
 }) => {
 	const [internalEditing, setInternalEditing] = useState(false);
-	const [showFormatting, setShowFormatting] = useState(false);
+	const [_, setShowFormatting] = useState(false);
 	const [customFontSize, setCustomFontSize] = useState(
 		element.fontSize.toString(),
 	);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const editorRef = useRef<HTMLDivElement>(null);
 
-	// Use the parent editing state if provided, otherwise use internal state
 	const editing =
 		parentIsEditing !== undefined ? parentIsEditing : internalEditing;
 	const setEditing = (value: boolean) => {
@@ -67,10 +64,8 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 		}
 	}, [editing]);
 
-	// Add click outside handler to close editor
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			// Skip if we're clicking inside a color picker, select dropdown, or any form control
 			const target = event.target as HTMLElement;
 			if (
 				target.closest(".color-picker") ||
@@ -86,14 +81,12 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 				editorRef.current &&
 				!editorRef.current.contains(event.target as Node)
 			) {
-				// Only close if clicking outside the editor completely
 				setEditing(false);
 				setShowFormatting(false);
 			}
 		};
 
 		if (editing) {
-			// Use mousedown to capture clicks before they trigger other events
 			document.addEventListener("mousedown", handleClickOutside);
 		}
 
@@ -123,7 +116,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	};
 
 	const handleColorChange = (color: string) => {
-		// Prevent event propagation
 		onUpdate({
 			...element,
 			color,
@@ -179,7 +171,6 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 		});
 	};
 
-	// Prevent closing the editor when interacting with form controls
 	const handleFormClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 	};

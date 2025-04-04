@@ -15,7 +15,6 @@ export const useCanvasKeyboardHandler = ({
 	isEditing = false,
 }: CanvasKeyboardHandlerProps) => {
 	const handleKeyDown = (e: KeyboardEvent) => {
-		// Prevent deletion when in edit mode to avoid conflicts
 		if (isEditing) {
 			return;
 		}

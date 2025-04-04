@@ -18,7 +18,7 @@ import type {
 	PDFPage,
 	TextElement,
 	Tool,
-} from "@/types";
+} from "@/types/types";
 import { Download, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -71,7 +71,7 @@ const PDFEditor = () => {
 		setDocument((prev) => ({
 			...prev,
 			pages: [...prev.pages, newPage],
-			currentPage: prev.pages.length, // Set current page to the new page (0-based index)
+			currentPage: prev.pages.length,
 		}));
 
 		setSelectedElement(null);
@@ -197,8 +197,6 @@ const PDFEditor = () => {
 		});
 	};
 
-	const currentPageElements = document.pages[document.currentPage].elements;
-
 	return (
 		<div className="flex h-screen overflow-hidden bg-editor-background">
 			<Toolbar
@@ -231,7 +229,7 @@ const PDFEditor = () => {
 				</div>
 
 				<div className="flex-1 overflow-auto relative">
-					<div className="flex items-center justify-center p-4 bg-gray-100 border-b border-editor-border">
+					<div className="flex items-center justify-center p-4 dark:bg-stone-800 bg-gray-100 border-b border-editor-border">
 						<div className="flex items-center space-x-2">
 							{document.pages.map((page, index) => (
 								<Button

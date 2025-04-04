@@ -11,9 +11,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { PDFDocument } from "@/types";
+import type { PDFDocument } from "@/types/types";
 import { X } from "lucide-react";
 import type React from "react";
+import { ModeToggle } from "../shared/ModeToggle";
 
 interface PdfSettingsProps {
 	document: PDFDocument;
@@ -21,7 +22,6 @@ interface PdfSettingsProps {
 	onClose: () => void;
 }
 
-// Available font options for the document default
 const fontOptions = [
 	{ value: "Arial", label: "Arial" },
 	{ value: "Times-Roman", label: "Times New Roman" },
@@ -31,7 +31,6 @@ const fontOptions = [
 	{ value: "Verdana", label: "Verdana" },
 ];
 
-// Paper size options with dimensions in mm
 const paperSizes = [
 	{ value: "a3", label: "A3 (297 × 420 mm)" },
 	{ value: "a4", label: "A4 (210 × 297 mm)" },
@@ -55,7 +54,7 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 	return (
 		<div className="w-80 bg-background border-l border-editor-border h-full overflow-y-auto">
 			<div className="p-4 border-b border-editor-border flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Document Settings</h2>
+				<h2 className="text-lg font-semibold">Settings</h2>
 				<Button variant="ghost" size="icon" onClick={onClose}>
 					<X size={18} />
 				</Button>
@@ -197,6 +196,11 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 							maxLength={7}
 						/>
 					</div>
+				</div>
+
+				<div  className="flex justify-between">
+					<Label>Enable Dark Mode</Label>
+					<ModeToggle />
 				</div>
 			</div>
 		</div>
