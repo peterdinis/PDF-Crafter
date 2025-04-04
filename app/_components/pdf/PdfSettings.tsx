@@ -21,7 +21,6 @@ interface PdfSettingsProps {
 	onClose: () => void;
 }
 
-// Available font options for the document default
 const fontOptions = [
 	{ value: "Arial", label: "Arial" },
 	{ value: "Times-Roman", label: "Times New Roman" },
@@ -31,7 +30,6 @@ const fontOptions = [
 	{ value: "Verdana", label: "Verdana" },
 ];
 
-// Paper size options with dimensions in mm
 const paperSizes = [
 	{ value: "a3", label: "A3 (297 × 420 mm)" },
 	{ value: "a4", label: "A4 (210 × 297 mm)" },

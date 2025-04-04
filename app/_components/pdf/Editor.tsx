@@ -71,7 +71,7 @@ const PDFEditor = () => {
 		setDocument((prev) => ({
 			...prev,
 			pages: [...prev.pages, newPage],
-			currentPage: prev.pages.length, // Set current page to the new page (0-based index)
+			currentPage: prev.pages.length, 
 		}));
 
 		setSelectedElement(null);
@@ -196,9 +196,7 @@ const PDFEditor = () => {
 			...settings,
 		});
 	};
-
-	const currentPageElements = document.pages[document.currentPage].elements;
-
+	
 	return (
 		<div className="flex h-screen overflow-hidden bg-editor-background">
 			<Toolbar

@@ -31,7 +31,6 @@ export const PencilColorPicker: FC<DrawingToolColorPickerProps> = ({
 
 	const strokeWidths = [1, 2, 3, 5, 8];
 
-	// Prevent event propagation to avoid closing modals when clicking inside this component
 	const handleClick = (e: MouseEvent) => {
 		e.stopPropagation();
 	};

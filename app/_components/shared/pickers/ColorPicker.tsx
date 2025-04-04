@@ -17,7 +17,6 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   onChange,
   className = "" 
 }) => {
-  // Prevent event propagation to avoid closing modals
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
