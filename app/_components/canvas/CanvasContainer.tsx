@@ -315,7 +315,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 
 	return (
 		<div
-			className="flex justify-center overflow-auto h-full"
+			className="flex justify-center overflow-auto bg-gray-200 dark:bg-gray-800 h-full"
 			onMouseMove={handleMouseMove}
 			onMouseUp={handleMouseUp}
 			onMouseLeave={handleMouseUp}
