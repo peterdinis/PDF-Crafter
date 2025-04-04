@@ -54,7 +54,7 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 	return (
 		<div className="w-80 bg-background border-l border-editor-border h-full overflow-y-auto">
 			<div className="p-4 border-b border-editor-border flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Document Settings</h2>
+				<h2 className="text-lg font-semibold">Settings</h2>
 				<Button variant="ghost" size="icon" onClick={onClose}>
 					<X size={18} />
 				</Button>

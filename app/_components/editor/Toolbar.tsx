@@ -87,7 +87,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 					onClick={onSettingsToggle}
 				>
 					<Settings size={16} />
-					Document Settings
+					PDF Settings
 				</Button>
 			</div>
 		</div>
