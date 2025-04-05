@@ -7,7 +7,7 @@ import type {
 	TableElement,
 	TextElement,
 	Tool,
-} from "@/types/types";
+} from "@/types/global";
 import type { FC, MouseEvent } from "react";
 import { TextEditor } from "../editor/TextEditor";
 import { PencilTool } from "../tools/PencilTool";

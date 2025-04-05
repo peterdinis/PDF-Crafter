@@ -17,7 +17,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import type { TableElement } from "@/types/types";
+import type { TableElement } from "@/types/global";
 import { Minus, Plus } from "lucide-react";
 import { type FC, type MouseEvent, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";

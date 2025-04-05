@@ -6,7 +6,7 @@ import type {
 	ShapeElement,
 	TableElement,
 	TextElement,
-} from "@/types/types";
+} from "@/types/global";
 import { jsPDF } from "jspdf";
 
 const getFontStyle = (fontWeight: string, fontStyle: string) => {

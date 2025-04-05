@@ -11,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { PDFDocument } from "@/types/types";
+import type { PDFDocument } from "@/types/global";
 import { X } from "lucide-react";
 import type React from "react";
 import { ModeToggle } from "../shared/ModeToggle";
