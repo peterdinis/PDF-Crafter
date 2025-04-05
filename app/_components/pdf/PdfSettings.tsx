@@ -198,7 +198,7 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 					</div>
 				</div>
 
-				<div  className="flex justify-between">
+				<div className="flex justify-between">
 					<Label>Enable Dark Mode</Label>
 					<ModeToggle />
 				</div>

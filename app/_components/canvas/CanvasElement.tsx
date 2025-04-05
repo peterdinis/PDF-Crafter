@@ -8,12 +8,12 @@ import type {
 	TextElement,
 	Tool,
 } from "@/types/global";
+import Image from "next/image";
 import type { FC, MouseEvent } from "react";
 import { TextEditor } from "../editor/TextEditor";
 import { PencilTool } from "../tools/PencilTool";
 import { ShapeTool } from "../tools/ShapeTool";
 import { TableTool } from "../tools/TableTool";
-import Image from "next/image";
 
 interface CanvasElementProps {
 	element: PDFElement;
