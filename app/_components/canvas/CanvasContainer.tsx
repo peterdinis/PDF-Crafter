@@ -8,7 +8,7 @@ import type {
 	TableElement,
 	TextElement,
 	Tool,
-} from "@/types/types";
+} from "@/types/global";
 import {
 	type FC,
 	type MouseEvent,

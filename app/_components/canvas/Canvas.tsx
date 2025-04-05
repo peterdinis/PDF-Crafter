@@ -6,7 +6,7 @@ import type {
 	PDFElement,
 	PencilDrawingElement,
 	Tool,
-} from "@/types/types";
+} from "@/types/global";
 import { type FC, useState } from "react";
 import { PencilColorPicker } from "../shared/pickers/PencilColorPicker";
 import { ImageUploader } from "../uploader/ImageUploader";

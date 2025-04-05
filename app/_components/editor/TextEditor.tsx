@@ -10,7 +10,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import type { TextElement } from "@/types/types";
+import type { TextElement } from "@/types/global";
 import { type FC, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 

@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import type { ShapeElement } from "@/types/types";
+import type { ShapeElement } from "@/types/global";
 import { Label } from "@radix-ui/react-label";
 import { type ChangeEvent, type FC, type MouseEvent, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";

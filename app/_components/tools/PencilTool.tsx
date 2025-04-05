@@ -1,6 +1,6 @@
 "use client";
 
-import type { PencilDrawingElement } from "@/types/types";
+import type { PencilDrawingElement } from "@/types/global";
 import type { FC, MouseEvent } from "react";
 
 interface PencilToolProps {
