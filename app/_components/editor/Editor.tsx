@@ -23,8 +23,8 @@ import { Download, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
-import { Toolbar } from "../editor/Toolbar";
-import { PdfSettings } from "./PdfSettings";
+import { Toolbar } from "./Toolbar";
+import { PdfSettings } from "../pdf/PdfSettings";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
