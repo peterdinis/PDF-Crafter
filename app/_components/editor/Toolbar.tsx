@@ -54,7 +54,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 		<div className="w-64 bg-editor-background border-r border-editor-border flex flex-col">
 			<div className="p-4 border-b border-editor-border">
 				<h2 className="text-lg font-semibold text-editor-foreground">
-					PDF Crafter Ninja
+					PDF Crafter
 				</h2>
 			</div>
 

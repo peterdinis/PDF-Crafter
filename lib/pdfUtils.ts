@@ -250,7 +250,7 @@ export const generatePDF = async (document: PDFDocument) => {
 
 	pdf.setProperties({
 		title: document.title,
-		creator: "PDF Crafter Ninja",
+		creator: "PDF Crafter",
 	});
 
 	document.pages.forEach((page: { elements: any[] }, index: number) => {
