@@ -6,6 +6,7 @@ import type {
 	ShapeElement,
 	TableElement,
 	TextElement,
+	ChartElement,
 	Tool,
 } from "@/types/global";
 import {
@@ -56,7 +57,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 	// Pridať event listener pre kontextové menu
 	const handleContextMenu = (e: MouseEvent, elementId?: string) => {
 		e.preventDefault();
-		
+
 		if (elementId && onDeleteElement) {
 			setContextMenu({
 				x: e.clientX,
@@ -167,6 +168,31 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						};
 						onAddElement(newTable);
 						break;
+					case "chart":
+						const newChart: ChartElement = {
+							id: uuidv4(),
+							type: "chart",
+							chartType: elementData.chartType || "bar",
+							x,
+							y,
+							width: 400,
+							height: 300,
+							data: [
+								{ label: "Jan", value: 45 },
+								{ label: "Feb", value: 52 },
+								{ label: "Mar", value: 38 },
+								{ label: "Apr", value: 65 },
+								{ label: "May", value: 48 },
+							],
+							title: "Sample Chart",
+							showGrid: true,
+							showAxes: true,
+							axesColor: "#9ca3af",
+							gridColor: "#e5e7eb",
+							seriesColors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+						};
+						onAddElement(newChart);
+						break;
 				}
 				toast.success("Element dropped");
 			} catch (error) {
@@ -180,7 +206,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 		if (contextMenu) {
 			setContextMenu(null);
 		}
-		
+
 		if (activeTool !== "pencil") {
 			onCanvasClick(e);
 		}
@@ -202,8 +228,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 				className={cn(
 					"pdf-page relative",
 					isDraggingOver &&
-						!isEditing &&
-						"bg-editor-primary/10 border-2 border-dashed border-editor-primary",
+					!isEditing &&
+					"bg-editor-primary/10 border-2 border-dashed border-editor-primary",
 					activeTool === "pencil" && !isEditing && "cursor-crosshair",
 				)}
 				style={{
@@ -218,7 +244,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			>
 				{/* Tu budú deti (elementy) renderované */}
 				{children}
-				
+
 				{/* Pridať tlačidlo na mazanie k vybranému elementu */}
 				{selectedElement && onDeleteElement && (
 					<div className="absolute z-50">

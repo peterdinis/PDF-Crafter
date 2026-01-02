@@ -52,6 +52,7 @@ export const Canvas: FC<CanvasProps> = ({
 		activeTool === "shape_rectangle" ||
 		activeTool === "shape_circle" ||
 		activeTool === "shape_line";
+	const isChartTool = activeTool.startsWith("chart_");
 	const isTableTool =
 		activeTool === "table_simple" ||
 		activeTool === "table_striped" ||
@@ -63,6 +64,7 @@ export const Canvas: FC<CanvasProps> = ({
 		if (activeTool === "shape_circle") return "Circle Style";
 		if (activeTool === "shape_line") return "Line Style";
 		if (activeTool.startsWith("table_")) return "Table Style";
+		if (activeTool.startsWith("chart_")) return "Chart Style";
 		return "Drawing Style";
 	};
 
@@ -149,7 +151,7 @@ export const Canvas: FC<CanvasProps> = ({
 					color={tableColor}
 					strokeWidth={1}
 					onColorChange={setTableColor}
-					onStrokeWidthChange={() => {}}
+					onStrokeWidthChange={() => { }}
 				/>
 			)}
 		</div>

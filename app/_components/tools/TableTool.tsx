@@ -38,8 +38,6 @@ export const TableTool: FC<TableToolProps> = ({
 	onUpdate,
 }) => {
 	const { tableStyle, headerType, data, columns, rows } = element;
-	const [showColorPickers, setShowColorPickers] = useState(false);
-	const [showSizeControls, setShowSizeControls] = useState(false);
 	const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
 	const [cellValue, setCellValue] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -63,7 +61,7 @@ export const TableTool: FC<TableToolProps> = ({
 		if (isHeader) {
 			return "bg-gray-100 dark:bg-gray-800 font-semibold";
 		}
-		
+
 		switch (tableStyle) {
 			case "striped":
 				// Pre striped: párne riadky majú pozadie (počítame od 0, takže párne = even)
@@ -105,80 +103,6 @@ export const TableTool: FC<TableToolProps> = ({
 		});
 	};
 
-	const handleDoubleClick = (e: MouseEvent) => {
-		e.stopPropagation();
-		setShowColorPickers(true);
-	};
-
-	const handleTableClick = (e: MouseEvent) => {
-		e.stopPropagation();
-		setShowSizeControls(true);
-	};
-
-	const handleBlur = () => {
-		setShowColorPickers(false);
-		setShowSizeControls(false);
-	};
-
-	const handleRowsAdd = () => {
-		const newRows = rows + 1;
-		const newData = [...tableData];
-
-		newData.push(Array(columns).fill(""));
-
-		onUpdate({
-			...element,
-			rows: newRows,
-			data: newData,
-		});
-	};
-
-	const handleRowsRemove = () => {
-		if (rows <= 1) return;
-
-		const newRows = rows - 1;
-		const newData = tableData.slice(0, newRows);
-
-		onUpdate({
-			...element,
-			rows: newRows,
-			data: newData,
-		});
-	};
-
-	const handleColumnsAdd = () => {
-		const newColumns = columns + 1;
-
-		const newData = tableData.map((row) => [...row, ""]);
-
-		onUpdate({
-			...element,
-			columns: newColumns,
-			data: newData,
-		});
-	};
-
-	const handleColumnsRemove = () => {
-		if (columns <= 1) return;
-
-		const newColumns = columns - 1;
-
-		const newData = tableData.map((row) => row.slice(0, newColumns));
-
-		onUpdate({
-			...element,
-			columns: newColumns,
-			data: newData,
-		});
-	};
-
-	const handleHeaderTypeChange = (value: string) => {
-		onUpdate({
-			...element,
-			headerType: value as "none" | "simple" | "divided",
-		});
-	};
-
 	const handleCellClick = (rowIndex: number, colIndex: number, e: MouseEvent) => {
 		e.stopPropagation();
 		// Pre header row je rowIndex -1, inak je to normálny rowIndex
@@ -199,7 +123,7 @@ export const TableTool: FC<TableToolProps> = ({
 				newData[editingCell.row] = Array(columns).fill("");
 			}
 			newData[editingCell.row][editingCell.col] = cellValue;
-			
+
 			onUpdate({
 				...element,
 				data: newData,
@@ -251,10 +175,10 @@ export const TableTool: FC<TableToolProps> = ({
 
 	const moveToNextCell = (backward: boolean = false) => {
 		if (!editingCell) return;
-		
+
 		let newRow = editingCell.row;
 		let newCol = backward ? editingCell.col - 1 : editingCell.col + 1;
-		
+
 		if (newCol < 0) {
 			newCol = columns - 1;
 			newRow = Math.max(0, newRow - 1);
@@ -262,13 +186,13 @@ export const TableTool: FC<TableToolProps> = ({
 			newCol = 0;
 			newRow = Math.min(rows - 1, newRow + 1);
 		}
-		
+
 		moveToCell(newRow, newCol);
 	};
 
 	const moveToCell = (row: number, col: number) => {
 		if (row < 0 || row >= rows || col < 0 || col >= columns) return;
-		
+
 		const currentValue = tableData[row]?.[col] || "";
 		setEditingCell({ row, col });
 		setCellValue(currentValue);
@@ -320,19 +244,10 @@ export const TableTool: FC<TableToolProps> = ({
 	return (
 		<div
 			className={cn(
-				"absolute cursor-move overflow-hidden",
+				"w-full h-full overflow-hidden",
 				isSelected && "ring-2 ring-editor-primary ring-offset-2",
 			)}
-			style={{
-				left: `${element.x}px`,
-				top: `${element.y}px`,
-				width: `${element.width}px`,
-				height: `${element.height}px`,
-			}}
 			onMouseDown={onMouseDown}
-			onDoubleClick={handleDoubleClick}
-			onClick={handleTableClick}
-			onBlur={handleBlur}
 		>
 			<div className="w-full h-full overflow-auto bg-white dark:bg-gray-900">
 				<Table className={cn(getTableClassName(), "w-full")} style={tableBorderStyle}>
@@ -343,66 +258,21 @@ export const TableTool: FC<TableToolProps> = ({
 								element.borderColor ? { borderColor: element.borderColor } : {}
 							}
 						>
-						<TableRow className={cn(getRowClassName(-1, true))}>
-							{Array.from({ length: columns }).map((_, index) => {
-								const isEditing = editingCell?.row === 0 && editingCell?.col === index;
-								
-								return (
-									<TableHead
-										key={index}
-										className={cn(
-											"h-8 px-2 text-xs relative transition-colors",
-											isEditing && "ring-2 ring-blue-500 ring-offset-1",
-											!isEditing && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text"
-										)}
-										style={getCellStyle(-1, true)}
-										onClick={(e) => handleCellClick(-1, index, e)}
-									>
-										{isEditing ? (
-											<Textarea
-												ref={inputRef}
-												value={cellValue}
-												onChange={(e) => handleCellChange(e.target.value)}
-												onBlur={handleCellBlur}
-												onKeyDown={handleCellKeyDown}
-												className="min-h-[24px] text-xs p-1 resize-none border-blue-500 focus:ring-2 focus:ring-blue-500 w-full"
-												onClick={(e) => e.stopPropagation()}
-												onMouseDown={(e) => e.stopPropagation()}
-												rows={1}
-											/>
-										) : (
-											<span className="block truncate">
-												{tableData[0]?.[index] || `Header ${index + 1}`}
-											</span>
-										)}
-									</TableHead>
-								);
-							})}
-						</TableRow>
-						</TableHeader>
-					)}
-					<TableBody>
-						{Array.from({
-							length: headerType === "none" ? rows : rows - 1,
-						}).map((_, rowIndex) => {
-							const actualRowIndex = headerType === "none" ? rowIndex : rowIndex + 1;
-							
-							return (
-								<TableRow key={rowIndex} className={cn(getRowClassName(rowIndex))}>
-									{Array.from({ length: columns }).map((_, colIndex) => {
-										const isEditing = editingCell?.row === actualRowIndex && editingCell?.col === colIndex;
-										
-										return (
-											<TableCell
-												key={colIndex}
-												className={cn(
-													"h-8 px-2 text-xs relative transition-colors",
-													isEditing && "ring-2 ring-blue-500 ring-offset-1",
-													!isEditing && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text"
-												)}
-												style={getCellStyle(rowIndex)}
-												onClick={(e) => handleCellClick(rowIndex, colIndex, e)}
-											>
+							<TableRow className={cn(getRowClassName(-1, true))}>
+								{Array.from({ length: columns }).map((_, index) => {
+									const isEditing = editingCell?.row === 0 && editingCell?.col === index;
+
+									return (
+										<TableHead
+											key={index}
+											className={cn(
+												"h-8 px-2 text-xs relative transition-colors",
+												isEditing && "ring-2 ring-blue-500 ring-offset-1",
+												!isEditing && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text"
+											)}
+											style={getCellStyle(-1, true)}
+											onClick={(e) => handleCellClick(-1, index, e)}
+										>
 											{isEditing ? (
 												<Textarea
 													ref={inputRef}
@@ -417,9 +287,54 @@ export const TableTool: FC<TableToolProps> = ({
 												/>
 											) : (
 												<span className="block truncate">
-													{tableData[actualRowIndex]?.[colIndex] || ""}
+													{tableData[0]?.[index] || `Header ${index + 1}`}
 												</span>
 											)}
+										</TableHead>
+									);
+								})}
+							</TableRow>
+						</TableHeader>
+					)}
+					<TableBody>
+						{Array.from({
+							length: headerType === "none" ? rows : rows - 1,
+						}).map((_, rowIndex) => {
+							const actualRowIndex = headerType === "none" ? rowIndex : rowIndex + 1;
+
+							return (
+								<TableRow key={rowIndex} className={cn(getRowClassName(rowIndex))}>
+									{Array.from({ length: columns }).map((_, colIndex) => {
+										const isEditing = editingCell?.row === actualRowIndex && editingCell?.col === colIndex;
+
+										return (
+											<TableCell
+												key={colIndex}
+												className={cn(
+													"h-8 px-2 text-xs relative transition-colors",
+													isEditing && "ring-2 ring-blue-500 ring-offset-1",
+													!isEditing && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text"
+												)}
+												style={getCellStyle(rowIndex)}
+												onClick={(e) => handleCellClick(rowIndex, colIndex, e)}
+											>
+												{isEditing ? (
+													<Textarea
+														ref={inputRef}
+														value={cellValue}
+														onChange={(e) => handleCellChange(e.target.value)}
+														onBlur={handleCellBlur}
+														onKeyDown={handleCellKeyDown}
+														className="min-h-[24px] text-xs p-1 resize-none border-blue-500 focus:ring-2 focus:ring-blue-500 w-full"
+														onClick={(e) => e.stopPropagation()}
+														onMouseDown={(e) => e.stopPropagation()}
+														rows={1}
+													/>
+												) : (
+													<span className="block truncate">
+														{tableData[actualRowIndex]?.[colIndex] || ""}
+													</span>
+												)}
 											</TableCell>
 										);
 									})}
@@ -430,89 +345,6 @@ export const TableTool: FC<TableToolProps> = ({
 				</Table>
 			</div>
 
-			{isSelected && showColorPickers && (
-				<div className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50 min-w-[240px]">
-					<div className="space-y-4">
-						<ColorPicker
-							label="Border Color"
-							color={element.borderColor || "#000000"}
-							onChange={handleBorderColorChange}
-						/>
-						<ColorPicker
-							label="Header Background"
-							color={element.headerColor || "#ffffff"}
-							onChange={handleHeaderColorChange}
-						/>
-						<ColorPicker
-							label="Cell Background"
-							color={element.cellColor || "#ffffff"}
-							onChange={handleCellColorChange}
-						/>
-						<ColorPicker
-							label="Text Color"
-							color={element.textColor || "#000000"}
-							onChange={handleTextColorChange}
-						/>
-					</div>
-				</div>
-			)}
-
-			{isSelected && showSizeControls && (
-				<div className="absolute top-0 right-0 mt-2 bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50">
-					<div className="space-y-4">
-						<div className="flex flex-col space-y-2">
-							<label className="text-sm font-medium">Header Type</label>
-							<Select
-								defaultValue={headerType}
-								onValueChange={handleHeaderTypeChange}
-							>
-								<SelectTrigger className="w-[180px]">
-									<SelectValue placeholder="Header Type" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="none">No Header</SelectItem>
-									<SelectItem value="simple">Simple Header</SelectItem>
-									<SelectItem value="divided">Divided Header</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						<div className="flex flex-col space-y-2">
-							<label className="text-sm font-medium">Rows: {rows}</label>
-							<div className="flex space-x-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={handleRowsRemove}
-									disabled={rows <= 1}
-								>
-									<Minus size={16} />
-								</Button>
-								<Button variant="outline" size="sm" onClick={handleRowsAdd}>
-									<Plus size={16} />
-								</Button>
-							</div>
-						</div>
-
-						<div className="flex flex-col space-y-2">
-							<label className="text-sm font-medium">Columns: {columns}</label>
-							<div className="flex space-x-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={handleColumnsRemove}
-									disabled={columns <= 1}
-								>
-									<Minus size={16} />
-								</Button>
-								<Button variant="outline" size="sm" onClick={handleColumnsAdd}>
-									<Plus size={16} />
-								</Button>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
 		</div>
 	);
 };

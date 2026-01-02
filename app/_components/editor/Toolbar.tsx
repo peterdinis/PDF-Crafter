@@ -15,6 +15,9 @@ import {
 	Table,
 	TableProperties,
 	Type,
+	BarChart,
+	LineChart,
+	PieChart,
 } from "lucide-react";
 import type React from "react";
 
@@ -48,6 +51,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 			value: "table_bordered" as Tool,
 			icon: GripHorizontal,
 		},
+		{ name: "Bar Chart", value: "chart_bar" as Tool, icon: BarChart },
+		{ name: "Line Chart", value: "chart_line" as Tool, icon: LineChart },
+		{ name: "Pie Chart", value: "chart_pie" as Tool, icon: PieChart },
 	];
 
 	return (
@@ -69,7 +75,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 							className={cn(
 								"tool-item flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-editor-primary/10",
 								activeTool === tool.value &&
-									"bg-editor-primary/20 text-editor-primary",
+								"bg-editor-primary/20 text-editor-primary",
 							)}
 							onClick={() => onToolSelect(tool.value)}
 						>

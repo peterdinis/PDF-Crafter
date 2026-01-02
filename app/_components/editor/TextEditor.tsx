@@ -211,15 +211,9 @@ export const TextEditor: FC<TextEditorProps> = ({
 	return (
 		<div
 			className={cn(
-				"absolute cursor-move",
+				"w-full min-h-full",
 				isSelected && !editing && "ring-2 ring-editor-primary ring-offset-2",
 			)}
-			style={{
-				left: `${element.x}px`,
-				top: `${element.y}px`,
-				width: `${element.width}px`,
-				minHeight: `${element.height}px`,
-			}}
 			onMouseDown={editing ? undefined : onMouseDown}
 			onClick={handleClick}
 			onDoubleClick={handleDoubleClick}

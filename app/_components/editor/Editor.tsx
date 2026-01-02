@@ -26,6 +26,7 @@ import { Canvas } from "../canvas/Canvas";
 import { Toolbar } from "./Toolbar";
 import { PdfSettings } from "../pdf/PdfSettings";
 import { PropertiesPanel } from "./PropertiesPanel";
+import { ScrollToTop } from "../shared/ScrollToTop";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -59,18 +60,18 @@ const PDFEditor = () => {
 				deleteElement(selectedElement);
 				toast.success("Element deleted");
 			}
-			
+
 			// Escape key to deselect
 			if (e.key === 'Escape') {
 				setSelectedElement(null);
 			}
-			
+
 			// Duplicate element with Ctrl/Cmd + D
 			if ((e.ctrlKey || e.metaKey) && e.key === 'd' && selectedElement) {
 				e.preventDefault();
 				duplicateElement(selectedElement);
 			}
-			
+
 			// Open properties panel with Ctrl/Cmd + E
 			if ((e.ctrlKey || e.metaKey) && e.key === 'e' && selectedElement) {
 				e.preventDefault();
@@ -232,7 +233,7 @@ const PDFEditor = () => {
 		setDocument((prev) => {
 			const currentPage = prev.pages[prev.currentPage];
 			const elementToDuplicate = currentPage.elements.find(el => el.id === id);
-			
+
 			if (!elementToDuplicate || elementToDuplicate.x === undefined || elementToDuplicate.y === undefined) return prev;
 
 			const duplicatedElement = {
@@ -253,15 +254,15 @@ const PDFEditor = () => {
 				pages: updatedPages,
 			};
 		});
-		
+
 		toast.success("Element duplicated");
 	};
 
 	// Get selected element object
 	const selectedElementObj = selectedElement
 		? document.pages[document.currentPage]?.elements.find(
-				(el) => el.id === selectedElement,
-			) || null
+			(el) => el.id === selectedElement,
+		) || null
 		: null;
 
 	// Show properties panel when element is selected
@@ -404,6 +405,8 @@ const PDFEditor = () => {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
+
+			<ScrollToTop />
 		</div>
 	);
 };

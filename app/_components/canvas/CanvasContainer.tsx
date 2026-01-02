@@ -3,7 +3,6 @@
 import type {
 	PDFDocument,
 	PDFElement,
-	PencilDrawingElement,
 	ShapeElement,
 	TableElement,
 	TextElement,
@@ -131,7 +130,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				e.preventDefault();
 				handleDeleteElement(selectedElement);
 			}
-			
+
 			// Escape pre zatvorenie kontextového menu alebo zrušenie výberu
 			if (e.key === 'Escape') {
 				if (contextMenu) {
@@ -151,7 +150,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 		if (typeof window === 'undefined') return;
 
 		const handleClickOutside = (event: globalThis.MouseEvent) => {
-			if (contextMenu && contextMenuRef.current && 
+			if (contextMenu && contextMenuRef.current &&
 				!contextMenuRef.current.contains(event.target as Node)) {
 				setContextMenu(null);
 			}
@@ -278,28 +277,29 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 	const handleElementMouseDown = (e: MouseEvent, element: PDFElement) => {
 		e.stopPropagation();
 
-		if (activeTool === "select") {
-			onSelectElement(element.id);
+		// Vyberieme element bez ohľadu na aktívny nástroj, ak sme klikli priamo naň
+		onSelectElement(element.id);
 
-			if (!isEditing) {
-				const rect = canvasRef.current?.getBoundingClientRect();
-				if (rect) {
-					let offsetX = 0;
-					let offsetY = 0;
+		// Umožníme dragging aj keď nie sme v "select" móde, 
+		// ale len ak nie sme v móde kreslenia (pencil) alebo editovania textu
+		if (!isEditing && activeTool !== "pencil") {
+			const rect = canvasRef.current?.getBoundingClientRect();
+			if (rect) {
+				let offsetX = 0;
+				let offsetY = 0;
 
-					if (element.type !== "pencil") {
-						offsetX = e.clientX - rect.left - element.x;
-						offsetY = e.clientY - rect.top - element.y;
-					}
-
-					setDraggedElement({
-						id: element.id,
-						startX: e.clientX,
-						startY: e.clientY,
-						offsetX,
-						offsetY,
-					});
+				if (element.type !== "pencil") {
+					offsetX = e.clientX - rect.left - element.x;
+					offsetY = e.clientY - rect.top - element.y;
 				}
+
+				setDraggedElement({
+					id: element.id,
+					startX: e.clientX,
+					startY: e.clientY,
+					offsetX,
+					offsetY,
+				});
 			}
 		}
 	};
@@ -308,7 +308,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 	const handleElementContextMenu = (e: MouseEvent, element: PDFElement) => {
 		e.preventDefault();
 		e.stopPropagation();
-		
+
 		onSelectElement(element.id);
 		setContextMenu({
 			x: e.clientX,
@@ -328,7 +328,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 		const y = e.clientY - rect.top;
 
 		const newDrawingId = uuidv4();
-		const newDrawing: PencilDrawingElement = {
+		const newDrawing: any = {
 			id: newDrawingId,
 			type: "pencil",
 			points: [{ x, y }],
@@ -368,7 +368,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			const y = e.clientY - rect.top;
 
 			const drawing = pageElements.find((el) => el.id === currentDrawingId) as
-				| PencilDrawingElement
+				| any
 				| undefined;
 			if (drawing && drawing.type === "pencil") {
 				onUpdateElement({
@@ -411,19 +411,26 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 					{pageElements.map((element) => (
 						<div
 							key={element.id}
-							className={`relative transition-all duration-200 ${
-								element.id === selectedElement ? 'z-10' : 'z-0'
-							}`}
+							className={`relative ${element.id === selectedElement ? 'z-10' : 'z-0'
+								}`}
 							style={{
 								position: 'absolute',
 								left: `${element.x}px`,
 								top: `${element.y}px`,
+								width: element.type === "pencil" ? "100%" : (element.width ? `${element.width}px` : "auto"),
+								height: element.type === "pencil" ? "100%" : (element.height ? `${element.height}px` : "auto"),
+								pointerEvents: activeTool === "pencil" ? "none" : "auto",
 							}}
 						>
 							<CanvasElement
 								element={element}
 								isSelected={element.id === selectedElement}
-								onMouseDown={(e) => handleElementMouseDown(e, element)}
+								onMouseDown={(e) => {
+									// If we're using pencil, we want to draw, not drag
+									if (activeTool !== "pencil") {
+										handleElementMouseDown(e, element);
+									}
+								}}
 								onContextMenu={(e) => handleElementContextMenu(e, element)}
 								onUpdate={onUpdateElement}
 								onDelete={onDeleteElement}
@@ -432,8 +439,6 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 								isEditing={isEditing}
 								setIsEditing={setIsEditing}
 							/>
-							
-							{/* Trash ikonky sú teraz len v PropertiesPanel */}
 						</div>
 					))}
 				</DragDropArea>

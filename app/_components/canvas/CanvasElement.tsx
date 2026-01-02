@@ -6,6 +6,7 @@ import type {
 	ShapeElement,
 	TableElement,
 	TextElement,
+	ChartElement,
 	Tool,
 } from "@/types/global";
 import Image from "next/image";
@@ -14,14 +15,15 @@ import { TextEditor } from "../editor/TextEditor";
 import { PencilTool } from "../tools/PencilTool";
 import { ShapeTool } from "../tools/ShapeTool";
 import { TableTool } from "../tools/TableTool";
+import { ChartTool } from "../tools/ChartTool";
 
 interface CanvasElementProps {
 	element: PDFElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: PDFElement) => void;
-	onDelete?: (id: string) => void; // Nový prop pre mazanie
-	onContextMenu?: (e: MouseEvent, elementId: string) => void; // Nový prop pre kontextové menu
+	onDelete?: (id: string) => void;
+	onContextMenu?: (e: MouseEvent, elementId: string) => void;
 	activeTool: Tool;
 	onAddElement: (element: PDFElement) => void;
 	isEditing: boolean;
@@ -40,7 +42,6 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 	isEditing,
 	setIsEditing,
 }) => {
-	// Spoločná funkcia pre mazanie elementu
 	const handleDelete = (e: MouseEvent) => {
 		e.stopPropagation();
 		if (onDelete) {
@@ -48,7 +49,6 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 		}
 	};
 
-	// Spoločná funkcia pre kontextové menu
 	const handleContextMenu = (e: MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -57,87 +57,61 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 		}
 	};
 
-	// Trash ikonky sú teraz len v PropertiesPanel, nie na canvas
-
-	// Spoločné props pre všetky elementy
 	const commonProps = {
 		isSelected,
 		onMouseDown,
 		onContextMenu: handleContextMenu,
-		onDeleteClick: handleDelete, // Zmenené meno na onDeleteClick, aby sa neplietlo s onDelete
+		onDeleteClick: handleDelete,
 	};
 
 	switch (element.type) {
 		case "text":
 			return (
-				<div className="relative" style={{
-					position: 'absolute',
-					left: `${element.x}px`,
-					top: `${element.y}px`,
-				}}>
-					<TextEditor
-						element={element as TextElement}
-						{...commonProps}
-						onUpdate={onUpdate}
-						isEditing={isEditing}
-						setIsEditing={setIsEditing}
-						onDelete={(id) => onDelete && onDelete(id)} // TextEditor očakáva onDelete(id: string)
-					/>
-				</div>
+				<TextEditor
+					element={element as TextElement}
+					{...commonProps}
+					onUpdate={onUpdate}
+					isEditing={isEditing}
+					setIsEditing={setIsEditing}
+					onDelete={(id) => onDelete && onDelete(id)}
+				/>
 			);
 		case "image":
 			return (
-				<div className="relative" style={{
-					position: 'absolute',
-					left: `${element.x}px`,
-					top: `${element.y}px`,
-				}}>
-					<ImageElement
-						element={element}
-						{...commonProps}
-					/>
-				</div>
+				<ImageElement
+					element={element}
+					{...commonProps}
+				/>
 			);
 		case "shape":
 			return (
-				<div className="relative" style={{
-					position: 'absolute',
-					left: `${element.x}px`,
-					top: `${element.y}px`,
-				}}>
-					<ShapeTool
-						element={element as ShapeElement}
-						{...commonProps}
-						onUpdate={onUpdate}
-					/>
-				</div>
+				<ShapeTool
+					element={element as ShapeElement}
+					{...commonProps}
+					onUpdate={onUpdate}
+				/>
 			);
 		case "table":
 			return (
-				<div className="relative" style={{
-					position: 'absolute',
-					left: `${element.x}px`,
-					top: `${element.y}px`,
-				}}>
-					<TableTool
-						element={element as TableElement}
-						{...commonProps}
-						onUpdate={onUpdate}
-					/>
-				</div>
+				<TableTool
+					element={element as TableElement}
+					{...commonProps}
+					onUpdate={onUpdate}
+				/>
 			);
 		case "pencil":
 			return (
-				<div className="relative" style={{
-					position: 'absolute',
-					left: `${element.x}px`,
-					top: `${element.y}px`,
-				}}>
-					<PencilTool
-						element={element as PencilDrawingElement}
-						{...commonProps}
-					/>
-				</div>
+				<PencilTool
+					element={element as PencilDrawingElement}
+					{...commonProps}
+				/>
+			);
+		case "chart":
+			return (
+				<ChartTool
+					element={element as ChartElement}
+					{...commonProps}
+				/>
 			);
 		default:
 			return null;
@@ -149,16 +123,14 @@ const ImageElement: FC<{
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
 	onContextMenu?: (e: MouseEvent) => void;
-	onDeleteClick?: (e: MouseEvent) => void; // Zmenené meno na onDeleteClick
+	onDeleteClick?: (e: MouseEvent) => void;
 }> = ({ element, isSelected, onMouseDown, onContextMenu, onDeleteClick }) => {
 	if (element.type !== "image") return null;
 
 	return (
 		<div
-			className={`absolute cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
+			className={`cursor-move ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
 			style={{
-				left: `${element.x}px`,
-				top: `${element.y}px`,
 				width: `${element.width}px`,
 				height: `${element.height}px`,
 			}}

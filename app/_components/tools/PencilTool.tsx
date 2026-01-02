@@ -28,12 +28,8 @@ export const PencilTool: FC<PencilToolProps> = ({
 
 	return (
 		<div
-			className={`absolute ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
+			className={`w-full h-full ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
 			style={{
-				left: 0,
-				top: 0,
-				width: "100%",
-				height: "100%",
 				pointerEvents: "none",
 			}}
 		>

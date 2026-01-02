@@ -1,18 +1,18 @@
 export type PDFDocument = {
 	title: string;
 	pageSize:
-		| "a3"
-		| "a4"
-		| "a5"
-		| "letter"
-		| "legal"
-		| "tabloid"
-		| "executive"
-		| "b5"
-		| "b4"
-		| "jisb4"
-		| "jisb5"
-		| "custom";
+	| "a3"
+	| "a4"
+	| "a5"
+	| "letter"
+	| "legal"
+	| "tabloid"
+	| "executive"
+	| "b5"
+	| "b4"
+	| "jisb4"
+	| "jisb5"
+	| "custom";
 	customWidth?: number;
 	customHeight?: number;
 	orientation: "portrait" | "landscape";
@@ -27,13 +27,6 @@ export type PDFPage = {
 	id: string;
 	elements: PDFElement[];
 };
-
-export type PDFElement =
-	| TextElement
-	| ImageElement
-	| ShapeElement
-	| TableElement
-	| PencilDrawingElement;
 
 export type TextElement = {
 	id: string;
@@ -102,6 +95,32 @@ export type PencilDrawingElement = {
 	y?: number;
 };
 
+export type ChartElement = {
+	id: string;
+	type: "chart";
+	chartType: "bar" | "line" | "pie";
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	data: ChartDataPoint[];
+	title?: string;
+	showGrid?: boolean;
+	showAxes?: boolean;
+	gridColor?: string;
+	axesColor?: string;
+	seriesColors?: string[];
+	backgroundColor?: string;
+	borderColor?: string;
+	borderWidth?: number;
+};
+
+export type ChartDataPoint = {
+	label: string;
+	value: number;
+	color?: string;
+};
+
 export type Tool =
 	| "select"
 	| "text"
@@ -112,11 +131,15 @@ export type Tool =
 	| "table_simple"
 	| "table_striped"
 	| "table_bordered"
-	| "pencil";
+	| "pencil"
+	| "chart_bar"
+	| "chart_line"
+	| "chart_pie";
 
 export type PDFElement =
 	| TextElement
 	| ImageElement
 	| ShapeElement
 	| TableElement
-	| PencilDrawingElement;
+	| PencilDrawingElement
+	| ChartElement;

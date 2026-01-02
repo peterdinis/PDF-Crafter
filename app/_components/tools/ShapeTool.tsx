@@ -48,11 +48,10 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 		} else if (shapeType === "line") {
 			return (
 				<div
-					className="w-full"
+					className="w-full h-full"
 					style={{
-						height: `${strokeWidth}px`,
 						backgroundColor: stroke,
-						marginTop: "50%",
+						minHeight: "1px",
 					}}
 				/>
 			);
@@ -147,14 +146,10 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 	return (
 		<div
 			className={cn(
-				"absolute cursor-move",
+				"w-full h-full",
 				isSelected && "ring-2 ring-editor-primary ring-offset-2",
 			)}
 			style={{
-				left: `${element.x}px`,
-				top: `${element.y}px`,
-				width: `${element.width}px`,
-				height: element.shapeType === "line" ? "1px" : `${element.height}px`,
 				transform: element.rotation
 					? `rotate(${element.rotation}deg)`
 					: undefined,
@@ -181,18 +176,16 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 								/>
 							</div>
 
-							{element.shapeType !== "line" && (
-								<div className="w-1/2">
-									<Label htmlFor="height">Height</Label>
-									<Input
-										id="height"
-										type="number"
-										min="1"
-										value={element.height}
-										onChange={handleHeightChange}
-									/>
-								</div>
-							)}
+							<div className="w-1/2">
+								<Label htmlFor="height">Height</Label>
+								<Input
+									id="height"
+									type="number"
+									min="1"
+									value={element.height}
+									onChange={handleHeightChange}
+								/>
+							</div>
 						</div>
 
 						<div>
