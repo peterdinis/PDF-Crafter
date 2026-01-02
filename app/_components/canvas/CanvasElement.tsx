@@ -20,6 +20,8 @@ interface CanvasElementProps {
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
 	onUpdate: (element: PDFElement) => void;
+	onDelete?: (id: string) => void; // Nový prop pre mazanie
+	onContextMenu?: (e: MouseEvent, elementId: string) => void; // Nový prop pre kontextové menu
 	activeTool: Tool;
 	onAddElement: (element: PDFElement) => void;
 	isEditing: boolean;
@@ -31,54 +33,111 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 	isSelected,
 	onMouseDown,
 	onUpdate,
+	onDelete,
+	onContextMenu,
+	activeTool,
+	onAddElement,
 	isEditing,
 	setIsEditing,
 }) => {
+	// Spoločná funkcia pre mazanie elementu
+	const handleDelete = (e: MouseEvent) => {
+		e.stopPropagation();
+		if (onDelete) {
+			onDelete(element.id);
+		}
+	};
+
+	// Spoločná funkcia pre kontextové menu
+	const handleContextMenu = (e: MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (onContextMenu) {
+			onContextMenu(e, element.id);
+		}
+	};
+
+	// Trash ikonky sú teraz len v PropertiesPanel, nie na canvas
+
+	// Spoločné props pre všetky elementy
+	const commonProps = {
+		isSelected,
+		onMouseDown,
+		onContextMenu: handleContextMenu,
+		onDeleteClick: handleDelete, // Zmenené meno na onDeleteClick, aby sa neplietlo s onDelete
+	};
+
 	switch (element.type) {
 		case "text":
 			return (
-				<TextEditor
-					element={element as TextElement}
-					isSelected={isSelected}
-					onMouseDown={onMouseDown}
-					onUpdate={onUpdate}
-					isEditing={isEditing}
-					setIsEditing={setIsEditing}
-				/>
+				<div className="relative" style={{
+					position: 'absolute',
+					left: `${element.x}px`,
+					top: `${element.y}px`,
+				}}>
+					<TextEditor
+						element={element as TextElement}
+						{...commonProps}
+						onUpdate={onUpdate}
+						isEditing={isEditing}
+						setIsEditing={setIsEditing}
+						onDelete={(id) => onDelete && onDelete(id)} // TextEditor očakáva onDelete(id: string)
+					/>
+				</div>
 			);
 		case "image":
 			return (
-				<ImageElement
-					element={element}
-					isSelected={isSelected}
-					onMouseDown={onMouseDown}
-				/>
+				<div className="relative" style={{
+					position: 'absolute',
+					left: `${element.x}px`,
+					top: `${element.y}px`,
+				}}>
+					<ImageElement
+						element={element}
+						{...commonProps}
+					/>
+				</div>
 			);
 		case "shape":
 			return (
-				<ShapeTool
-					element={element as ShapeElement}
-					isSelected={isSelected}
-					onMouseDown={onMouseDown}
-					onUpdate={onUpdate}
-				/>
+				<div className="relative" style={{
+					position: 'absolute',
+					left: `${element.x}px`,
+					top: `${element.y}px`,
+				}}>
+					<ShapeTool
+						element={element as ShapeElement}
+						{...commonProps}
+						onUpdate={onUpdate}
+					/>
+				</div>
 			);
 		case "table":
 			return (
-				<TableTool
-					element={element as TableElement}
-					isSelected={isSelected}
-					onMouseDown={onMouseDown}
-					onUpdate={onUpdate}
-				/>
+				<div className="relative" style={{
+					position: 'absolute',
+					left: `${element.x}px`,
+					top: `${element.y}px`,
+				}}>
+					<TableTool
+						element={element as TableElement}
+						{...commonProps}
+						onUpdate={onUpdate}
+					/>
+				</div>
 			);
 		case "pencil":
 			return (
-				<PencilTool
-					element={element as PencilDrawingElement}
-					isSelected={isSelected}
-					onMouseDown={onMouseDown}
-				/>
+				<div className="relative" style={{
+					position: 'absolute',
+					left: `${element.x}px`,
+					top: `${element.y}px`,
+				}}>
+					<PencilTool
+						element={element as PencilDrawingElement}
+						{...commonProps}
+					/>
+				</div>
 			);
 		default:
 			return null;
@@ -89,7 +148,9 @@ const ImageElement: FC<{
 	element: PDFElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
-}> = ({ element, isSelected, onMouseDown }) => {
+	onContextMenu?: (e: MouseEvent) => void;
+	onDeleteClick?: (e: MouseEvent) => void; // Zmenené meno na onDeleteClick
+}> = ({ element, isSelected, onMouseDown, onContextMenu, onDeleteClick }) => {
 	if (element.type !== "image") return null;
 
 	return (
@@ -102,11 +163,14 @@ const ImageElement: FC<{
 				height: `${element.height}px`,
 			}}
 			onMouseDown={onMouseDown}
+			onContextMenu={onContextMenu}
 		>
 			<Image
 				src={element.src}
 				alt="PDF element"
 				className="w-full h-full object-contain"
+				width={element.width}
+				height={element.height}
 			/>
 		</div>
 	);

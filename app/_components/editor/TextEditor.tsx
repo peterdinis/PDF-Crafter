@@ -13,14 +13,17 @@ import { cn } from "@/lib/utils";
 import type { TextElement } from "@/types/global";
 import { type FC, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
+import { Trash2 } from "lucide-react";
 
 interface TextEditorProps {
 	element: TextElement;
 	isSelected: boolean;
 	onMouseDown: (e: React.MouseEvent) => void;
 	onUpdate: (element: TextElement) => void;
+	onDelete?: (id: string) => void; // Nový prop pre mazanie
 	isEditing?: boolean;
 	setIsEditing?: (isEditing: boolean) => void;
+	onContextMenu?: (e: React.MouseEvent) => void; // Nový prop pre kontextové menu
 }
 
 const fontOptions = [
@@ -37,11 +40,13 @@ export const TextEditor: FC<TextEditorProps> = ({
 	isSelected,
 	onMouseDown,
 	onUpdate,
+	onDelete,
 	isEditing: parentIsEditing,
 	setIsEditing: parentSetIsEditing,
+	onContextMenu,
 }) => {
 	const [internalEditing, setInternalEditing] = useState(false);
-	const [_, setShowFormatting] = useState(false);
+	const [showFormatting, setShowFormatting] = useState(false);
 	const [customFontSize, setCustomFontSize] = useState(
 		element.fontSize.toString(),
 	);
@@ -65,14 +70,17 @@ export const TextEditor: FC<TextEditorProps> = ({
 	}, [editing]);
 
 	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
+		if (typeof window === 'undefined') return;
+
+		const handleClickOutside = (event: globalThis.MouseEvent) => {
 			const target = event.target as HTMLElement;
 			if (
 				target.closest(".color-picker") ||
 				target.closest('[role="combobox"]') ||
 				target.closest('[role="listbox"]') ||
 				target.tagName === "INPUT" ||
-				target.closest(".select-content")
+				target.closest(".select-content") ||
+				target.closest(".delete-button")
 			) {
 				return;
 			}
@@ -95,6 +103,14 @@ export const TextEditor: FC<TextEditorProps> = ({
 		};
 	}, [editing, setEditing]);
 
+	const handleClick = (e: React.MouseEvent) => {
+		// Jednoduchý klik na vybraný text element spustí editáciu
+		if (isSelected && !editing) {
+			e.stopPropagation();
+			setEditing(true);
+		}
+	};
+
 	const handleDoubleClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		setEditing(true);
@@ -113,6 +129,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 			setEditing(false);
 			setShowFormatting(false);
 		}
+		// Delete key handling - handled in parent
 	};
 
 	const handleColorChange = (color: string) => {
@@ -175,6 +192,22 @@ export const TextEditor: FC<TextEditorProps> = ({
 		e.stopPropagation();
 	};
 
+	const handleDeleteClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (onDelete) {
+			onDelete(element.id);
+		}
+	};
+
+
+	const handleContextMenu = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (onContextMenu) {
+			onContextMenu(e);
+		}
+	};
+
 	return (
 		<div
 			className={cn(
@@ -188,7 +221,9 @@ export const TextEditor: FC<TextEditorProps> = ({
 				minHeight: `${element.height}px`,
 			}}
 			onMouseDown={editing ? undefined : onMouseDown}
+			onClick={handleClick}
 			onDoubleClick={handleDoubleClick}
+			onContextMenu={handleContextMenu}
 			ref={editorRef}
 		>
 			{editing ? (
@@ -217,6 +252,19 @@ export const TextEditor: FC<TextEditorProps> = ({
 						onClick={handleFormClick}
 						onMouseDown={(e) => e.stopPropagation()}
 					>
+						<div className="flex justify-between items-center">
+							<h3 className="text-sm font-semibold">Text Properties</h3>
+							{onDelete && (
+								<button
+									onClick={handleDeleteClick}
+									className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 delete-button"
+									title="Delete text element"
+								>
+									<Trash2 size={16} />
+								</button>
+							)}
+						</div>
+
 						<div className="space-y-2">
 							<label className="text-sm font-medium">Font</label>
 							<Select
@@ -316,17 +364,24 @@ export const TextEditor: FC<TextEditorProps> = ({
 					</div>
 				</div>
 			) : (
-				<div
-					style={{
-						fontSize: `${element.fontSize}px`,
-						fontFamily: element.fontFamily,
-						fontWeight: element.fontWeight,
-						fontStyle: element.fontStyle,
-						color: element.color,
-					}}
-					className="whitespace-pre-wrap break-words"
-				>
-					{element.content}
+				<div className="relative group">
+					<div
+						style={{
+							fontSize: `${element.fontSize}px`,
+							fontFamily: element.fontFamily,
+							fontWeight: element.fontWeight,
+							fontStyle: element.fontStyle,
+							color: element.color,
+						}}
+						className={cn(
+							"whitespace-pre-wrap break-words",
+							isSelected && "cursor-text"
+						)}
+					>
+						{element.content}
+					</div>
+
+					{/* Trash ikonky sú teraz len v PropertiesPanel */}
 				</div>
 			)}
 		</div>

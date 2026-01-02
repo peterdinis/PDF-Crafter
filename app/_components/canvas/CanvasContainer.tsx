@@ -16,14 +16,16 @@ import {
 	useEffect,
 	useRef,
 	useState,
+	useCallback,
 } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { CanvasElement } from "./CanvasElement";
 import { DragDropArea } from "./DragAndDrop";
+import { Trash2 } from "lucide-react";
 
 interface CanvasContainerProps {
-	document: PDFDocument;
+	document: any;
 	activeTool: Tool;
 	selectedElement: string | null;
 	onSelectElement: (id: string | null) => void;
@@ -54,12 +56,13 @@ const paperSizesPoints: Record<string, { width: number; height: number }> = {
 };
 
 export const CanvasContainer: FC<CanvasContainerProps> = ({
-	document,
+	document: pdfDocument, // Renamed to avoid conflict with global document
 	activeTool,
 	selectedElement,
 	onSelectElement,
 	onAddElement,
 	onUpdateElement,
+	onDeleteElement,
 	isEditing,
 	setIsEditing,
 	pageElements,
@@ -81,20 +84,26 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 		offsetY: number;
 	} | null>(null);
 	const [isDrawing, setIsDrawing] = useState(false);
+	const [contextMenu, setContextMenu] = useState<{
+		x: number;
+		y: number;
+		elementId: string;
+	} | null>(null);
+	const contextMenuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		let width: number;
 		let height: number;
 
 		if (
-			document.pageSize === "custom" &&
-			document.customWidth &&
-			document.customHeight
+			pdfDocument.pageSize === "custom" &&
+			pdfDocument.customWidth &&
+			pdfDocument.customHeight
 		) {
-			width = Math.round(document.customWidth * 2.83465);
-			height = Math.round(document.customHeight * 2.83465);
+			width = Math.round(pdfDocument.customWidth * 2.83465);
+			height = Math.round(pdfDocument.customHeight * 2.83465);
 		} else {
-			const sizeKey = document.pageSize;
+			const sizeKey = pdfDocument.pageSize;
 			const defaultSize = { width: 595, height: 842 };
 			const size = paperSizesPoints[sizeKey] || defaultSize;
 
@@ -102,19 +111,73 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			height = size.height;
 		}
 
-		if (document.orientation === "landscape") {
+		if (pdfDocument.orientation === "landscape") {
 			[width, height] = [height, width];
 		}
 
 		setCanvasDimensions({ width, height });
 	}, [
-		document.pageSize,
-		document.orientation,
-		document.customWidth,
-		document.customHeight,
+		pdfDocument.pageSize,
+		pdfDocument.orientation,
+		pdfDocument.customWidth,
+		pdfDocument.customHeight,
 	]);
 
+	// Klávesové skratky pre mazanie
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Delete alebo Backspace pre mazanie vybraného elementu
+			if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement && !isEditing) {
+				e.preventDefault();
+				handleDeleteElement(selectedElement);
+			}
+			
+			// Escape pre zatvorenie kontextového menu alebo zrušenie výberu
+			if (e.key === 'Escape') {
+				if (contextMenu) {
+					setContextMenu(null);
+				} else {
+					onSelectElement(null);
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [selectedElement, isEditing, contextMenu, onSelectElement]);
+
+	// Zatvoriť kontextové menu po kliknutí inde
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+
+		const handleClickOutside = (event: globalThis.MouseEvent) => {
+			if (contextMenu && contextMenuRef.current && 
+				!contextMenuRef.current.contains(event.target as Node)) {
+				setContextMenu(null);
+			}
+		};
+
+		// Use global document object explicitly
+		globalThis.document.addEventListener('mousedown', handleClickOutside);
+		return () => globalThis.document.removeEventListener('mousedown', handleClickOutside);
+	}, [contextMenu]);
+
+	const handleDeleteElement = useCallback((elementId: string) => {
+		onDeleteElement(elementId);
+		if (selectedElement === elementId) {
+			onSelectElement(null);
+		}
+		setContextMenu(null);
+		toast.success("Element deleted");
+	}, [onDeleteElement, onSelectElement, selectedElement]);
+
 	const handleCanvasClick = (e: MouseEvent) => {
+		// Zatvoriť kontextové menu pri kliknutí na canvas
+		if (contextMenu) {
+			setContextMenu(null);
+			return;
+		}
+
 		if (!canvasRef.current || isEditing) return;
 
 		const rect = canvasRef.current.getBoundingClientRect();
@@ -241,6 +304,19 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 		}
 	};
 
+	// Pravý klik na element - kontextové menu
+	const handleElementContextMenu = (e: MouseEvent, element: PDFElement) => {
+		e.preventDefault();
+		e.stopPropagation();
+		
+		onSelectElement(element.id);
+		setContextMenu({
+			x: e.clientX,
+			y: e.clientY,
+			elementId: element.id,
+		});
+	};
+
 	const handleMouseDown = (e: MouseEvent) => {
 		if (activeTool !== "pencil" || !canvasRef.current || isEditing) return;
 
@@ -314,35 +390,83 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 	};
 
 	return (
-		<div
-			className="flex justify-center overflow-auto bg-gray-200 dark:bg-gray-800 h-full"
-			onMouseMove={handleMouseMove}
-			onMouseUp={handleMouseUp}
-			onMouseLeave={handleMouseUp}
-		>
-			<DragDropArea
-				canvasRef={canvasRef as unknown as RefObject<HTMLDivElement>}
-				canvasDimensions={canvasDimensions}
-				onCanvasClick={handleCanvasClick}
-				onMouseDown={handleMouseDown}
-				activeTool={activeTool}
-				onAddElement={onAddElement}
-				isEditing={isEditing}
+		<>
+			<div
+				className="flex justify-center overflow-auto bg-gray-200 dark:bg-gray-800 h-full relative"
+				onMouseMove={handleMouseMove}
+				onMouseUp={handleMouseUp}
+				onMouseLeave={handleMouseUp}
 			>
-				{pageElements.map((element) => (
-					<CanvasElement
-						key={element.id}
-						element={element}
-						isSelected={element.id === selectedElement}
-						onMouseDown={(e) => handleElementMouseDown(e, element)}
-						onUpdate={onUpdateElement}
-						activeTool={activeTool}
-						onAddElement={onAddElement}
-						isEditing={isEditing}
-						setIsEditing={setIsEditing}
-					/>
-				))}
-			</DragDropArea>
-		</div>
+				<DragDropArea
+					canvasRef={canvasRef as unknown as RefObject<HTMLDivElement>}
+					canvasDimensions={canvasDimensions}
+					onCanvasClick={handleCanvasClick}
+					onMouseDown={handleMouseDown}
+					activeTool={activeTool}
+					onAddElement={onAddElement}
+					onDeleteElement={onDeleteElement}
+					selectedElement={selectedElement}
+					isEditing={isEditing}
+				>
+					{pageElements.map((element) => (
+						<div
+							key={element.id}
+							className={`relative transition-all duration-200 ${
+								element.id === selectedElement ? 'z-10' : 'z-0'
+							}`}
+							style={{
+								position: 'absolute',
+								left: `${element.x}px`,
+								top: `${element.y}px`,
+							}}
+						>
+							<CanvasElement
+								element={element}
+								isSelected={element.id === selectedElement}
+								onMouseDown={(e) => handleElementMouseDown(e, element)}
+								onContextMenu={(e) => handleElementContextMenu(e, element)}
+								onUpdate={onUpdateElement}
+								onDelete={onDeleteElement}
+								activeTool={activeTool}
+								onAddElement={onAddElement}
+								isEditing={isEditing}
+								setIsEditing={setIsEditing}
+							/>
+							
+							{/* Trash ikonky sú teraz len v PropertiesPanel */}
+						</div>
+					))}
+				</DragDropArea>
+
+				{/* KONTEXTOVÉ MENU - VYLEPŠENÉ */}
+				{contextMenu && (
+					<div
+						ref={contextMenuRef}
+						className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl z-[9999] py-1 min-w-[200px] overflow-hidden"
+						style={{
+							left: `${contextMenu.x}px`,
+							top: `${contextMenu.y}px`,
+						}}
+					>
+						<div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+							<p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Element Actions</p>
+						</div>
+						<button
+							onClick={() => handleDeleteElement(contextMenu.elementId)}
+							className="w-full px-4 py-2.5 text-left hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center gap-2 transition-colors font-medium"
+						>
+							<Trash2 size={16} />
+							<span>Delete Element</span>
+						</button>
+						<div className="border-t border-gray-200 dark:border-gray-700 mt-1 pt-2 px-3 pb-2 bg-gray-50 dark:bg-gray-900">
+							<div className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
+								<span>Keyboard shortcut:</span>
+								<kbd className="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs font-mono">Delete</kbd>
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		</>
 	);
 };

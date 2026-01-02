@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ShapeElement } from "@/types/global";
 import { Label } from "@radix-ui/react-label";
-import { type ChangeEvent, type FC, type MouseEvent, useState } from "react";
+import { type ChangeEvent, type FC, type MouseEvent, useState, useEffect } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface ShapeToolProps {
@@ -120,8 +120,28 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 		setShowControls(true);
 	};
 
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+
+		const handleClickOutside = (e: globalThis.MouseEvent) => {
+			if (showControls) {
+				const target = e.target as HTMLElement;
+				if (!target.closest('.shape-controls') && !target.closest('.color-picker')) {
+					setShowControls(false);
+				}
+			}
+		};
+
+		if (showControls) {
+			document.addEventListener('mousedown', handleClickOutside);
+			return () => {
+				document.removeEventListener('mousedown', handleClickOutside);
+			};
+		}
+	}, [showControls]);
+
 	const handleBlur = () => {
-		setShowControls(false);
+		// Don't close on blur, use click outside instead
 	};
 
 	return (
@@ -147,7 +167,7 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 			{renderShape()}
 
 			{isSelected && showControls && (
-				<div className="absolute top-full left-0 mt-2 bg-white p-3 border border-gray-200 rounded shadow-md z-50 min-w-[240px]">
+				<div className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50 min-w-[240px] shape-controls">
 					<div className="space-y-4">
 						<div className="flex gap-4">
 							<div className="w-1/2">

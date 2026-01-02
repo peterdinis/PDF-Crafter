@@ -20,11 +20,12 @@ import type {
 	Tool,
 } from "@/types/global";
 import { Download, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
 import { Toolbar } from "./Toolbar";
 import { PdfSettings } from "../pdf/PdfSettings";
+import { PropertiesPanel } from "./PropertiesPanel";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -47,6 +48,39 @@ const PDFEditor = () => {
 	const [selectedElement, setSelectedElement] = useState<string | null>(null);
 	const [showSettings, setShowSettings] = useState(false);
 	const [showClearPageDialog, setShowClearPageDialog] = useState(false);
+	const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
+
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Delete key
+			if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+				e.preventDefault();
+				deleteElement(selectedElement);
+				toast.success("Element deleted");
+			}
+			
+			// Escape key to deselect
+			if (e.key === 'Escape') {
+				setSelectedElement(null);
+			}
+			
+			// Duplicate element with Ctrl/Cmd + D
+			if ((e.ctrlKey || e.metaKey) && e.key === 'd' && selectedElement) {
+				e.preventDefault();
+				duplicateElement(selectedElement);
+			}
+			
+			// Open properties panel with Ctrl/Cmd + E
+			if ((e.ctrlKey || e.metaKey) && e.key === 'e' && selectedElement) {
+				e.preventDefault();
+				setShowPropertiesPanel(true);
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [selectedElement]);
 
 	const handleToolSelect = (tool: Tool) => {
 		setActiveTool(tool);
@@ -187,8 +221,57 @@ const PDFEditor = () => {
 			};
 		});
 
-		setSelectedElement(null);
+		if (selectedElement === id) {
+			setSelectedElement(null);
+			setShowPropertiesPanel(false);
+		}
+		toast.success("Element deleted");
 	};
+
+	const duplicateElement = (id: string) => {
+		setDocument((prev) => {
+			const currentPage = prev.pages[prev.currentPage];
+			const elementToDuplicate = currentPage.elements.find(el => el.id === id);
+			
+			if (!elementToDuplicate || elementToDuplicate.x === undefined || elementToDuplicate.y === undefined) return prev;
+
+			const duplicatedElement = {
+				...elementToDuplicate,
+				id: crypto.randomUUID(),
+				x: elementToDuplicate.x + 20,
+				y: elementToDuplicate.y + 20,
+			};
+
+			const updatedPages = [...prev.pages];
+			updatedPages[prev.currentPage] = {
+				...updatedPages[prev.currentPage],
+				elements: [...updatedPages[prev.currentPage].elements, duplicatedElement],
+			};
+
+			return {
+				...prev,
+				pages: updatedPages,
+			};
+		});
+		
+		toast.success("Element duplicated");
+	};
+
+	// Get selected element object
+	const selectedElementObj = selectedElement
+		? document.pages[document.currentPage]?.elements.find(
+				(el) => el.id === selectedElement,
+			) || null
+		: null;
+
+	// Show properties panel when element is selected
+	useEffect(() => {
+		if (selectedElement) {
+			setShowPropertiesPanel(true);
+		} else {
+			setShowPropertiesPanel(false);
+		}
+	}, [selectedElement]);
 
 	const updateDocumentSettings = (settings: Partial<PDFDocument>) => {
 		setDocument({
@@ -282,6 +365,19 @@ const PDFEditor = () => {
 					document={document}
 					onUpdate={updateDocumentSettings}
 					onClose={() => setShowSettings(false)}
+				/>
+			)}
+
+			{showPropertiesPanel && selectedElementObj && (
+				<PropertiesPanel
+					element={selectedElementObj}
+					onUpdate={updateElement}
+					onDelete={deleteElement}
+					onDuplicate={duplicateElement}
+					onClose={() => {
+						setShowPropertiesPanel(false);
+						setSelectedElement(null);
+					}}
 				/>
 			)}
 
