@@ -268,6 +268,34 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				],
 			};
 			onAddElement(newTable);
+		} else if (activeTool.startsWith("chart_")) {
+			const chartType = activeTool.replace("chart_", "") as
+				| "bar"
+				| "line"
+				| "pie";
+			const newChart: any = {
+				id: uuidv4(),
+				type: "chart",
+				chartType,
+				x,
+				y,
+				width: 400,
+				height: 300,
+				data: [
+					{ label: "Jan", value: 45 },
+					{ label: "Feb", value: 52 },
+					{ label: "Mar", value: 38 },
+					{ label: "Apr", value: 65 },
+					{ label: "May", value: 48 },
+				],
+				title: "Sample Chart",
+				showGrid: true,
+				showAxes: true,
+				axesColor: "#9ca3af",
+				gridColor: "#e5e7eb",
+				seriesColors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+			};
+			onAddElement(newChart);
 		} else if (activeTool === "select") {
 			onSelectElement(null);
 			setIsEditing(false);
