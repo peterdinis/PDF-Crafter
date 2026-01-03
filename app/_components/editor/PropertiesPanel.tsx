@@ -18,9 +18,11 @@ import type {
 	TextElement,
 	ChartElement,
 } from "@/types/global";
-import { Trash2, Copy, Plus, Minus } from "lucide-react";
-import { type FC } from "react";
+import { Trash2, Copy, Plus, Minus, Download, Upload, FileText } from "lucide-react";
+import { type FC, useState } from "react";
+import { toast } from "sonner";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
+import { ChartImportDialog } from "../tools/ChartImportDialog";
 
 interface PropertiesPanelProps {
 	element: PDFElement | null;
@@ -398,123 +400,147 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 		</div>
 	);
 
-	const renderChartProperties = (el: ChartElement) => (
-		<div className="space-y-4">
-			<div className="space-y-2">
-				<Label>Chart Type</Label>
-				<Select
-					value={el.chartType}
-					onValueChange={(value) =>
-						onUpdate({ ...el, chartType: value as any })
-					}
-				>
-					<SelectTrigger>
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="bar">Bar Chart</SelectItem>
-						<SelectItem value="line">Line Chart</SelectItem>
-						<SelectItem value="pie">Pie Chart</SelectItem>
-					</SelectContent>
-				</Select>
-			</div>
 
-			<div className="space-y-4 pt-2 border-t">
-				<div className="flex items-center justify-between">
-					<Label>Data Points</Label>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => {
-							const newData = [
-								...el.data,
-								{ label: `Point ${el.data.length + 1}`, value: 0 },
-							];
-							onUpdate({ ...el, data: newData });
-						}}
+	const renderChartProperties = (el: ChartElement) => {
+		const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+
+		return (
+			<div className="space-y-4">
+				<div className="space-y-2">
+					<Label>Chart Type</Label>
+					<Select
+						value={el.chartType}
+						onValueChange={(value) =>
+							onUpdate({ ...el, chartType: value as any })
+						}
 					>
-						<Plus size={14} className="mr-1" /> Add
-					</Button>
+						<SelectTrigger>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="bar">Bar Chart</SelectItem>
+							<SelectItem value="line">Line Chart</SelectItem>
+							<SelectItem value="pie">Pie Chart</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
 
-				<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 text-editor-foreground">
-					{el.data.map((point, index) => (
-						<div key={index} className="flex gap-2 items-end">
-							<div className="flex-1 space-y-1">
-								<Label className="text-[10px] uppercase opacity-50 font-bold">Label</Label>
-								<Input
-									value={point.label}
-									onChange={(e) => {
-										const newData = [...el.data];
-										newData[index] = { ...point, label: e.target.value };
-										onUpdate({ ...el, data: newData });
-									}}
-									className="h-8 text-xs"
-								/>
-							</div>
-							<div className="w-20 space-y-1">
-								<Label className="text-[10px] uppercase opacity-50 font-bold">Value</Label>
-								<Input
-									type="number"
-									value={point.value}
-									onChange={(e) => {
-										const newData = [...el.data];
-										newData[index] = {
-											...point,
-											value: Number.parseFloat(e.target.value) || 0,
-										};
-										onUpdate({ ...el, data: newData });
-									}}
-									className="h-8 text-xs"
-								/>
-							</div>
+				<div className="space-y-4 pt-2 border-t">
+					<div className="flex items-center justify-between">
+						<Label className="font-bold">Data Points</Label>
+						<div className="flex gap-2">
 							<Button
-								variant="ghost"
+								variant="outline"
 								size="sm"
-								className="h-8 w-8 text-red-500 hover:text-red-700 p-0"
+								onClick={() => setIsImportDialogOpen(true)}
+								className="h-8 text-xs"
+							>
+								<Upload size={14} className="mr-1" /> Import
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
 								onClick={() => {
-									const newData = el.data.filter((_, i) => i !== index);
+									const newData = [
+										...el.data,
+										{ label: `Point ${el.data.length + 1}`, value: 0 },
+									];
 									onUpdate({ ...el, data: newData });
 								}}
+								className="h-8 text-xs"
 							>
-								<Trash2 size={14} />
+								<Plus size={14} className="mr-1" /> Add
 							</Button>
 						</div>
-					))}
-				</div>
-			</div>
-
-			<div className="space-y-2 pt-2 border-t text-editor-foreground">
-				<Label className="font-bold">Appearance</Label>
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							id="showGrid"
-							checked={el.showGrid}
-							onChange={(e) => onUpdate({ ...el, showGrid: e.target.checked })}
-						/>
-						<Label htmlFor="showGrid" className="text-xs">Grid</Label>
 					</div>
-					<div className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							id="showAxes"
-							checked={el.showAxes}
-							onChange={(e) => onUpdate({ ...el, showAxes: e.target.checked })}
-						/>
-						<Label htmlFor="showAxes" className="text-xs">Axes</Label>
+
+					<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+						{el.data.map((point, index) => (
+							<div key={index} className="flex gap-2 items-end p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
+								<div className="flex-1 space-y-1">
+									<Label className="text-[10px] uppercase opacity-50 font-bold">Label</Label>
+									<Input
+										value={point.label}
+										onChange={(e) => {
+											const newData = [...el.data];
+											newData[index] = { ...point, label: e.target.value };
+											onUpdate({ ...el, data: newData });
+										}}
+										className="h-8 text-xs bg-white dark:bg-gray-950"
+									/>
+								</div>
+								<div className="w-20 space-y-1">
+									<Label className="text-[10px] uppercase opacity-50 font-bold">Value</Label>
+									<Input
+										type="number"
+										value={point.value}
+										onChange={(e) => {
+											const newData = [...el.data];
+											newData[index] = {
+												...point,
+												value: Number.parseFloat(e.target.value) || 0,
+											};
+											onUpdate({ ...el, data: newData });
+										}}
+										className="h-8 text-xs bg-white dark:bg-gray-950"
+									/>
+								</div>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="h-8 w-8 text-red-500 hover:text-red-700 p-0"
+									onClick={() => {
+										const newData = el.data.filter((_, i) => i !== index);
+										onUpdate({ ...el, data: newData });
+									}}
+								>
+									<Trash2 size={14} />
+								</Button>
+							</div>
+						))}
 					</div>
 				</div>
-			</div>
 
-			<ColorPicker
-				label="Background Color"
-				color={el.backgroundColor || "transparent"}
-				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
-			/>
-		</div>
-	);
+				<ChartImportDialog
+					isOpen={isImportDialogOpen}
+					onClose={() => setIsImportDialogOpen(false)}
+					onImport={(newData) => onUpdate({ ...el, data: newData })}
+				/>
+
+				<div className="space-y-2 pt-2 border-t text-editor-foreground">
+					<Label className="font-bold">Appearance</Label>
+					<div className="grid grid-cols-2 gap-4">
+						<div className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								id="showGrid"
+								className="rounded border-gray-300 text-editor-primary focus:ring-editor-primary"
+								checked={el.showGrid}
+								onChange={(e) => onUpdate({ ...el, showGrid: e.target.checked })}
+							/>
+							<Label htmlFor="showGrid" className="text-xs cursor-pointer">Show Grid</Label>
+						</div>
+						<div className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								id="showAxes"
+								className="rounded border-gray-300 text-editor-primary focus:ring-editor-primary"
+								checked={el.showAxes}
+								onChange={(e) => onUpdate({ ...el, showAxes: e.target.checked })}
+							/>
+							<Label htmlFor="showAxes" className="text-xs cursor-pointer">Show Axes</Label>
+						</div>
+					</div>
+				</div>
+
+				<ColorPicker
+					label="Background Color"
+					color={el.backgroundColor || "transparent"}
+					onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+				/>
+			</div>
+		);
+	};
 
 	const renderPositionProperties = () => (
 		<div className="space-y-4 border-t pt-4">

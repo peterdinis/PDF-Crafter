@@ -23,21 +23,38 @@ import {
 	BarChart3,
 	Grid3X3,
 	MousePointer2,
+	Layers,
+	ChevronUp,
+	ChevronDown,
+	Eye,
+	EyeOff,
+	Trash2,
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { PDFElement } from "@/types/global";
 
 interface ToolbarProps {
 	activeTool: Tool;
 	onToolSelect: (tool: Tool) => void;
 	onSettingsToggle: () => void;
+	pageElements: PDFElement[];
+	selectedElement: string | null;
+	onSelectElement: (id: string | null) => void;
+	onMoveElement: (id: string, direction: 'up' | 'down') => void;
+	onDeleteElement: (id: string) => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
 	activeTool,
 	onToolSelect,
 	onSettingsToggle,
+	pageElements,
+	selectedElement,
+	onSelectElement,
+	onMoveElement,
+	onDeleteElement,
 }) => {
 	const [activeCategory, setActiveCategory] = useState<string>("basic");
 
@@ -46,6 +63,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 		{ id: "shapes", name: "Shapes", icon: Shapes },
 		{ id: "tables", name: "Tables", icon: Grid3X3 },
 		{ id: "charts", name: "Charts", icon: BarChart3 },
+		{ id: "layers", name: "Layers", icon: Layers },
 	];
 
 	const toolGroups = {
@@ -133,71 +151,133 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 			<div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
 				<div>
 					<h3 className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-3 tracking-widest px-2">
-						{activeCategory.toUpperCase()} ELEMENTS
+						{activeCategory.toUpperCase()} {activeCategory === 'layers' ? 'NAVIGATOR' : 'ELEMENTS'}
 					</h3>
 					<div className="grid grid-cols-1 gap-2">
-						{toolGroups[activeCategory as keyof typeof toolGroups].map((tool) => (
-							<div
-								key={tool.value}
-								draggable="true"
-								onDragStart={(e) => {
-									const data = {
-										type: tool.value.split("_")[0],
-										content: tool.name,
-										shapeType: tool.value.startsWith("shape_") ? tool.value.split("_")[1] : undefined,
-										tableStyle: tool.value.startsWith("table_") ? tool.value.split("_")[1] : undefined,
-										chartType: tool.value.startsWith("chart_") ? tool.value.split("_")[1] : undefined,
-									};
-									e.dataTransfer.setData("application/json", JSON.stringify(data));
-
-									// Visual feedback for dragging
-									const dragPreview = document.createElement('div');
-									dragPreview.className = 'p-3 bg-editor-primary text-white rounded shadow-xl text-xs font-bold';
-									dragPreview.innerText = `Adding ${tool.name}`;
-									dragPreview.style.position = 'absolute';
-									dragPreview.style.top = '-1000px';
-									document.body.appendChild(dragPreview);
-									e.dataTransfer.setDragImage(dragPreview, 0, 0);
-									setTimeout(() => dragPreview.remove(), 0);
-								}}
-								className={cn(
-									"group relative flex items-start gap-3 p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all border border-transparent hover:border-editor-primary/20",
-									activeTool === tool.value
-										? "bg-editor-primary/10 border-editor-primary/30 ring-1 ring-editor-primary/10"
-										: "hover:bg-gray-50 dark:hover:bg-gray-800"
+						{activeCategory === 'layers' ? (
+							<div className="space-y-1">
+								{pageElements.length === 0 ? (
+									<div className="p-8 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl">
+										<Layers size={24} className="mx-auto text-gray-300 mb-2" />
+										<p className="text-xs text-gray-400">No elements on this page</p>
+									</div>
+								) : (
+									[...pageElements].reverse().map((el, idx) => (
+										<div
+											key={el.id}
+											onClick={() => onSelectElement(el.id)}
+											className={cn(
+												"group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer",
+												selectedElement === el.id
+													? "bg-editor-primary/10 border-editor-primary/30"
+													: "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700"
+											)}
+										>
+											<div className={cn(
+												"w-8 h-8 rounded shrink-0 flex items-center justify-center text-xs font-bold",
+												selectedElement === el.id ? "bg-editor-primary text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+											)}>
+												{pageElements.length - idx}
+											</div>
+											<div className="flex-1 min-w-0">
+												<p className="text-xs font-semibold truncate text-gray-700 dark:text-gray-300">
+													{el.type.charAt(0).toUpperCase() + el.type.slice(1)}
+												</p>
+												<p className="text-[10px] text-gray-400 truncate">
+													{el.id.slice(0, 8)}...
+												</p>
+											</div>
+											<div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+												<button
+													onClick={(e) => { e.stopPropagation(); onMoveElement(el.id, 'up'); }}
+													className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-400 hover:text-gray-600"
+													title="Bring Forward"
+												>
+													<ChevronUp size={14} />
+												</button>
+												<button
+													onClick={(e) => { e.stopPropagation(); onMoveElement(el.id, 'down'); }}
+													className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-400 hover:text-gray-600"
+													title="Send Backward"
+												>
+													<ChevronDown size={14} />
+												</button>
+												<button
+													onClick={(e) => { e.stopPropagation(); onDeleteElement(el.id); }}
+													className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-gray-400 hover:text-red-500"
+													title="Delete"
+												>
+													<Trash2 size={14} />
+												</button>
+											</div>
+										</div>
+									))
 								)}
-								onClick={() => onToolSelect(tool.value)}
-								onDoubleClick={() => {
-									onToolSelect(tool.value);
-									// Small visual feedback
-									toast.info(`Double-click shortcut: Click on canvas to place ${tool.name}`);
-								}}
-							>
-								<div className={cn(
-									"w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-									activeTool === tool.value
-										? "bg-editor-primary text-white"
-										: "bg-gray-100 dark:bg-gray-800 text-gray-500 group-hover:bg-editor-primary/10 group-hover:text-editor-primary"
-								)}>
-									<tool.icon size={20} />
-								</div>
-								<div className="flex-1">
-									<p className={cn(
-										"text-sm font-semibold mb-0.5",
-										activeTool === tool.value ? "text-editor-primary" : "text-gray-700 dark:text-gray-300"
-									)}>
-										{tool.name}
-									</p>
-									<p className="text-[10px] text-gray-500 leading-tight">
-										{tool.description}
-									</p>
-									{activeCategory === "charts" && renderChartPreview(tool.value)}
-								</div>
-								<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-									<Plus size={14} className="text-editor-primary" />
-								</div>
 							</div>
-						))}
+						) : (
+							toolGroups[activeCategory as keyof typeof toolGroups].map((tool) => (
+								<div
+									key={tool.value}
+									draggable="true"
+									onDragStart={(e) => {
+										const data = {
+											type: tool.value.split("_")[0],
+											content: tool.name,
+											shapeType: tool.value.startsWith("shape_") ? tool.value.split("_")[1] : undefined,
+											tableStyle: tool.value.startsWith("table_") ? tool.value.split("_")[1] : undefined,
+											chartType: tool.value.startsWith("chart_") ? tool.value.split("_")[1] : undefined,
+										};
+										e.dataTransfer.setData("application/json", JSON.stringify(data));
+
+										// Visual feedback for dragging
+										const dragPreview = document.createElement('div');
+										dragPreview.className = 'p-3 bg-editor-primary text-white rounded shadow-xl text-xs font-bold';
+										dragPreview.innerText = `Adding ${tool.name}`;
+										dragPreview.style.position = 'absolute';
+										dragPreview.style.top = '-1000px';
+										document.body.appendChild(dragPreview);
+										e.dataTransfer.setDragImage(dragPreview, 0, 0);
+										setTimeout(() => dragPreview.remove(), 0);
+									}}
+									className={cn(
+										"group relative flex items-start gap-3 p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all border border-transparent hover:border-editor-primary/20",
+										activeTool === tool.value
+											? "bg-editor-primary/10 border-editor-primary/30 ring-1 ring-editor-primary/10"
+											: "hover:bg-gray-50 dark:hover:bg-gray-800"
+									)}
+									onClick={() => onToolSelect(tool.value)}
+									onDoubleClick={() => {
+										onToolSelect(tool.value);
+										// Small visual feedback
+										toast.info(`Double-click shortcut: Click on canvas to place ${tool.name}`);
+									}}
+								>
+									<div className={cn(
+										"w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+										activeTool === tool.value
+											? "bg-editor-primary text-white"
+											: "bg-gray-100 dark:bg-gray-800 text-gray-500 group-hover:bg-editor-primary/10 group-hover:text-editor-primary"
+									)}>
+										<tool.icon size={20} />
+									</div>
+									<div className="flex-1">
+										<p className={cn(
+											"text-sm font-semibold mb-0.5",
+											activeTool === tool.value ? "text-editor-primary" : "text-gray-700 dark:text-gray-300"
+										)}>
+											{tool.name}
+										</p>
+										<p className="text-[10px] text-gray-500 leading-tight">
+											{tool.description}
+										</p>
+										{activeCategory === "charts" && renderChartPreview(tool.value)}
+									</div>
+									<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+										<Plus size={14} className="text-editor-primary" />
+									</div>
+								</div>
+							))
+						)}
 					</div>
 				</div>
 

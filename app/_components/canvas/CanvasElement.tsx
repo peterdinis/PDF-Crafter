@@ -64,9 +64,12 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 		onDeleteClick: handleDelete,
 	};
 
-	switch (element.type) {
-		case "text":
-			return (
+	return (
+		<div
+			className="w-full h-full"
+			onClick={(e) => e.stopPropagation()}
+		>
+			{element.type === "text" && (
 				<TextEditor
 					element={element as TextElement}
 					{...commonProps}
@@ -75,48 +78,42 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 					setIsEditing={setIsEditing}
 					onDelete={(id) => onDelete && onDelete(id)}
 				/>
-			);
-		case "image":
-			return (
+			)}
+			{element.type === "image" && (
 				<ImageElement
 					element={element}
 					{...commonProps}
 				/>
-			);
-		case "shape":
-			return (
+			)}
+			{element.type === "shape" && (
 				<ShapeTool
 					element={element as ShapeElement}
 					{...commonProps}
 					onUpdate={onUpdate}
 				/>
-			);
-		case "table":
-			return (
+			)}
+			{element.type === "table" && (
 				<TableTool
 					element={element as TableElement}
 					{...commonProps}
 					onUpdate={onUpdate}
 				/>
-			);
-		case "pencil":
-			return (
+			)}
+			{element.type === "pencil" && (
 				<PencilTool
 					element={element as PencilDrawingElement}
 					{...commonProps}
 				/>
-			);
-		case "chart":
-			return (
+			)}
+			{element.type === "chart" && (
 				<ChartTool
 					element={element as ChartElement}
 					{...commonProps}
 				/>
-			);
-		default:
-			return null;
-	}
-};
+			)}
+		</div>
+	);
+}
 
 const ImageElement: FC<{
 	element: PDFElement;
@@ -141,8 +138,8 @@ const ImageElement: FC<{
 				src={element.src}
 				alt="PDF element"
 				className="w-full h-full object-contain"
-				width={element.width}
-				height={element.height}
+				width={element.width || 200}
+				height={element.height || 200}
 			/>
 		</div>
 	);

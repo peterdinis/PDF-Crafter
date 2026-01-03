@@ -48,48 +48,6 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 	isEditing,
 }) => {
 	const [isDraggingOver, setIsDraggingOver] = useState(false);
-	const [contextMenu, setContextMenu] = useState<{
-		x: number;
-		y: number;
-		elementId: string | null;
-	} | null>(null);
-
-	// Pridať event listener pre kontextové menu
-	const handleContextMenu = (e: MouseEvent, elementId?: string) => {
-		e.preventDefault();
-
-		if (elementId && onDeleteElement) {
-			setContextMenu({
-				x: e.clientX,
-				y: e.clientY,
-				elementId,
-			});
-		}
-	};
-
-	// Zatvoriť kontextové menu po kliknutí inde
-	useEffect(() => {
-		const handleClickOutside = () => {
-			setContextMenu(null);
-		};
-
-		window.addEventListener('click', handleClickOutside);
-		return () => window.removeEventListener('click', handleClickOutside);
-	}, []);
-
-	// Klávesové skratky
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement && onDeleteElement) {
-				e.preventDefault();
-				onDeleteElement(selectedElement);
-				toast.success("Element deleted");
-			}
-		};
-
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
-	}, [selectedElement, onDeleteElement]);
 
 	const handleDragOver = (e: DragEvent) => {
 		e.preventDefault();
@@ -114,10 +72,11 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 		if (data) {
 			try {
 				const elementData = JSON.parse(data);
+				const id = uuidv4();
 				switch (elementData.type) {
 					case "text":
-						const newText: TextElement = {
-							id: uuidv4(),
+						onAddElement({
+							id,
 							type: "text",
 							content: elementData.content || "Dropped text",
 							x,
@@ -129,12 +88,11 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 							color: "#000000",
 							width: 200,
 							height: 30,
-						};
-						onAddElement(newText);
+						} as TextElement);
 						break;
 					case "shape":
-						const newShape: ShapeElement = {
-							id: uuidv4(),
+						onAddElement({
+							id,
 							type: "shape",
 							shapeType: elementData.shapeType || "rectangle",
 							x,
@@ -144,12 +102,11 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 							fill: "#e5e7eb",
 							stroke: "#9ca3af",
 							strokeWidth: 1,
-						};
-						onAddElement(newShape);
+						} as ShapeElement);
 						break;
 					case "table":
-						const newTable: TableElement = {
-							id: uuidv4(),
+						onAddElement({
+							id,
 							type: "table",
 							tableStyle: elementData.tableStyle || "simple",
 							x,
@@ -165,12 +122,11 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 								["Data 4", "Data 5", "Data 6"],
 								["Data 7", "Data 8", "Data 9"],
 							],
-						};
-						onAddElement(newTable);
+						} as TableElement);
 						break;
 					case "chart":
-						const newChart: ChartElement = {
-							id: uuidv4(),
+						onAddElement({
+							id,
 							type: "chart",
 							chartType: elementData.chartType || "bar",
 							x,
@@ -190,8 +146,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 							axesColor: "#9ca3af",
 							gridColor: "#e5e7eb",
 							seriesColors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
-						};
-						onAddElement(newChart);
+						} as ChartElement);
 						break;
 				}
 				toast.success("Element dropped");
@@ -202,79 +157,32 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 	};
 
 	const handleClick = (e: MouseEvent) => {
-		// Zatvoriť kontextové menu
-		if (contextMenu) {
-			setContextMenu(null);
-		}
-
 		if (activeTool !== "pencil") {
 			onCanvasClick(e);
 		}
 	};
 
-	// Funkcia pre mazanie elementu
-	const handleDeleteElement = (elementId: string) => {
-		if (onDeleteElement) {
-			onDeleteElement(elementId);
-			setContextMenu(null);
-			toast.success("Element deleted");
-		}
-	};
-
 	return (
-		<>
-			<div
-				ref={canvasRef}
-				className={cn(
-					"pdf-page relative",
-					isDraggingOver &&
-					!isEditing &&
-					"bg-editor-primary/10 border-2 border-dashed border-editor-primary",
-					activeTool === "pencil" && !isEditing && "cursor-crosshair",
-				)}
-				style={{
-					width: `${canvasDimensions.width}px`,
-					height: `${canvasDimensions.height}px`,
-				}}
-				onClick={handleClick}
-				onMouseDown={onMouseDown}
-				onDragOver={handleDragOver}
-				onDragLeave={handleDragLeave}
-				onDrop={handleDrop}
-			>
-				{/* Tu budú deti (elementy) renderované */}
-				{children}
-
-				{/* Pridať tlačidlo na mazanie k vybranému elementu */}
-				{selectedElement && onDeleteElement && (
-					<div className="absolute z-50">
-						{/* Môžete tu pridať vizuálne tlačidlo pre mazanie */}
-					</div>
-				)}
-			</div>
-
-			{/* Kontextové menu */}
-			{contextMenu && (
-				<div
-					className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 py-1 min-w-[160px]"
-					style={{
-						left: contextMenu.x,
-						top: contextMenu.y,
-					}}
-				>
-					<button
-						onClick={() => contextMenu.elementId && handleDeleteElement(contextMenu.elementId)}
-						className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500 dark:text-red-400 flex items-center gap-2"
-					>
-						<Trash2 size={16} />
-						Delete Element
-					</button>
-					<div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-					<div className="px-3 py-1 text-xs text-gray-500 dark:text-gray-400">
-						Or press <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Delete</kbd>
-					</div>
-				</div>
+		<div
+			ref={canvasRef}
+			className={cn(
+				"pdf-page relative transition-colors duration-200",
+				isDraggingOver &&
+				!isEditing &&
+				"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
+				activeTool === "pencil" && !isEditing && "cursor-crosshair",
 			)}
-		</>
+			style={{
+				width: `${canvasDimensions.width}px`,
+				height: `${canvasDimensions.height}px`,
+			}}
+			onClick={handleClick}
+			onMouseDown={onMouseDown}
+			onDragOver={handleDragOver}
+			onDragLeave={handleDragLeave}
+			onDrop={handleDrop}
+		>
+			{children}
+		</div>
 	);
 };

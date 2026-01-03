@@ -258,6 +258,33 @@ const PDFEditor = () => {
 		toast.success("Element duplicated");
 	};
 
+	const moveElementInList = (id: string, direction: 'up' | 'down') => {
+		setDocument((prev) => {
+			const currentPage = prev.pages[prev.currentPage];
+			const index = currentPage.elements.findIndex(el => el.id === id);
+			if (index === -1) return prev;
+
+			const newElements = [...currentPage.elements];
+			const targetIndex = direction === 'up' ? index + 1 : index - 1;
+
+			if (targetIndex < 0 || targetIndex >= newElements.length) return prev;
+
+			// Swap elements
+			[newElements[index], newElements[targetIndex]] = [newElements[targetIndex], newElements[index]];
+
+			const updatedPages = [...prev.pages];
+			updatedPages[prev.currentPage] = {
+				...updatedPages[prev.currentPage],
+				elements: newElements,
+			};
+
+			return {
+				...prev,
+				pages: updatedPages,
+			};
+		});
+	};
+
 	// Get selected element object
 	const selectedElementObj = selectedElement
 		? document.pages[document.currentPage]?.elements.find(
@@ -287,6 +314,11 @@ const PDFEditor = () => {
 				activeTool={activeTool}
 				onToolSelect={handleToolSelect}
 				onSettingsToggle={() => setShowSettings(!showSettings)}
+				pageElements={document.pages[document.currentPage]?.elements || []}
+				selectedElement={selectedElement}
+				onSelectElement={setSelectedElement}
+				onMoveElement={moveElementInList}
+				onDeleteElement={deleteElement}
 			/>
 
 			<div className="flex-1 overflow-hidden flex flex-col">
