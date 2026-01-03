@@ -131,7 +131,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 					onAddElement({
 						id,
 						type: "table",
-						tableStyle: isEmpty ? "simple" : (elementData.tableStyle || "simple"),
+						tableStyle: isEmpty ? "simple" : elementData.tableStyle || "simple",
 						x,
 						y,
 						width: 300,
@@ -140,11 +140,14 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						rows: 2,
 						headerType: isEmpty ? "none" : "simple",
 						data: isEmpty
-							? [["", ""], ["", ""]]
+							? [
+									["", ""],
+									["", ""],
+								]
 							: [
-								["Header 1", "Header 2"],
-								["Data 1", "Data 2"],
-							],
+									["Header 1", "Header 2"],
+									["Data 1", "Data 2"],
+								],
 					} as TableElement);
 				} else if (elementData.type === "chart") {
 					onAddElement({
@@ -195,8 +198,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			className={cn(
 				"pdf-page relative transition-colors duration-200",
 				isDraggingOver &&
-				!isEditing &&
-				"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
+					!isEditing &&
+					"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
 				activeTool === "pencil" && !isEditing && "cursor-crosshair",
 			)}
 			style={{
