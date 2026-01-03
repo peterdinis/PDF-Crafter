@@ -194,20 +194,45 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
 
-		if (activeTool === "text") {
+		if (activeTool.startsWith("text")) {
+			let fontSize = 16;
+			let fontWeight = "normal";
+			let fontStyle = "normal";
+			let content = "Click to edit text";
+
+			if (activeTool === "text_h1") {
+				fontSize = 32;
+				fontWeight = "bold";
+				content = "Heading 1";
+			} else if (activeTool === "text_h2") {
+				fontSize = 24;
+				fontWeight = "bold";
+				content = "Heading 2";
+			} else if (activeTool === "text_h3") {
+				fontSize = 20;
+				fontWeight = "bold";
+				content = "Heading 3";
+			} else if (activeTool === "text_bold") {
+				fontWeight = "bold";
+				content = "Bold text";
+			} else if (activeTool === "text_italic") {
+				fontStyle = "italic";
+				content = "Italic text";
+			}
+
 			const newText: TextElement = {
 				id: uuidv4(),
 				type: "text",
-				content: "Click to edit text",
+				content,
 				x,
 				y,
-				fontSize: 16,
+				fontSize,
 				fontFamily: "Arial",
-				fontWeight: "normal",
-				fontStyle: "normal",
+				fontWeight,
+				fontStyle,
 				color: "#000000",
-				width: 200,
-				height: 30,
+				width: activeTool.startsWith("text_h") ? 300 : 200,
+				height: fontSize * 1.5,
 			};
 			onAddElement(newText);
 		} else if (activeTool === "shape_rectangle") {
@@ -256,10 +281,10 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			};
 			onAddElement(newShape);
 		} else if (activeTool.startsWith("table_")) {
-			const tableStyle = activeTool.replace("table_", "") as
+			const tableStyle = activeTool === "table_empty" ? "simple" : (activeTool.replace("table_", "") as
 				| "simple"
 				| "striped"
-				| "bordered";
+				| "bordered");
 			const newTable: TableElement = {
 				id: uuidv4(),
 				type: "table",
@@ -267,16 +292,16 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				x,
 				y,
 				width: 300,
-				height: 200,
-				columns: 3,
-				rows: 4,
-				headerType: "simple",
-				data: [
-					["Header 1", "Header 2", "Header 3"],
-					["Row 1, Cell 1", "Row 1, Cell 2", "Row 1, Cell 3"],
-					["Row 2, Cell 1", "Row 2, Cell 2", "Row 2, Cell 3"],
-					["Row 3, Cell 1", "Row 3, Cell 2", "Row 3, Cell 3"],
-				],
+				height: activeTool === "table_empty" ? 100 : 200,
+				columns: 2,
+				rows: 2,
+				headerType: activeTool === "table_empty" ? "none" : "simple",
+				data: activeTool === "table_empty"
+					? [["", ""], ["", ""]]
+					: [
+						["Header 1", "Header 2"],
+						["Data 1", "Data 2"],
+					],
 			};
 			onAddElement(newTable);
 		} else if (activeTool.startsWith("chart_")) {
@@ -450,9 +475,8 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 					{pageElements.map((element) => (
 						<div
 							key={element.id}
-							className={`relative ${
-								element.id === selectedElement ? "z-10" : "z-0"
-							}`}
+							className={`relative ${element.id === selectedElement ? "z-10" : "z-0"
+								}`}
 							style={{
 								position: "absolute",
 								left: `${element.x}px`,

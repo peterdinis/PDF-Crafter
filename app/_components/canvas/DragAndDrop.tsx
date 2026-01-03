@@ -73,87 +73,108 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			try {
 				const elementData = JSON.parse(data);
 				const id = uuidv4();
-				switch (elementData.type) {
-					case "text":
-						onAddElement({
-							id,
-							type: "text",
-							content: elementData.content || "Dropped text",
-							x,
-							y,
-							fontSize: 16,
-							fontFamily: "Arial",
-							fontWeight: "normal",
-							fontStyle: "normal",
-							color: "#000000",
-							width: 200,
-							height: 30,
-						} as TextElement);
-						break;
-					case "shape":
-						onAddElement({
-							id,
-							type: "shape",
-							shapeType: elementData.shapeType || "rectangle",
-							x,
-							y,
-							width: 100,
-							height: 80,
-							fill: "#e5e7eb",
-							stroke: "#9ca3af",
-							strokeWidth: 1,
-						} as ShapeElement);
-						break;
-					case "table":
-						onAddElement({
-							id,
-							type: "table",
-							tableStyle: elementData.tableStyle || "simple",
-							x,
-							y,
-							width: 300,
-							height: 200,
-							columns: elementData.columns || 3,
-							rows: elementData.rows || 4,
-							headerType: elementData.headerType || "simple",
-							data: elementData.data || [
-								["Header 1", "Header 2", "Header 3"],
-								["Data 1", "Data 2", "Data 3"],
-								["Data 4", "Data 5", "Data 6"],
-								["Data 7", "Data 8", "Data 9"],
+				if (elementData.type === "text") {
+					let fontSize = 16;
+					let fontWeight = "normal";
+					let fontStyle = "normal";
+					let content = elementData.content || "Dropped text";
+
+					if (elementData.tool === "text_h1") {
+						fontSize = 32;
+						fontWeight = "bold";
+						content = "Heading 1";
+					} else if (elementData.tool === "text_h2") {
+						fontSize = 24;
+						fontWeight = "bold";
+						content = "Heading 2";
+					} else if (elementData.tool === "text_h3") {
+						fontSize = 20;
+						fontWeight = "bold";
+						content = "Heading 3";
+					} else if (elementData.tool === "text_bold") {
+						fontWeight = "bold";
+						content = "Bold text";
+					} else if (elementData.tool === "text_italic") {
+						fontStyle = "italic";
+						content = "Italic text";
+					}
+
+					onAddElement({
+						id,
+						type: "text",
+						content,
+						x,
+						y,
+						fontSize,
+						fontFamily: "Arial",
+						fontWeight,
+						fontStyle,
+						color: "#000000",
+						width: 200,
+						height: fontSize * 1.5,
+					} as TextElement);
+				} else if (elementData.type === "shape") {
+					onAddElement({
+						id,
+						type: "shape",
+						shapeType: elementData.shapeType || "rectangle",
+						x,
+						y,
+						width: 100,
+						height: 80,
+						fill: "#e5e7eb",
+						stroke: "#9ca3af",
+						strokeWidth: 1,
+					} as ShapeElement);
+				} else if (elementData.type === "table") {
+					const isEmpty = elementData.tool === "table_empty";
+					onAddElement({
+						id,
+						type: "table",
+						tableStyle: isEmpty ? "simple" : (elementData.tableStyle || "simple"),
+						x,
+						y,
+						width: 300,
+						height: isEmpty ? 100 : 200,
+						columns: 2,
+						rows: 2,
+						headerType: isEmpty ? "none" : "simple",
+						data: isEmpty
+							? [["", ""], ["", ""]]
+							: [
+								["Header 1", "Header 2"],
+								["Data 1", "Data 2"],
 							],
-						} as TableElement);
-						break;
-					case "chart":
-						onAddElement({
-							id,
-							type: "chart",
-							chartType: elementData.chartType || "bar",
-							x,
-							y,
-							width: 400,
-							height: 300,
-							data: [
-								{ label: "Jan", value: 45 },
-								{ label: "Feb", value: 52 },
-								{ label: "Mar", value: 38 },
-								{ label: "Apr", value: 65 },
-								{ label: "May", value: 48 },
-							],
-							title: "Sample Chart",
-							showGrid: true,
-							showAxes: true,
-							axesColor: "#9ca3af",
-							gridColor: "#e5e7eb",
-							seriesColors: [
-								"#3b82f6",
-								"#10b981",
-								"#f59e0b",
-								"#ef4444",
-								"#8b5cf6",
-							],
-						} as ChartElement);
-						break;
+					} as TableElement);
+				} else if (elementData.type === "chart") {
+					onAddElement({
+						id,
+						type: "chart",
+						chartType: elementData.chartType || "bar",
+						x,
+						y,
+						width: 400,
+						height: 300,
+						data: [
+							{ label: "Jan", value: 45 },
+							{ label: "Feb", value: 52 },
+							{ label: "Mar", value: 38 },
+							{ label: "Apr", value: 65 },
+							{ label: "May", value: 48 },
+						],
+						title: "Sample Chart",
+						showGrid: true,
+						showAxes: true,
+						axesColor: "#9ca3af",
+						gridColor: "#e5e7eb",
+						seriesColors: [
+							"#3b82f6",
+							"#10b981",
+							"#f59e0b",
+							"#ef4444",
+							"#8b5cf6",
+						],
+					} as ChartElement);
 				}
 				toast.success("Element dropped");
 			} catch (error) {
@@ -174,8 +195,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			className={cn(
 				"pdf-page relative transition-colors duration-200",
 				isDraggingOver &&
-					!isEditing &&
-					"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
+				!isEditing &&
+				"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
 				activeTool === "pencil" && !isEditing && "cursor-crosshair",
 			)}
 			style={{

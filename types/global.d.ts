@@ -1,18 +1,18 @@
 export type PDFDocument = {
 	title: string;
 	pageSize:
-		| "a3"
-		| "a4"
-		| "a5"
-		| "letter"
-		| "legal"
-		| "tabloid"
-		| "executive"
-		| "b5"
-		| "b4"
-		| "jisb4"
-		| "jisb5"
-		| "custom";
+	| "a3"
+	| "a4"
+	| "a5"
+	| "letter"
+	| "legal"
+	| "tabloid"
+	| "executive"
+	| "b5"
+	| "b4"
+	| "jisb4"
+	| "jisb5"
+	| "custom";
 	customWidth?: number;
 	customHeight?: number;
 	orientation: "portrait" | "landscape";
@@ -124,6 +124,11 @@ export type ChartDataPoint = {
 export type Tool =
 	| "select"
 	| "text"
+	| "text_h1"
+	| "text_h2"
+	| "text_h3"
+	| "text_bold"
+	| "text_italic"
 	| "image"
 	| "shape_rectangle"
 	| "shape_circle"
@@ -131,6 +136,7 @@ export type Tool =
 	| "table_simple"
 	| "table_striped"
 	| "table_bordered"
+	| "table_empty"
 	| "pencil"
 	| "chart_bar"
 	| "chart_line"

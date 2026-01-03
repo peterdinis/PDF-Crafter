@@ -80,6 +80,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				icon: Type,
 				description: "Add editable text",
 			},
+			{ name: "Heading 1", value: "text_h1" as Tool, icon: Type, description: "Large bold title" },
+			{ name: "Heading 2", value: "text_h2" as Tool, icon: Type, description: "Medium bold title" },
+			{ name: "Heading 3", value: "text_h3" as Tool, icon: Type, description: "Small bold title" },
+			{ name: "Bold Text", value: "text_bold" as Tool, icon: Type, description: "Emphasized bold text" },
+			{ name: "Italic Text", value: "text_italic" as Tool, icon: Type, description: "Slanted italic text" },
 			{
 				name: "Image",
 				value: "image" as Tool,
@@ -132,6 +137,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				icon: GripHorizontal,
 				description: "Fully outlined grid",
 			},
+			{ name: "Empty Table", value: "table_empty" as Tool, icon: Grid3X3, description: "2x2 skeleton table" },
 		],
 		charts: [
 			{
@@ -333,6 +339,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 										onDragStart={(e) => {
 											const data = {
 												type: tool.value.split("_")[0],
+												tool: tool.value,
 												content: tool.name,
 												shapeType: tool.value.startsWith("shape_")
 													? tool.value.split("_")[1]
