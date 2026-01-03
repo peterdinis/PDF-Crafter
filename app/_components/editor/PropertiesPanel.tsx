@@ -11,14 +11,22 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import type {
+	ChartElement,
 	ImageElement,
 	PDFElement,
 	ShapeElement,
 	TableElement,
 	TextElement,
-	ChartElement,
 } from "@/types/global";
-import { Trash2, Copy, Plus, Minus, Download, Upload, FileText } from "lucide-react";
+import {
+	Copy,
+	Download,
+	FileText,
+	Minus,
+	Plus,
+	Trash2,
+	Upload,
+} from "lucide-react";
 import { type FC, useState } from "react";
 import { toast } from "sonner";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
@@ -58,9 +66,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				<Label>Content</Label>
 				<textarea
 					value={el.content}
-					onChange={(e) =>
-						onUpdate({ ...el, content: e.target.value })
-					}
+					onChange={(e) => onUpdate({ ...el, content: e.target.value })}
 					className="w-full min-h-[80px] p-2 border rounded"
 					placeholder="Enter text..."
 				/>
@@ -71,9 +77,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 					<Label>Font Family</Label>
 					<Select
 						value={el.fontFamily}
-						onValueChange={(value) =>
-							onUpdate({ ...el, fontFamily: value })
-						}
+						onValueChange={(value) => onUpdate({ ...el, fontFamily: value })}
 					>
 						<SelectTrigger>
 							<SelectValue />
@@ -111,9 +115,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 					<Label>Font Weight</Label>
 					<Select
 						value={el.fontWeight}
-						onValueChange={(value) =>
-							onUpdate({ ...el, fontWeight: value })
-						}
+						onValueChange={(value) => onUpdate({ ...el, fontWeight: value })}
 					>
 						<SelectTrigger>
 							<SelectValue />
@@ -129,9 +131,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 					<Label>Font Style</Label>
 					<Select
 						value={el.fontStyle}
-						onValueChange={(value) =>
-							onUpdate({ ...el, fontStyle: value })
-						}
+						onValueChange={(value) => onUpdate({ ...el, fontStyle: value })}
 					>
 						<SelectTrigger>
 							<SelectValue />
@@ -400,7 +400,6 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 		</div>
 	);
 
-
 	const renderChartProperties = (el: ChartElement) => {
 		const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
@@ -456,9 +455,14 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 
 					<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
 						{el.data.map((point, index) => (
-							<div key={index} className="flex gap-2 items-end p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
+							<div
+								key={index}
+								className="flex gap-2 items-end p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800"
+							>
 								<div className="flex-1 space-y-1">
-									<Label className="text-[10px] uppercase opacity-50 font-bold">Label</Label>
+									<Label className="text-[10px] uppercase opacity-50 font-bold">
+										Label
+									</Label>
 									<Input
 										value={point.label}
 										onChange={(e) => {
@@ -470,7 +474,9 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 									/>
 								</div>
 								<div className="w-20 space-y-1">
-									<Label className="text-[10px] uppercase opacity-50 font-bold">Value</Label>
+									<Label className="text-[10px] uppercase opacity-50 font-bold">
+										Value
+									</Label>
 									<Input
 										type="number"
 										value={point.value}
@@ -516,9 +522,13 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								id="showGrid"
 								className="rounded border-gray-300 text-editor-primary focus:ring-editor-primary"
 								checked={el.showGrid}
-								onChange={(e) => onUpdate({ ...el, showGrid: e.target.checked })}
+								onChange={(e) =>
+									onUpdate({ ...el, showGrid: e.target.checked })
+								}
 							/>
-							<Label htmlFor="showGrid" className="text-xs cursor-pointer">Show Grid</Label>
+							<Label htmlFor="showGrid" className="text-xs cursor-pointer">
+								Show Grid
+							</Label>
 						</div>
 						<div className="flex items-center gap-2">
 							<input
@@ -526,9 +536,13 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								id="showAxes"
 								className="rounded border-gray-300 text-editor-primary focus:ring-editor-primary"
 								checked={el.showAxes}
-								onChange={(e) => onUpdate({ ...el, showAxes: e.target.checked })}
+								onChange={(e) =>
+									onUpdate({ ...el, showAxes: e.target.checked })
+								}
 							/>
-							<Label htmlFor="showAxes" className="text-xs cursor-pointer">Show Axes</Label>
+							<Label htmlFor="showAxes" className="text-xs cursor-pointer">
+								Show Axes
+							</Label>
 						</div>
 					</div>
 				</div>
@@ -622,7 +636,8 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						{element.type.charAt(0).toUpperCase() + element.type.slice(1)}{" "}
 						Properties
 					</h3>
-					{element.type === "text" && renderTextProperties(element as TextElement)}
+					{element.type === "text" &&
+						renderTextProperties(element as TextElement)}
 					{element.type === "shape" &&
 						renderShapeProperties(element as ShapeElement)}
 					{element.type === "image" &&
@@ -654,16 +669,15 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 							<ColorPicker
 								label="Stroke Color"
 								color={(element as any).color || "#000000"}
-								onChange={(color) =>
-									onUpdate({ ...element, color } as any)
-								}
+								onChange={(color) => onUpdate({ ...element, color } as any)}
 							/>
 						</div>
 					)}
 				</div>
 
 				{/* Position Properties */}
-				{(element.x !== undefined && element.y !== undefined) &&
+				{element.x !== undefined &&
+					element.y !== undefined &&
 					renderPositionProperties()}
 			</div>
 		</div>

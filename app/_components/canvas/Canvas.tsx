@@ -151,7 +151,7 @@ export const Canvas: FC<CanvasProps> = ({
 					color={tableColor}
 					strokeWidth={1}
 					onColorChange={setTableColor}
-					onStrokeWidthChange={() => { }}
+					onStrokeWidthChange={() => {}}
 				/>
 			)}
 		</div>

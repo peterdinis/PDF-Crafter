@@ -1,21 +1,21 @@
 "use client";
 
 import type {
+	ChartElement,
 	PDFElement,
 	PencilDrawingElement,
 	ShapeElement,
 	TableElement,
 	TextElement,
-	ChartElement,
 	Tool,
 } from "@/types/global";
 import Image from "next/image";
 import type { FC, MouseEvent } from "react";
 import { TextEditor } from "../editor/TextEditor";
+import { ChartTool } from "../tools/ChartTool";
 import { PencilTool } from "../tools/PencilTool";
 import { ShapeTool } from "../tools/ShapeTool";
 import { TableTool } from "../tools/TableTool";
-import { ChartTool } from "../tools/ChartTool";
 
 interface CanvasElementProps {
 	element: PDFElement;
@@ -65,10 +65,7 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 	};
 
 	return (
-		<div
-			className="w-full h-full"
-			onClick={(e) => e.stopPropagation()}
-		>
+		<div className="w-full h-full" onClick={(e) => e.stopPropagation()}>
 			{element.type === "text" && (
 				<TextEditor
 					element={element as TextElement}
@@ -80,10 +77,7 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 				/>
 			)}
 			{element.type === "image" && (
-				<ImageElement
-					element={element}
-					{...commonProps}
-				/>
+				<ImageElement element={element} {...commonProps} />
 			)}
 			{element.type === "shape" && (
 				<ShapeTool
@@ -106,14 +100,11 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 				/>
 			)}
 			{element.type === "chart" && (
-				<ChartTool
-					element={element as ChartElement}
-					{...commonProps}
-				/>
+				<ChartTool element={element as ChartElement} {...commonProps} />
 			)}
 		</div>
 	);
-}
+};
 
 const ImageElement: FC<{
 	element: PDFElement;

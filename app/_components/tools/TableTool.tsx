@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -16,13 +17,12 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { TableElement } from "@/types/global";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { type FC, type MouseEvent, useState, useEffect, useRef } from "react";
+import { type FC, type MouseEvent, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 interface TableToolProps {
 	element: TableElement;
@@ -38,7 +38,10 @@ export const TableTool: FC<TableToolProps> = ({
 	onUpdate,
 }) => {
 	const { tableStyle, headerType, data, columns, rows } = element;
-	const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
+	const [editingCell, setEditingCell] = useState<{
+		row: number;
+		col: number;
+	} | null>(null);
 	const [cellValue, setCellValue] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -57,7 +60,7 @@ export const TableTool: FC<TableToolProps> = ({
 		}
 	};
 
-	const getRowClassName = (rowIndex: number, isHeader: boolean = false) => {
+	const getRowClassName = (rowIndex: number, isHeader = false) => {
 		if (isHeader) {
 			return "bg-gray-100 dark:bg-gray-800 font-semibold";
 		}
@@ -103,10 +106,15 @@ export const TableTool: FC<TableToolProps> = ({
 		});
 	};
 
-	const handleCellClick = (rowIndex: number, colIndex: number, e: MouseEvent) => {
+	const handleCellClick = (
+		rowIndex: number,
+		colIndex: number,
+		e: MouseEvent,
+	) => {
 		e.stopPropagation();
 		// Pre header row je rowIndex -1, inak je to normálny rowIndex
-		const actualRowIndex = rowIndex === -1 ? 0 : (headerType === "none" ? rowIndex : rowIndex + 1);
+		const actualRowIndex =
+			rowIndex === -1 ? 0 : headerType === "none" ? rowIndex : rowIndex + 1;
 		const currentValue = tableData[actualRowIndex]?.[colIndex] || "";
 		setEditingCell({ row: actualRowIndex, col: colIndex });
 		setCellValue(currentValue);
@@ -148,7 +156,10 @@ export const TableTool: FC<TableToolProps> = ({
 			moveToNextCell(e.shiftKey);
 		} else if (e.key === "ArrowRight" && !e.shiftKey) {
 			const target = e.target as HTMLTextAreaElement;
-			if (target.selectionStart === target.value.length && target.value.length > 0) {
+			if (
+				target.selectionStart === target.value.length &&
+				target.value.length > 0
+			) {
 				e.preventDefault();
 				handleCellBlur();
 				moveToNextCell();
@@ -173,7 +184,7 @@ export const TableTool: FC<TableToolProps> = ({
 		}
 	};
 
-	const moveToNextCell = (backward: boolean = false) => {
+	const moveToNextCell = (backward = false) => {
 		if (!editingCell) return;
 
 		let newRow = editingCell.row;
@@ -214,7 +225,7 @@ export const TableTool: FC<TableToolProps> = ({
 		...(element.textColor && { color: element.textColor }),
 	};
 
-	const getCellStyle = (rowIndex: number, isHeader: boolean = false) => {
+	const getCellStyle = (rowIndex: number, isHeader = false) => {
 		const baseStyle: React.CSSProperties = {
 			...(element.textColor && { color: element.textColor }),
 			...(element.borderColor && { borderColor: element.borderColor }),
@@ -250,7 +261,10 @@ export const TableTool: FC<TableToolProps> = ({
 			onMouseDown={onMouseDown}
 		>
 			<div className="w-full h-full overflow-auto bg-white dark:bg-gray-900">
-				<Table className={cn(getTableClassName(), "w-full")} style={tableBorderStyle}>
+				<Table
+					className={cn(getTableClassName(), "w-full")}
+					style={tableBorderStyle}
+				>
 					{headerType !== "none" && (
 						<TableHeader
 							className={headerType === "divided" ? "border-b-2" : ""}
@@ -260,7 +274,8 @@ export const TableTool: FC<TableToolProps> = ({
 						>
 							<TableRow className={cn(getRowClassName(-1, true))}>
 								{Array.from({ length: columns }).map((_, index) => {
-									const isEditing = editingCell?.row === 0 && editingCell?.col === index;
+									const isEditing =
+										editingCell?.row === 0 && editingCell?.col === index;
 
 									return (
 										<TableHead
@@ -268,7 +283,8 @@ export const TableTool: FC<TableToolProps> = ({
 											className={cn(
 												"h-8 px-2 text-xs relative transition-colors",
 												isEditing && "ring-2 ring-blue-500 ring-offset-1",
-												!isEditing && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text"
+												!isEditing &&
+													"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
 											)}
 											style={getCellStyle(-1, true)}
 											onClick={(e) => handleCellClick(-1, index, e)}
@@ -300,12 +316,18 @@ export const TableTool: FC<TableToolProps> = ({
 						{Array.from({
 							length: headerType === "none" ? rows : rows - 1,
 						}).map((_, rowIndex) => {
-							const actualRowIndex = headerType === "none" ? rowIndex : rowIndex + 1;
+							const actualRowIndex =
+								headerType === "none" ? rowIndex : rowIndex + 1;
 
 							return (
-								<TableRow key={rowIndex} className={cn(getRowClassName(rowIndex))}>
+								<TableRow
+									key={rowIndex}
+									className={cn(getRowClassName(rowIndex))}
+								>
 									{Array.from({ length: columns }).map((_, colIndex) => {
-										const isEditing = editingCell?.row === actualRowIndex && editingCell?.col === colIndex;
+										const isEditing =
+											editingCell?.row === actualRowIndex &&
+											editingCell?.col === colIndex;
 
 										return (
 											<TableCell
@@ -313,7 +335,8 @@ export const TableTool: FC<TableToolProps> = ({
 												className={cn(
 													"h-8 px-2 text-xs relative transition-colors",
 													isEditing && "ring-2 ring-blue-500 ring-offset-1",
-													!isEditing && "hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text"
+													!isEditing &&
+														"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
 												)}
 												style={getCellStyle(rowIndex)}
 												onClick={(e) => handleCellClick(rowIndex, colIndex, e)}
@@ -344,7 +367,6 @@ export const TableTool: FC<TableToolProps> = ({
 					</TableBody>
 				</Table>
 			</div>
-
 		</div>
 	);
 };

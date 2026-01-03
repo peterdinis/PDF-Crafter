@@ -3,37 +3,37 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Tool } from "@/types/global";
+import type { PDFElement } from "@/types/global";
 import {
+	BarChart,
+	BarChart3,
+	ChevronDown,
+	ChevronUp,
 	Circle,
+	Eye,
+	EyeOff,
+	Grid3X3,
 	GripHorizontal,
 	Image,
+	Layers,
+	LineChart,
 	Minus,
+	MousePointer2,
 	Pencil,
+	PieChart,
+	Plus,
 	PointerIcon,
 	Settings,
+	Shapes,
 	Square,
 	Table,
 	TableProperties,
-	Type,
-	BarChart,
-	LineChart,
-	PieChart,
-	Plus,
-	Shapes,
-	BarChart3,
-	Grid3X3,
-	MousePointer2,
-	Layers,
-	ChevronUp,
-	ChevronDown,
-	Eye,
-	EyeOff,
 	Trash2,
+	Type,
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { PDFElement } from "@/types/global";
 
 interface ToolbarProps {
 	activeTool: Tool;
@@ -42,7 +42,7 @@ interface ToolbarProps {
 	pageElements: PDFElement[];
 	selectedElement: string | null;
 	onSelectElement: (id: string | null) => void;
-	onMoveElement: (id: string, direction: 'up' | 'down') => void;
+	onMoveElement: (id: string, direction: "up" | "down") => void;
 	onDeleteElement: (id: string) => void;
 }
 
@@ -68,25 +68,90 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
 	const toolGroups = {
 		basic: [
-			{ name: "Selection", value: "select" as Tool, icon: PointerIcon, description: "Select and move elements" },
-			{ name: "Text Block", value: "text" as Tool, icon: Type, description: "Add editable text" },
-			{ name: "Image", value: "image" as Tool, icon: Image, description: "Upload or paste image" },
-			{ name: "Free Draw", value: "pencil" as Tool, icon: Pencil, description: "Sketch with pencil" },
+			{
+				name: "Selection",
+				value: "select" as Tool,
+				icon: PointerIcon,
+				description: "Select and move elements",
+			},
+			{
+				name: "Text Block",
+				value: "text" as Tool,
+				icon: Type,
+				description: "Add editable text",
+			},
+			{
+				name: "Image",
+				value: "image" as Tool,
+				icon: Image,
+				description: "Upload or paste image",
+			},
+			{
+				name: "Free Draw",
+				value: "pencil" as Tool,
+				icon: Pencil,
+				description: "Sketch with pencil",
+			},
 		],
 		shapes: [
-			{ name: "Rectangle", value: "shape_rectangle" as Tool, icon: Square, description: "Geometric box" },
-			{ name: "Circle", value: "shape_circle" as Tool, icon: Circle, description: "Perfect oval" },
-			{ name: "Line", value: "shape_line" as Tool, icon: Minus, description: "Simple separator" },
+			{
+				name: "Rectangle",
+				value: "shape_rectangle" as Tool,
+				icon: Square,
+				description: "Geometric box",
+			},
+			{
+				name: "Circle",
+				value: "shape_circle" as Tool,
+				icon: Circle,
+				description: "Perfect oval",
+			},
+			{
+				name: "Line",
+				value: "shape_line" as Tool,
+				icon: Minus,
+				description: "Simple separator",
+			},
 		],
 		tables: [
-			{ name: "Simple Table", value: "table_simple" as Tool, icon: Table, description: "Clean data grid" },
-			{ name: "Striped Table", value: "table_striped" as Tool, icon: TableProperties, description: "Zebra striped rows" },
-			{ name: "Bordered Table", value: "table_bordered" as Tool, icon: GripHorizontal, description: "Fully outlined grid" },
+			{
+				name: "Simple Table",
+				value: "table_simple" as Tool,
+				icon: Table,
+				description: "Clean data grid",
+			},
+			{
+				name: "Striped Table",
+				value: "table_striped" as Tool,
+				icon: TableProperties,
+				description: "Zebra striped rows",
+			},
+			{
+				name: "Bordered Table",
+				value: "table_bordered" as Tool,
+				icon: GripHorizontal,
+				description: "Fully outlined grid",
+			},
 		],
 		charts: [
-			{ name: "Bar Chart", value: "chart_bar" as Tool, icon: BarChart, description: "Comparison chart" },
-			{ name: "Line Graph", value: "chart_line" as Tool, icon: LineChart, description: "Trend analysis" },
-			{ name: "Pie Chart", value: "chart_pie" as Tool, icon: PieChart, description: "Distribution view" },
+			{
+				name: "Bar Chart",
+				value: "chart_bar" as Tool,
+				icon: BarChart,
+				description: "Comparison chart",
+			},
+			{
+				name: "Line Graph",
+				value: "chart_line" as Tool,
+				icon: LineChart,
+				description: "Trend analysis",
+			},
+			{
+				name: "Pie Chart",
+				value: "chart_pie" as Tool,
+				icon: PieChart,
+				description: "Distribution view",
+			},
 		],
 	};
 
@@ -97,13 +162,40 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				<svg width="100%" height="100%" viewBox="0 0 100 40">
 					{type === "chart_bar" && (
 						<>
-							<rect x="10" y="20" width="15" height="15" fill={colors[0]} rx="2" />
-							<rect x="30" y="10" width="15" height="25" fill={colors[1]} rx="2" />
-							<rect x="50" y="15" width="15" height="20" fill={colors[2]} rx="2" />
+							<rect
+								x="10"
+								y="20"
+								width="15"
+								height="15"
+								fill={colors[0]}
+								rx="2"
+							/>
+							<rect
+								x="30"
+								y="10"
+								width="15"
+								height="25"
+								fill={colors[1]}
+								rx="2"
+							/>
+							<rect
+								x="50"
+								y="15"
+								width="15"
+								height="20"
+								fill={colors[2]}
+								rx="2"
+							/>
 						</>
 					)}
 					{type === "chart_line" && (
-						<path d="M10,30 L30,10 L50,25 L80,5" fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" />
+						<path
+							d="M10,30 L30,10 L50,25 L80,5"
+							fill="none"
+							stroke={colors[0]}
+							strokeWidth="3"
+							strokeLinecap="round"
+						/>
 					)}
 					{type === "chart_pie" && (
 						<>
@@ -126,7 +218,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 					</div>
 					PDF Crafter
 				</h2>
-				<p className="text-xs text-gray-500 mt-1">Professional PDF Architecture</p>
+				<p className="text-xs text-gray-500 mt-1">
+					Professional PDF Architecture
+				</p>
 			</div>
 
 			{/* Category Tabs */}
@@ -139,7 +233,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 							"px-4 py-3 text-xs font-semibold flex items-center gap-2 transition-all border-b-2",
 							activeCategory === cat.id
 								? "border-editor-primary text-editor-primary bg-editor-primary/5"
-								: "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+								: "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800",
 						)}
 					>
 						<cat.icon size={14} />
@@ -151,15 +245,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 			<div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
 				<div>
 					<h3 className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 mb-3 tracking-widest px-2">
-						{activeCategory.toUpperCase()} {activeCategory === 'layers' ? 'NAVIGATOR' : 'ELEMENTS'}
+						{activeCategory.toUpperCase()}{" "}
+						{activeCategory === "layers" ? "NAVIGATOR" : "ELEMENTS"}
 					</h3>
 					<div className="grid grid-cols-1 gap-2">
-						{activeCategory === 'layers' ? (
+						{activeCategory === "layers" ? (
 							<div className="space-y-1">
 								{pageElements.length === 0 ? (
 									<div className="p-8 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-2xl">
 										<Layers size={24} className="mx-auto text-gray-300 mb-2" />
-										<p className="text-xs text-gray-400">No elements on this page</p>
+										<p className="text-xs text-gray-400">
+											No elements on this page
+										</p>
 									</div>
 								) : (
 									[...pageElements].reverse().map((el, idx) => (
@@ -170,13 +267,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 												"group flex items-center gap-3 p-2 rounded-lg border transition-all cursor-pointer",
 												selectedElement === el.id
 													? "bg-editor-primary/10 border-editor-primary/30"
-													: "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700"
+													: "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700",
 											)}
 										>
-											<div className={cn(
-												"w-8 h-8 rounded shrink-0 flex items-center justify-center text-xs font-bold",
-												selectedElement === el.id ? "bg-editor-primary text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-400"
-											)}>
+											<div
+												className={cn(
+													"w-8 h-8 rounded shrink-0 flex items-center justify-center text-xs font-bold",
+													selectedElement === el.id
+														? "bg-editor-primary text-white"
+														: "bg-gray-100 dark:bg-gray-800 text-gray-400",
+												)}
+											>
 												{pageElements.length - idx}
 											</div>
 											<div className="flex-1 min-w-0">
@@ -189,21 +290,30 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 											</div>
 											<div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
 												<button
-													onClick={(e) => { e.stopPropagation(); onMoveElement(el.id, 'up'); }}
+													onClick={(e) => {
+														e.stopPropagation();
+														onMoveElement(el.id, "up");
+													}}
 													className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-400 hover:text-gray-600"
 													title="Bring Forward"
 												>
 													<ChevronUp size={14} />
 												</button>
 												<button
-													onClick={(e) => { e.stopPropagation(); onMoveElement(el.id, 'down'); }}
+													onClick={(e) => {
+														e.stopPropagation();
+														onMoveElement(el.id, "down");
+													}}
 													className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-400 hover:text-gray-600"
 													title="Send Backward"
 												>
 													<ChevronDown size={14} />
 												</button>
 												<button
-													onClick={(e) => { e.stopPropagation(); onDeleteElement(el.id); }}
+													onClick={(e) => {
+														e.stopPropagation();
+														onDeleteElement(el.id);
+													}}
 													className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-gray-400 hover:text-red-500"
 													title="Delete"
 												>
@@ -215,77 +325,101 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 								)}
 							</div>
 						) : (
-							toolGroups[activeCategory as keyof typeof toolGroups].map((tool) => (
-								<div
-									key={tool.value}
-									draggable="true"
-									onDragStart={(e) => {
-										const data = {
-											type: tool.value.split("_")[0],
-											content: tool.name,
-											shapeType: tool.value.startsWith("shape_") ? tool.value.split("_")[1] : undefined,
-											tableStyle: tool.value.startsWith("table_") ? tool.value.split("_")[1] : undefined,
-											chartType: tool.value.startsWith("chart_") ? tool.value.split("_")[1] : undefined,
-										};
-										e.dataTransfer.setData("application/json", JSON.stringify(data));
+							toolGroups[activeCategory as keyof typeof toolGroups].map(
+								(tool) => (
+									<div
+										key={tool.value}
+										draggable="true"
+										onDragStart={(e) => {
+											const data = {
+												type: tool.value.split("_")[0],
+												content: tool.name,
+												shapeType: tool.value.startsWith("shape_")
+													? tool.value.split("_")[1]
+													: undefined,
+												tableStyle: tool.value.startsWith("table_")
+													? tool.value.split("_")[1]
+													: undefined,
+												chartType: tool.value.startsWith("chart_")
+													? tool.value.split("_")[1]
+													: undefined,
+											};
+											e.dataTransfer.setData(
+												"application/json",
+												JSON.stringify(data),
+											);
 
-										// Visual feedback for dragging
-										const dragPreview = document.createElement('div');
-										dragPreview.className = 'p-3 bg-editor-primary text-white rounded shadow-xl text-xs font-bold';
-										dragPreview.innerText = `Adding ${tool.name}`;
-										dragPreview.style.position = 'absolute';
-										dragPreview.style.top = '-1000px';
-										document.body.appendChild(dragPreview);
-										e.dataTransfer.setDragImage(dragPreview, 0, 0);
-										setTimeout(() => dragPreview.remove(), 0);
-									}}
-									className={cn(
-										"group relative flex items-start gap-3 p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all border border-transparent hover:border-editor-primary/20",
-										activeTool === tool.value
-											? "bg-editor-primary/10 border-editor-primary/30 ring-1 ring-editor-primary/10"
-											: "hover:bg-gray-50 dark:hover:bg-gray-800"
-									)}
-									onClick={() => onToolSelect(tool.value)}
-									onDoubleClick={() => {
-										onToolSelect(tool.value);
-										// Small visual feedback
-										toast.info(`Double-click shortcut: Click on canvas to place ${tool.name}`);
-									}}
-								>
-									<div className={cn(
-										"w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-										activeTool === tool.value
-											? "bg-editor-primary text-white"
-											: "bg-gray-100 dark:bg-gray-800 text-gray-500 group-hover:bg-editor-primary/10 group-hover:text-editor-primary"
-									)}>
-										<tool.icon size={20} />
+											// Visual feedback for dragging
+											const dragPreview = document.createElement("div");
+											dragPreview.className =
+												"p-3 bg-editor-primary text-white rounded shadow-xl text-xs font-bold";
+											dragPreview.innerText = `Adding ${tool.name}`;
+											dragPreview.style.position = "absolute";
+											dragPreview.style.top = "-1000px";
+											document.body.appendChild(dragPreview);
+											e.dataTransfer.setDragImage(dragPreview, 0, 0);
+											setTimeout(() => dragPreview.remove(), 0);
+										}}
+										className={cn(
+											"group relative flex items-start gap-3 p-3 rounded-xl cursor-grab active:cursor-grabbing transition-all border border-transparent hover:border-editor-primary/20",
+											activeTool === tool.value
+												? "bg-editor-primary/10 border-editor-primary/30 ring-1 ring-editor-primary/10"
+												: "hover:bg-gray-50 dark:hover:bg-gray-800",
+										)}
+										onClick={() => onToolSelect(tool.value)}
+										onDoubleClick={() => {
+											onToolSelect(tool.value);
+											// Small visual feedback
+											toast.info(
+												`Double-click shortcut: Click on canvas to place ${tool.name}`,
+											);
+										}}
+									>
+										<div
+											className={cn(
+												"w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+												activeTool === tool.value
+													? "bg-editor-primary text-white"
+													: "bg-gray-100 dark:bg-gray-800 text-gray-500 group-hover:bg-editor-primary/10 group-hover:text-editor-primary",
+											)}
+										>
+											<tool.icon size={20} />
+										</div>
+										<div className="flex-1">
+											<p
+												className={cn(
+													"text-sm font-semibold mb-0.5",
+													activeTool === tool.value
+														? "text-editor-primary"
+														: "text-gray-700 dark:text-gray-300",
+												)}
+											>
+												{tool.name}
+											</p>
+											<p className="text-[10px] text-gray-500 leading-tight">
+												{tool.description}
+											</p>
+											{activeCategory === "charts" &&
+												renderChartPreview(tool.value)}
+										</div>
+										<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+											<Plus size={14} className="text-editor-primary" />
+										</div>
 									</div>
-									<div className="flex-1">
-										<p className={cn(
-											"text-sm font-semibold mb-0.5",
-											activeTool === tool.value ? "text-editor-primary" : "text-gray-700 dark:text-gray-300"
-										)}>
-											{tool.name}
-										</p>
-										<p className="text-[10px] text-gray-500 leading-tight">
-											{tool.description}
-										</p>
-										{activeCategory === "charts" && renderChartPreview(tool.value)}
-									</div>
-									<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-										<Plus size={14} className="text-editor-primary" />
-									</div>
-								</div>
-							))
+								),
+							)
 						)}
 					</div>
 				</div>
 
 				{/* Quick Tips */}
 				<div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
-					<p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">Editor Pro Tip</p>
+					<p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">
+						Editor Pro Tip
+					</p>
 					<p className="text-xs text-blue-700/80 dark:text-blue-300/60 leading-relaxed">
-						Drag elements directly onto the canvas or click to place them at current cursor position.
+						Drag elements directly onto the canvas or click to place them at
+						current cursor position.
 					</p>
 				</div>
 			</div>

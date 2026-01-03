@@ -2,25 +2,25 @@
 
 import { cn } from "@/lib/utils";
 import type {
+	ChartElement,
 	PDFElement,
 	ShapeElement,
 	TableElement,
 	TextElement,
-	ChartElement,
 	Tool,
 } from "@/types/global";
+import { Trash2 } from "lucide-react";
 import {
 	type DragEvent,
 	type FC,
 	type MouseEvent,
 	type ReactNode,
 	type RefObject,
-	useState,
 	useEffect,
+	useState,
 } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { Trash2 } from "lucide-react";
 
 interface DragDropAreaProps {
 	canvasRef: RefObject<HTMLDivElement>;
@@ -145,7 +145,13 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 							showAxes: true,
 							axesColor: "#9ca3af",
 							gridColor: "#e5e7eb",
-							seriesColors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+							seriesColors: [
+								"#3b82f6",
+								"#10b981",
+								"#f59e0b",
+								"#ef4444",
+								"#8b5cf6",
+							],
 						} as ChartElement);
 						break;
 				}
@@ -168,8 +174,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			className={cn(
 				"pdf-page relative transition-colors duration-200",
 				isDraggingOver &&
-				!isEditing &&
-				"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
+					!isEditing &&
+					"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
 				activeTool === "pencil" && !isEditing && "cursor-crosshair",
 			)}
 			style={{

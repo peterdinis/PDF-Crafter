@@ -8,20 +8,20 @@ import type {
 	TextElement,
 	Tool,
 } from "@/types/global";
+import { Trash2 } from "lucide-react";
 import {
 	type FC,
 	type MouseEvent,
 	type RefObject,
+	useCallback,
 	useEffect,
 	useRef,
 	useState,
-	useCallback,
 } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { CanvasElement } from "./CanvasElement";
 import { DragDropArea } from "./DragAndDrop";
-import { Trash2 } from "lucide-react";
 
 interface CanvasContainerProps {
 	document: any;
@@ -126,13 +126,17 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			// Delete alebo Backspace pre mazanie vybraného elementu
-			if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement && !isEditing) {
+			if (
+				(e.key === "Delete" || e.key === "Backspace") &&
+				selectedElement &&
+				!isEditing
+			) {
 				e.preventDefault();
 				handleDeleteElement(selectedElement);
 			}
 
 			// Escape pre zatvorenie kontextového menu alebo zrušenie výberu
-			if (e.key === 'Escape') {
+			if (e.key === "Escape") {
 				if (contextMenu) {
 					setContextMenu(null);
 				} else {
@@ -141,34 +145,41 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [selectedElement, isEditing, contextMenu, onSelectElement]);
 
 	// Zatvoriť kontextové menu po kliknutí inde
 	useEffect(() => {
-		if (typeof window === 'undefined') return;
+		if (typeof window === "undefined") return;
 
 		const handleClickOutside = (event: globalThis.MouseEvent) => {
-			if (contextMenu && contextMenuRef.current &&
-				!contextMenuRef.current.contains(event.target as Node)) {
+			if (
+				contextMenu &&
+				contextMenuRef.current &&
+				!contextMenuRef.current.contains(event.target as Node)
+			) {
 				setContextMenu(null);
 			}
 		};
 
 		// Use global document object explicitly
-		globalThis.document.addEventListener('mousedown', handleClickOutside);
-		return () => globalThis.document.removeEventListener('mousedown', handleClickOutside);
+		globalThis.document.addEventListener("mousedown", handleClickOutside);
+		return () =>
+			globalThis.document.removeEventListener("mousedown", handleClickOutside);
 	}, [contextMenu]);
 
-	const handleDeleteElement = useCallback((elementId: string) => {
-		onDeleteElement(elementId);
-		if (selectedElement === elementId) {
-			onSelectElement(null);
-		}
-		setContextMenu(null);
-		toast.success("Element deleted");
-	}, [onDeleteElement, onSelectElement, selectedElement]);
+	const handleDeleteElement = useCallback(
+		(elementId: string) => {
+			onDeleteElement(elementId);
+			if (selectedElement === elementId) {
+				onSelectElement(null);
+			}
+			setContextMenu(null);
+			toast.success("Element deleted");
+		},
+		[onDeleteElement, onSelectElement, selectedElement],
+	);
 
 	const handleCanvasClick = (e: MouseEvent) => {
 		// Zatvoriť kontextové menu pri kliknutí na canvas
@@ -308,7 +319,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 		// Vyberieme element bez ohľadu na aktívny nástroj, ak sme klikli priamo naň
 		onSelectElement(element.id);
 
-		// Umožníme dragging aj keď nie sme v "select" móde, 
+		// Umožníme dragging aj keď nie sme v "select" móde,
 		// ale len ak nie sme v móde kreslenia (pencil) alebo editovania textu
 		if (!isEditing && activeTool !== "pencil") {
 			const rect = canvasRef.current?.getBoundingClientRect();
@@ -439,14 +450,25 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 					{pageElements.map((element) => (
 						<div
 							key={element.id}
-							className={`relative ${element.id === selectedElement ? 'z-10' : 'z-0'
-								}`}
+							className={`relative ${
+								element.id === selectedElement ? "z-10" : "z-0"
+							}`}
 							style={{
-								position: 'absolute',
+								position: "absolute",
 								left: `${element.x}px`,
 								top: `${element.y}px`,
-								width: element.type === "pencil" ? "100%" : (element.width ? `${element.width}px` : "auto"),
-								height: element.type === "pencil" ? "100%" : (element.height ? `${element.height}px` : "auto"),
+								width:
+									element.type === "pencil"
+										? "100%"
+										: element.width
+											? `${element.width}px`
+											: "auto",
+								height:
+									element.type === "pencil"
+										? "100%"
+										: element.height
+											? `${element.height}px`
+											: "auto",
 								pointerEvents: activeTool === "pencil" ? "none" : "auto",
 							}}
 						>
@@ -482,7 +504,9 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 						}}
 					>
 						<div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-							<p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Element Actions</p>
+							<p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+								Element Actions
+							</p>
 						</div>
 						<button
 							onClick={() => handleDeleteElement(contextMenu.elementId)}
@@ -494,7 +518,9 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 						<div className="border-t border-gray-200 dark:border-gray-700 mt-1 pt-2 px-3 pb-2 bg-gray-50 dark:bg-gray-900">
 							<div className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
 								<span>Keyboard shortcut:</span>
-								<kbd className="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs font-mono">Delete</kbd>
+								<kbd className="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs font-mono">
+									Delete
+								</kbd>
 							</div>
 						</div>
 					</div>

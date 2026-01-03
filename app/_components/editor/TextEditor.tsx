@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { TextElement } from "@/types/global";
+import { Trash2 } from "lucide-react";
 import { type FC, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
-import { Trash2 } from "lucide-react";
 
 interface TextEditorProps {
 	element: TextElement;
@@ -70,7 +70,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 	}, [editing]);
 
 	useEffect(() => {
-		if (typeof window === 'undefined') return;
+		if (typeof window === "undefined") return;
 
 		const handleClickOutside = (event: globalThis.MouseEvent) => {
 			const target = event.target as HTMLElement;
@@ -198,7 +198,6 @@ export const TextEditor: FC<TextEditorProps> = ({
 			onDelete(element.id);
 		}
 	};
-
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -369,7 +368,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 						}}
 						className={cn(
 							"whitespace-pre-wrap break-words",
-							isSelected && "cursor-text"
+							isSelected && "cursor-text",
 						)}
 					>
 						{element.content}

@@ -1,4 +1,6 @@
 import type {
+	ChartDataPoint,
+	ChartElement,
 	ImageElement,
 	PDFDocument,
 	PDFElement,
@@ -6,8 +8,6 @@ import type {
 	ShapeElement,
 	TableElement,
 	TextElement,
-	ChartElement,
-	ChartDataPoint,
 } from "@/types/global";
 import { jsPDF } from "jspdf";
 
@@ -181,7 +181,17 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 			pdf.restoreGraphicsState();
 		} else if (element.type === "table") {
 			const tableElement = element as TableElement;
-			const { x, y, width, height, rows, columns, data, tableStyle, headerType } = tableElement;
+			const {
+				x,
+				y,
+				width,
+				height,
+				rows,
+				columns,
+				data,
+				tableStyle,
+				headerType,
+			} = tableElement;
 
 			const cellWidth = width / columns;
 			const cellHeight = height / rows;
@@ -236,9 +246,12 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 							pdf.setFont("Helvetica", "normal");
 						}
 
-						const textLines = pdf.splitTextToSize(content.toString(), cellWidth - 4);
+						const textLines = pdf.splitTextToSize(
+							content.toString(),
+							cellWidth - 4,
+						);
 						const textX = cellX + 2;
-						const textY = rowY + (cellHeight / 2) + 3;
+						const textY = rowY + cellHeight / 2 + 3;
 						pdf.text(textLines, textX, textY);
 					}
 				}
@@ -265,11 +278,22 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 			}
 		} else if (element.type === "chart") {
 			const chartElement = element as ChartElement;
-			const { x, y, width, height, chartType, data, seriesColors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"] } = chartElement;
+			const {
+				x,
+				y,
+				width,
+				height,
+				chartType,
+				data,
+				seriesColors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+			} = chartElement;
 
 			pdf.saveGraphicsState();
 
-			if (chartElement.backgroundColor && chartElement.backgroundColor !== "transparent") {
+			if (
+				chartElement.backgroundColor &&
+				chartElement.backgroundColor !== "transparent"
+			) {
 				pdf.setFillColor(chartElement.backgroundColor);
 				pdf.rect(x, y, width, height, "F");
 			}
@@ -277,7 +301,8 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 			const padding = 40;
 			const innerWidth = width - padding * 2;
 			const innerHeight = height - padding * 2;
-			const maxValue = data.length > 0 ? Math.max(...data.map(d => d.value), 10) : 100;
+			const maxValue =
+				data.length > 0 ? Math.max(...data.map((d) => d.value), 10) : 100;
 
 			if (chartType !== "pie") {
 				if (chartElement.showGrid) {
@@ -292,7 +317,12 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					pdf.setDrawColor(chartElement.axesColor || "#9ca3af");
 					pdf.setLineWidth(1);
 					pdf.line(x + padding, y + padding, x + padding, y + height - padding);
-					pdf.line(x + padding, y + height - padding, x + width - padding, y + height - padding);
+					pdf.line(
+						x + padding,
+						y + height - padding,
+						x + width - padding,
+						y + height - padding,
+					);
 				}
 			}
 
@@ -315,15 +345,21 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 
 					for (let i = 1; i < data.length; i++) {
 						const x1 = x + padding + (i - 1) * step;
-						const y1 = y + height - padding - (data[i - 1].value / maxValue) * innerHeight;
+						const y1 =
+							y +
+							height -
+							padding -
+							(data[i - 1].value / maxValue) * innerHeight;
 						const x2 = x + padding + i * step;
-						const y2 = y + height - padding - (data[i].value / maxValue) * innerHeight;
+						const y2 =
+							y + height - padding - (data[i].value / maxValue) * innerHeight;
 						pdf.line(x1, y1, x2, y2);
 					}
 
 					data.forEach((d, i) => {
 						const pX = x + padding + i * step;
-						const pY = y + height - padding - (d.value / maxValue) * innerHeight;
+						const pY =
+							y + height - padding - (d.value / maxValue) * innerHeight;
 						pdf.setFillColor(seriesColors[0]);
 						pdf.circle(pX, pY, 3, "F");
 					});
@@ -343,8 +379,11 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 
 						const segments = Math.max(2, Math.floor(sliceAngle / 5));
 						for (let s = 0; s < segments; s++) {
-							const a1 = (startAngle + (s * sliceAngle) / segments) * Math.PI / 180;
-							const a2 = (startAngle + ((s + 1) * sliceAngle) / segments) * Math.PI / 180;
+							const a1 =
+								((startAngle + (s * sliceAngle) / segments) * Math.PI) / 180;
+							const a2 =
+								((startAngle + ((s + 1) * sliceAngle) / segments) * Math.PI) /
+								180;
 
 							const x1 = centerX + radius * Math.cos(a1);
 							const y1 = centerY + radius * Math.sin(a1);

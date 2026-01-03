@@ -4,7 +4,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ShapeElement } from "@/types/global";
 import { Label } from "@radix-ui/react-label";
-import { type ChangeEvent, type FC, type MouseEvent, useState, useEffect } from "react";
+import {
+	type ChangeEvent,
+	type FC,
+	type MouseEvent,
+	useEffect,
+	useState,
+} from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface ShapeToolProps {
@@ -120,21 +126,24 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 	};
 
 	useEffect(() => {
-		if (typeof window === 'undefined') return;
+		if (typeof window === "undefined") return;
 
 		const handleClickOutside = (e: globalThis.MouseEvent) => {
 			if (showControls) {
 				const target = e.target as HTMLElement;
-				if (!target.closest('.shape-controls') && !target.closest('.color-picker')) {
+				if (
+					!target.closest(".shape-controls") &&
+					!target.closest(".color-picker")
+				) {
 					setShowControls(false);
 				}
 			}
 		};
 
 		if (showControls) {
-			document.addEventListener('mousedown', handleClickOutside);
+			document.addEventListener("mousedown", handleClickOutside);
 			return () => {
-				document.removeEventListener('mousedown', handleClickOutside);
+				document.removeEventListener("mousedown", handleClickOutside);
 			};
 		}
 	}, [showControls]);

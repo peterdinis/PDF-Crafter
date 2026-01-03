@@ -23,10 +23,10 @@ import { Download, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
-import { Toolbar } from "./Toolbar";
 import { PdfSettings } from "../pdf/PdfSettings";
-import { PropertiesPanel } from "./PropertiesPanel";
 import { ScrollToTop } from "../shared/ScrollToTop";
+import { PropertiesPanel } from "./PropertiesPanel";
+import { Toolbar } from "./Toolbar";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -55,32 +55,32 @@ const PDFEditor = () => {
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			// Delete key
-			if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+			if ((e.key === "Delete" || e.key === "Backspace") && selectedElement) {
 				e.preventDefault();
 				deleteElement(selectedElement);
 				toast.success("Element deleted");
 			}
 
 			// Escape key to deselect
-			if (e.key === 'Escape') {
+			if (e.key === "Escape") {
 				setSelectedElement(null);
 			}
 
 			// Duplicate element with Ctrl/Cmd + D
-			if ((e.ctrlKey || e.metaKey) && e.key === 'd' && selectedElement) {
+			if ((e.ctrlKey || e.metaKey) && e.key === "d" && selectedElement) {
 				e.preventDefault();
 				duplicateElement(selectedElement);
 			}
 
 			// Open properties panel with Ctrl/Cmd + E
-			if ((e.ctrlKey || e.metaKey) && e.key === 'e' && selectedElement) {
+			if ((e.ctrlKey || e.metaKey) && e.key === "e" && selectedElement) {
 				e.preventDefault();
 				setShowPropertiesPanel(true);
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [selectedElement]);
 
 	const handleToolSelect = (tool: Tool) => {
@@ -232,9 +232,16 @@ const PDFEditor = () => {
 	const duplicateElement = (id: string) => {
 		setDocument((prev) => {
 			const currentPage = prev.pages[prev.currentPage];
-			const elementToDuplicate = currentPage.elements.find(el => el.id === id);
+			const elementToDuplicate = currentPage.elements.find(
+				(el) => el.id === id,
+			);
 
-			if (!elementToDuplicate || elementToDuplicate.x === undefined || elementToDuplicate.y === undefined) return prev;
+			if (
+				!elementToDuplicate ||
+				elementToDuplicate.x === undefined ||
+				elementToDuplicate.y === undefined
+			)
+				return prev;
 
 			const duplicatedElement = {
 				...elementToDuplicate,
@@ -246,7 +253,10 @@ const PDFEditor = () => {
 			const updatedPages = [...prev.pages];
 			updatedPages[prev.currentPage] = {
 				...updatedPages[prev.currentPage],
-				elements: [...updatedPages[prev.currentPage].elements, duplicatedElement],
+				elements: [
+					...updatedPages[prev.currentPage].elements,
+					duplicatedElement,
+				],
 			};
 
 			return {
@@ -258,19 +268,22 @@ const PDFEditor = () => {
 		toast.success("Element duplicated");
 	};
 
-	const moveElementInList = (id: string, direction: 'up' | 'down') => {
+	const moveElementInList = (id: string, direction: "up" | "down") => {
 		setDocument((prev) => {
 			const currentPage = prev.pages[prev.currentPage];
-			const index = currentPage.elements.findIndex(el => el.id === id);
+			const index = currentPage.elements.findIndex((el) => el.id === id);
 			if (index === -1) return prev;
 
 			const newElements = [...currentPage.elements];
-			const targetIndex = direction === 'up' ? index + 1 : index - 1;
+			const targetIndex = direction === "up" ? index + 1 : index - 1;
 
 			if (targetIndex < 0 || targetIndex >= newElements.length) return prev;
 
 			// Swap elements
-			[newElements[index], newElements[targetIndex]] = [newElements[targetIndex], newElements[index]];
+			[newElements[index], newElements[targetIndex]] = [
+				newElements[targetIndex],
+				newElements[index],
+			];
 
 			const updatedPages = [...prev.pages];
 			updatedPages[prev.currentPage] = {
@@ -288,8 +301,8 @@ const PDFEditor = () => {
 	// Get selected element object
 	const selectedElementObj = selectedElement
 		? document.pages[document.currentPage]?.elements.find(
-			(el) => el.id === selectedElement,
-		) || null
+				(el) => el.id === selectedElement,
+			) || null
 		: null;
 
 	// Show properties panel when element is selected
