@@ -18,8 +18,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Check, FileText, Upload } from "lucide-react";
-import { type FC, useMemo, useState } from "react";
+import { Check, Upload } from "lucide-react";
+import { type FC, useState } from "react";
 import { toast } from "sonner";
 
 interface ChartImportDialogProps {

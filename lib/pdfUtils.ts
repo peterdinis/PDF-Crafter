@@ -1,5 +1,4 @@
 import type {
-	ChartDataPoint,
 	ChartElement,
 	ImageElement,
 	PDFDocument,
