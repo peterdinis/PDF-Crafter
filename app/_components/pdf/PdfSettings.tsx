@@ -15,6 +15,7 @@ import type { PDFDocument } from "@/types/global";
 import { X } from "lucide-react";
 import type React from "react";
 import { ModeToggle } from "../shared/ModeToggle";
+import { motion } from "framer-motion";
 
 interface PdfSettingsProps {
 	document: PDFDocument;
@@ -52,25 +53,52 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 	onClose,
 }) => {
 	return (
-		<div className="w-80 bg-background border-l border-editor-border h-full overflow-y-auto">
+		<motion.div
+			initial={{ x: "100%" }}
+			animate={{ x: 0 }}
+			exit={{ x: "100%" }}
+			transition={{
+				type: "spring",
+				damping: 25,
+				stiffness: 300,
+			}}
+			className="w-80 bg-background border-l border-editor-border h-full overflow-y-auto"
+		>
 			<div className="p-4 border-b border-editor-border flex items-center justify-between">
-				<h2 className="text-lg font-semibold">Settings</h2>
+				<motion.h2 
+					initial={{ opacity: 0, y: -10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.1 }}
+					className="text-lg font-semibold"
+				>
+					Settings
+				</motion.h2>
 				<Button variant="ghost" size="icon" onClick={onClose}>
 					<X size={18} />
 				</Button>
 			</div>
 
 			<div className="p-4 space-y-6">
-				<div className="space-y-2">
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.2 }}
+					className="space-y-2"
+				>
 					<Label htmlFor="title">Document Title</Label>
 					<Input
 						id="title"
 						value={document.title}
 						onChange={(e) => onUpdate({ title: e.target.value })}
 					/>
-				</div>
+				</motion.div>
 
-				<div className="space-y-2">
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.25 }}
+					className="space-y-2"
+				>
 					<Label>Page Size</Label>
 					<Select
 						value={document.pageSize}
@@ -105,7 +133,12 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 					</Select>
 
 					{document.pageSize === "custom" && (
-						<div className="mt-3 space-y-2">
+						<motion.div
+							initial={{ opacity: 0, height: 0 }}
+							animate={{ opacity: 1, height: "auto" }}
+							transition={{ duration: 0.2 }}
+							className="mt-3 space-y-2 overflow-hidden"
+						>
 							<div className="grid grid-cols-2 gap-2">
 								<div>
 									<Label htmlFor="customWidth">Width (mm)</Label>
@@ -136,11 +169,16 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 									/>
 								</div>
 							</div>
-						</div>
+						</motion.div>
 					)}
-				</div>
+				</motion.div>
 
-				<div className="space-y-2">
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.3 }}
+					className="space-y-2"
+				>
 					<Label>Orientation</Label>
 					<RadioGroup
 						value={document.orientation}
@@ -158,9 +196,14 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 							<Label htmlFor="landscape">Landscape</Label>
 						</div>
 					</RadioGroup>
-				</div>
+				</motion.div>
 
-				<div className="space-y-2">
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.35 }}
+					className="space-y-2"
+				>
 					<Label>Default Font</Label>
 					<Select
 						value={document.defaultFontFamily}
@@ -177,9 +220,14 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 							))}
 						</SelectContent>
 					</Select>
-				</div>
+				</motion.div>
 
-				<div className="space-y-2">
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.4 }}
+					className="space-y-2"
+				>
 					<Label>Default Text Color</Label>
 					<div className="flex items-center gap-2">
 						<Input
@@ -196,13 +244,18 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 							maxLength={7}
 						/>
 					</div>
-				</div>
+				</motion.div>
 
-				<div className="flex justify-between">
+				<motion.div
+					initial={{ opacity: 0, y: 10 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.45 }}
+					className="flex justify-between"
+				>
 					<Label>Enable Dark Mode</Label>
 					<ModeToggle />
-				</div>
+				</motion.div>
 			</div>
-		</div>
+		</motion.div>
 	);
 };

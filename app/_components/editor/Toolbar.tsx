@@ -247,7 +247,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
 	return (
 		<div className="w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full shadow-sm">
-			<div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-br from-editor-primary/5 to-transparent">
+			<div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-br from-editor-primary/5 to-transparent">
 				<h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
 					<div className="w-8 h-8 bg-editor-primary rounded-lg flex items-center justify-center text-dark dark:text-sky-100 shadow-lg">
 						P
@@ -447,17 +447,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 							)
 						)}
 					</div>
-				</div>
-
-				{/* Quick Tips */}
-				<div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
-					<p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-2">
-						Editor Pro Tip
-					</p>
-					<p className="text-xs text-blue-700/80 dark:text-blue-300/60 leading-relaxed">
-						Drag elements directly onto the canvas or click to place them at
-						current cursor position.
-					</p>
 				</div>
 			</div>
 
