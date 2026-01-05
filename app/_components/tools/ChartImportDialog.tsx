@@ -113,7 +113,7 @@ export const ChartImportDialog: FC<ChartImportDialogProps> = ({
 						<Label className="text-sm font-semibold">Paste Raw Data</Label>
 						<textarea
 							placeholder="Jan,45&#10;Feb,52&#10;Mar,38"
-							className="w-full min-h-[120px] p-3 text-xs border rounded bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 font-mono focus:ring-1 focus:ring-editor-primary outline-none transition-all"
+							className="w-full min-h-30 p-3 text-xs border rounded bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 font-mono focus:ring-1 focus:ring-editor-primary outline-none transition-all"
 							value={rawData}
 							onChange={(e) => handleRawDataChange(e.target.value)}
 						/>
