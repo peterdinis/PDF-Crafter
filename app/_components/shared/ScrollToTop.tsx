@@ -33,7 +33,7 @@ export const ScrollToTop = () => {
 			variant="secondary"
 			size="icon"
 			className={cn(
-				"fixed bottom-20 right-6 z-[100] rounded-full shadow-lg transition-all duration-300",
+				"fixed bottom-20 right-6 z-100 rounded-full shadow-lg transition-all duration-300",
 				isVisible
 					? "opacity-100 translate-y-0"
 					: "opacity-0 translate-y-10 pointer-events-none",

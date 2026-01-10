@@ -12,10 +12,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import type { PDFDocument } from "@/types/global";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import type React from "react";
 import { ModeToggle } from "../shared/ModeToggle";
-import { motion } from "framer-motion";
 
 interface PdfSettingsProps {
 	document: PDFDocument;
@@ -65,7 +65,7 @@ export const PdfSettings: React.FC<PdfSettingsProps> = ({
 			className="w-80 bg-background border-l border-editor-border h-full overflow-y-auto"
 		>
 			<div className="p-4 border-b border-editor-border flex items-center justify-between">
-				<motion.h2 
+				<motion.h2
 					initial={{ opacity: 0, y: -10 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.1 }}

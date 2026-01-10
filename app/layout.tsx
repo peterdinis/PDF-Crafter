@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Toaster } from "sonner";
-import { ThemeProvider } from "./_components/shared/providers/theme-provider";
 import { Suspense } from "react";
+import { Toaster } from "sonner";
 import Preload from "./_components/shared/Preload";
+import { ThemeProvider } from "./_components/shared/providers/theme-provider";
 
 export const metadata: Metadata = {
 	title: "PDF Crafter – Create, Edit & Customize PDF Files Online",
