@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./_components/shared/providers/theme-provider";
+import { Suspense } from "react";
+import Preload from "./_components/shared/Preload";
 
 export const metadata: Metadata = {
 	title: "PDF Crafter – Create, Edit & Customize PDF Files Online",
@@ -53,8 +55,10 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					{children}
-					<Toaster />
+					<Suspense fallback={<Preload />}>
+						{children}
+						<Toaster />
+					</Suspense>
 				</ThemeProvider>
 			</body>
 		</html>
