@@ -57,61 +57,61 @@ export type Tool =
   // Misc
   | "divider";
 
-export type TextStyle = 
-  | "normal" 
-  | "h1" 
-  | "h2" 
-  | "h3" 
-  | "paragraph" 
-  | "bold" 
-  | "italic" 
-  | "underline" 
-  | "quote" 
-  | "list" 
+export type TextStyle =
+  | "normal"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "paragraph"
+  | "bold"
+  | "italic"
+  | "underline"
+  | "quote"
+  | "list"
   | "numbered";
 
-export type ShapeType = 
-  | "rectangle" 
-  | "circle" 
-  | "line" 
-  | "triangle" 
-  | "diamond" 
-  | "star" 
+export type ShapeType =
+  | "rectangle"
+  | "circle"
+  | "line"
+  | "triangle"
+  | "diamond"
+  | "star"
   | "arrow";
 
-export type TableStyle = 
-  | "simple" 
-  | "striped" 
-  | "bordered" 
-  | "empty" 
-  | "wide" 
+export type TableStyle =
+  | "simple"
+  | "striped"
+  | "bordered"
+  | "empty"
+  | "wide"
   | "calendar";
 
-export type ChartType = 
-  | "bar" 
-  | "line" 
-  | "pie" 
-  | "area" 
+export type ChartType =
+  | "bar"
+  | "line"
+  | "pie"
+  | "area"
   | "scatter";
 
-export type FormType = 
-  | "text" 
-  | "textarea" 
-  | "checkbox" 
-  | "radio" 
-  | "dropdown" 
-  | "button" 
+export type FormType =
+  | "text"
+  | "textarea"
+  | "checkbox"
+  | "radio"
+  | "dropdown"
+  | "button"
   | "date";
 
-export type CodeType = 
-  | "block" 
-  | "json" 
-  | "html" 
+export type CodeType =
+  | "block"
+  | "json"
+  | "html"
   | "math";
 
-export type DividerStyle = 
-  | "solid" 
-  | "dashed" 
+export type DividerStyle =
+  | "solid"
+  | "dashed"
   | "dotted";
 
 export interface PDFElementBase {
@@ -154,6 +154,9 @@ export interface ShapeElement extends PDFElementBase {
     endColor: string;
     angle: number;
   };
+  // Compatibility/Legacy properties
+  fill?: string;
+  stroke?: string;
 }
 
 export interface TableElement extends PDFElementBase {
@@ -161,6 +164,9 @@ export interface TableElement extends PDFElementBase {
   rows: number;
   columns: number;
   style: TableStyle;
+  // Specific properties used in code
+  tableStyle?: TableStyle;
+  headerType?: "simple" | "none" | "firstRow";
   data: {
     headers: string[];
     rows: string[][];
@@ -169,6 +175,8 @@ export interface TableElement extends PDFElementBase {
   rowColors?: string[];
   borderColor?: string;
   borderWidth?: number;
+  textColor?: string;
+  cellColor?: string;
 }
 
 export interface ChartElement extends PDFElementBase {
@@ -186,6 +194,11 @@ export interface ChartElement extends PDFElementBase {
   title?: string;
   showLegend?: boolean;
   showGrid?: boolean;
+  seriesColors?: string[];
+  backgroundColor?: string;
+  gridColor?: string;
+  showAxes?: boolean;
+  axesColor?: string;
 }
 
 export interface ImageElement extends PDFElementBase {
@@ -266,7 +279,15 @@ export interface BarcodeElement extends PDFElementBase {
   backgroundColor: string;
 }
 
-export type PDFElement = 
+// Pencil Element
+export interface PencilElement extends PDFElementBase {
+  type: "pencil";
+  points: Array<{ x: number; y: number }>;
+  color: string;
+  strokeWidth: number;
+}
+
+export type PDFElement =
   | TextElement
   | ShapeElement
   | TableElement
@@ -278,7 +299,8 @@ export type PDFElement =
   | DividerElement
   | QRCodeElement
   | SignatureElement
-  | BarcodeElement;
+  | BarcodeElement
+  | PencilElement;
 
 export interface PDFPage {
   id: string;
@@ -294,13 +316,16 @@ export interface PDFPage {
 
 export interface PDFDocument {
   title: string;
-  pageSize: "a4" | "letter" | "legal" | "a3";
+  pageSize: "a4" | "letter" | "legal" | "a3" | "custom";
   orientation: "portrait" | "landscape";
   defaultTextColor: string;
   defaultFontFamily: string;
   defaultFontSize: number;
   pages: PDFPage[];
   currentPage: number;
+  // Custom page size properties
+  customWidth?: number;
+  customHeight?: number;
   metadata?: {
     author?: string;
     subject?: string;
