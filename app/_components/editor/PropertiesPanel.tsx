@@ -143,6 +143,12 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				color={el.color || "#000000"}
 				onChange={(color) => onUpdate({ ...el, color })}
 			/>
+
+			<ColorPicker
+				label="Background Color"
+				color={el.backgroundColor || "transparent"}
+				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+			/>
 		</div>
 	);
 
@@ -311,6 +317,12 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 					</SelectContent>
 				</Select>
 			</div>
+
+			<ColorPicker
+				label="Background Color"
+				color={el.backgroundColor || "transparent"}
+				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+			/>
 		</div>
 	);
 
@@ -511,6 +523,12 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				/>
 				<Label htmlFor="required">Required Field</Label>
 			</div>
+
+			<ColorPicker
+				label="Background Color"
+				color={el.backgroundColor || "transparent"}
+				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+			/>
 		</div>
 	);
 

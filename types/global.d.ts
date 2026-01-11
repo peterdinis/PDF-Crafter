@@ -223,6 +223,7 @@ export interface ImageElement extends PDFElementBase {
 	fit?: "contain" | "cover" | "fill";
 	borderRadius?: number;
 	filter?: string;
+	backgroundColor?: string;
 }
 
 export interface DrawingElement extends PDFElementBase {
@@ -253,6 +254,7 @@ export interface FormElement extends PDFElementBase {
 		minLength?: number;
 		maxLength?: number;
 	};
+	backgroundColor?: string;
 }
 
 export interface CodeElement extends PDFElementBase {

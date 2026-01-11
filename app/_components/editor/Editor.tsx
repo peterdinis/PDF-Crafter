@@ -11,6 +11,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { generatePDF } from "@/lib/pdfUtils";
 import type {
 	BarcodeElement,
@@ -38,7 +39,6 @@ import { PdfSettings } from "../pdf/PdfSettings";
 import { ScrollToTop } from "../shared/ScrollToTop";
 import { PropertiesPanel } from "./PropertiesPanel";
 import { Toolbar } from "./Toolbar";
-import { Label } from "@/components/ui/label";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -291,9 +291,9 @@ const PDFEditor = () => {
 			rows:
 				style === "empty"
 					? [
-						["", ""],
-						["", ""],
-					]
+							["", ""],
+							["", ""],
+						]
 					: baseData.slice(0, 2),
 		};
 	};
@@ -929,8 +929,8 @@ console.log("Total:", total);`;
 	// Get selected element object
 	const selectedElementObj = selectedElement
 		? document.pages[document.currentPage]?.elements.find(
-			(el) => el.id === selectedElement,
-		) || null
+				(el) => el.id === selectedElement,
+			) || null
 		: null;
 
 	// Show properties panel when element is selected
@@ -1013,10 +1013,11 @@ console.log("Total:", total);`;
 									}
 									size="sm"
 									onClick={() => changePage(index)}
-									className={`min-w-10 h-8 ${document.currentPage === index
+									className={`min-w-10 h-8 ${
+										document.currentPage === index
 											? "bg-editor-primary hover:bg-editor-primary/90"
 											: "border-gray-300 dark:border-gray-700"
-										}`}
+									}`}
 								>
 									{index + 1}
 								</Button>
