@@ -75,6 +75,7 @@ const PDFEditor = () => {
       // Escape key to deselect
       if (e.key === "Escape") {
         setSelectedElement(null);
+        setShowPropertiesPanel(false);
       }
 
       // Duplicate element with Ctrl/Cmd + D
@@ -118,14 +119,21 @@ const PDFEditor = () => {
 
   const handleToolSelect = (tool: Tool) => {
     setActiveTool(tool);
+    if (tool !== "select") {
+      setSelectedElement(null);
+      setShowPropertiesPanel(false);
+    }
   };
 
   const handleDownload = async () => {
     try {
+      toast.loading("Generating PDF...");
       await generatePDF(document);
+      toast.dismiss();
       toast.success("PDF downloaded successfully!");
     } catch (error) {
       console.error("Failed to download PDF:", error);
+      toast.dismiss();
       toast.error("Failed to download PDF. Please try again.");
     }
   };
@@ -143,6 +151,7 @@ const PDFEditor = () => {
     }));
 
     setSelectedElement(null);
+    setShowPropertiesPanel(false);
     toast.success("New page added");
   };
 
@@ -153,6 +162,7 @@ const PDFEditor = () => {
         currentPage: pageIndex,
       }));
       setSelectedElement(null);
+      setShowPropertiesPanel(false);
     }
   };
 
@@ -177,6 +187,7 @@ const PDFEditor = () => {
     });
 
     setSelectedElement(null);
+    setShowPropertiesPanel(false);
     toast.success("Page deleted");
   };
 
@@ -195,6 +206,7 @@ const PDFEditor = () => {
     });
 
     setSelectedElement(null);
+    setShowPropertiesPanel(false);
     toast.success("All elements deleted from current page");
     setShowClearPageDialog(false);
   };
@@ -246,6 +258,17 @@ const PDFEditor = () => {
           ["14", "15", "16", "17", "18", "19", "20"],
           ["21", "22", "23", "24", "25", "26", "27"],
           ["28", "29", "30", "", "", "", ""],
+        ]
+      };
+    }
+
+    if (style === "invoice") {
+      return {
+        headers: ["Item", "Quantity", "Unit Price", "Total"],
+        rows: [
+          ["Product A", "2", "$50.00", "$100.00"],
+          ["Product B", "1", "$75.00", "$75.00"],
+          ["Product C", "3", "$25.00", "$75.00"],
         ]
       };
     }
@@ -336,6 +359,24 @@ const PDFEditor = () => {
             }
           ]
         };
+      case "radar":
+        return {
+          labels: ["Speed", "Reliability", "Design", "Price", "Features"],
+          datasets: [
+            {
+              label: "Product A",
+              data: [80, 70, 90, 60, 85],
+              backgroundColor: "rgba(59, 130, 246, 0.2)",
+              borderColor: "#3b82f6",
+            },
+            {
+              label: "Product B",
+              data: [70, 85, 75, 80, 70],
+              backgroundColor: "rgba(16, 185, 129, 0.2)",
+              borderColor: "#10b981",
+            }
+          ]
+        };
       default:
         return {
           labels,
@@ -385,6 +426,18 @@ const PDFEditor = () => {
 </html>`;
       case "math":
         return "E = mc^2\n\n\\int_{a}^{b} f(x) dx = F(b) - F(a)\n\nx = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n\n\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}";
+      case "sql":
+        return `SELECT 
+    customers.name,
+    orders.order_date,
+    orders.total_amount,
+    products.product_name
+FROM customers
+JOIN orders ON customers.id = orders.customer_id
+JOIN order_items ON orders.id = order_items.order_id
+JOIN products ON order_items.product_id = products.id
+WHERE orders.status = 'completed'
+ORDER BY orders.order_date DESC;`;
       default:
         return `// JavaScript code example
 function calculateTotal(items) {
@@ -462,6 +515,8 @@ console.log("Total:", total);`;
         case "shape_star":
         case "shape_arrow":
         case "shape_line":
+        case "shape_heart":
+        case "shape_hexagon":
           const shapeType = activeTool.replace("shape_", "");
           newElement = {
             id,
@@ -485,6 +540,7 @@ console.log("Total:", total);`;
         case "table_empty":
         case "table_wide":
         case "table_calendar":
+        case "table_invoice":
           const tableStyle = activeTool.replace("table_", "");
           const data = generateTableData(tableStyle);
           newElement = {
@@ -511,6 +567,8 @@ console.log("Total:", total);`;
         case "chart_pie":
         case "chart_area":
         case "chart_scatter":
+        case "chart_radar":
+        case "chart_gauge":
           const chartType = activeTool.replace("chart_", "");
           newElement = {
             id,
@@ -535,6 +593,7 @@ console.log("Total:", total);`;
         case "form_dropdown":
         case "form_button":
         case "form_date":
+        case "form_range":
           const formType = activeTool.replace("form_", "");
           newElement = {
             id,
@@ -556,6 +615,7 @@ console.log("Total:", total);`;
         case "code_json":
         case "code_html":
         case "code_math":
+        case "code_sql":
           const codeType = activeTool.replace("code_", "");
           newElement = {
             id,
@@ -568,7 +628,8 @@ console.log("Total:", total);`;
             content: getDefaultCodeContent(codeType),
             language: codeType === "json" ? "json" : 
                      codeType === "html" ? "html" : 
-                     codeType === "math" ? "latex" : "javascript",
+                     codeType === "math" ? "latex" : 
+                     codeType === "sql" ? "sql" : "javascript",
             theme: "light",
             showLineNumbers: true,
             fontSize: 14,
@@ -666,6 +727,7 @@ console.log("Total:", total);`;
           break;
 
         default:
+          console.warn("Unrecognized tool:", activeTool);
           return; // Don't add if tool not recognized
       }
 
@@ -683,6 +745,7 @@ console.log("Total:", total);`;
       });
 
       setSelectedElement(newElement.id);
+      setShowPropertiesPanel(true);
       toast.success(`${newElement.type.charAt(0).toUpperCase() + newElement.type.slice(1)} added`);
       return;
     }
@@ -702,6 +765,7 @@ console.log("Total:", total);`;
     });
 
     setSelectedElement(element.id);
+    setShowPropertiesPanel(true);
   };
 
   const updateElement = (element: PDFElement) => {
@@ -816,12 +880,12 @@ console.log("Total:", total);`;
 
   // Show properties panel when element is selected
   useEffect(() => {
-    if (selectedElement) {
+    if (selectedElement && selectedElementObj) {
       setShowPropertiesPanel(true);
     } else {
       setShowPropertiesPanel(false);
     }
-  }, [selectedElement]);
+  }, [selectedElement, selectedElementObj]);
 
   const updateDocumentSettings = (settings: Partial<PDFDocument>) => {
     setDocument({
@@ -831,7 +895,7 @@ console.log("Total:", total);`;
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-editor-background">
+    <div className="flex h-screen overflow-hidden bg-editor-background dark:bg-gray-950">
       <Toolbar
         activeTool={activeTool}
         onToolSelect={handleToolSelect}
@@ -844,13 +908,15 @@ console.log("Total:", total);`;
       />
 
       <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-editor-border flex items-center justify-between">
-          <h1 className="text-lg font-medium">{document.title}</h1>
+        <div className="p-4 border-b border-editor-border dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900">
+          <h1 className="text-lg font-medium text-gray-900 dark:text-white">
+            {document.title}
+          </h1>
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setShowClearPageDialog(true)}
               variant="outline"
-              className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400"
             >
               <Trash2 size={16} />
               Clear Page
@@ -858,7 +924,7 @@ console.log("Total:", total);`;
             <Button
               onClick={handleDownload}
               variant="default"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-editor-primary hover:bg-editor-primary/90"
             >
               <Download size={16} />
               Download PDF
@@ -866,8 +932,8 @@ console.log("Total:", total);`;
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto relative">
-          <div className="flex items-center justify-center p-4 dark:bg-stone-800 bg-gray-100 border-b border-editor-border">
+        <div className="flex-1 overflow-auto relative bg-gray-50 dark:bg-gray-950">
+          <div className="flex items-center justify-center p-4 dark:bg-gray-900 bg-white border-b border-editor-border dark:border-gray-800">
             <div className="flex items-center space-x-2">
               {document.pages.map((page, index) => (
                 <Button
@@ -877,7 +943,11 @@ console.log("Total:", total);`;
                   }
                   size="sm"
                   onClick={() => changePage(index)}
-                  className="min-w-10 h-8"
+                  className={`min-w-10 h-8 ${
+                    document.currentPage === index
+                      ? "bg-editor-primary hover:bg-editor-primary/90"
+                      : "border-gray-300 dark:border-gray-700"
+                  }`}
                 >
                   {index + 1}
                 </Button>
@@ -886,7 +956,7 @@ console.log("Total:", total);`;
                 variant="outline"
                 size="sm"
                 onClick={addPage}
-                className="h-8"
+                className="h-8 border-gray-300 dark:border-gray-700"
               >
                 <Plus size={16} />
               </Button>
@@ -895,7 +965,7 @@ console.log("Total:", total);`;
                   variant="outline"
                   size="sm"
                   onClick={() => deletePage(document.currentPage)}
-                  className="text-red-500 hover:text-red-700 h-8"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 h-8 border-gray-300 dark:border-gray-700"
                 >
                   Delete
                 </Button>
@@ -940,16 +1010,20 @@ console.log("Total:", total);`;
         open={showClearPageDialog}
         onOpenChange={setShowClearPageDialog}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white dark:bg-gray-900">
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear Page</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
+              Clear Page
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
               Are you sure you want to delete all elements from the current
               page? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border-gray-300 dark:border-gray-700">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={clearCurrentPage}
               className="bg-red-500 text-white hover:bg-red-600"

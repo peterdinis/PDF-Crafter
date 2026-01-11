@@ -241,7 +241,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 					/>
 
 					<div
-						className="bg-white p-4 border border-gray-200 rounded shadow-md z-10 space-y-4 color-picker"
+						className="bg-white dark:bg-zinc-600 p-4 border border-gray-200 rounded shadow-md z-10 space-y-4 color-picker"
 						onClick={handleFormClick}
 						onMouseDown={(e) => e.stopPropagation()}
 					>
