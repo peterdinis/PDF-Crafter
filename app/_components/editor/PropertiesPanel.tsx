@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import type {
 	ChartElement,
+	CodeElement,
+	FormElement,
 	ImageElement,
 	PDFElement,
 	PencilElement,
@@ -228,6 +230,24 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 
 	const renderImageProperties = (el: ImageElement) => (
 		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label>Image URL</Label>
+				<Input
+					value={el.src}
+					onChange={(e) => onUpdate({ ...el, src: e.target.value })}
+					placeholder="https://..."
+				/>
+			</div>
+
+			<div className="space-y-2">
+				<Label>Alt Text</Label>
+				<Input
+					value={el.alt}
+					onChange={(e) => onUpdate({ ...el, alt: e.target.value })}
+					placeholder="Image description"
+				/>
+			</div>
+
 			<div className="grid grid-cols-2 gap-4">
 				<div className="space-y-2">
 					<Label>Width</Label>
@@ -258,6 +278,238 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						}
 					/>
 				</div>
+			</div>
+
+			<div className="space-y-2">
+				<Label>Border Radius</Label>
+				<Input
+					type="number"
+					min="0"
+					value={el.borderRadius || 0}
+					onChange={(e) =>
+						onUpdate({
+							...el,
+							borderRadius: Number.parseInt(e.target.value) || 0,
+						})
+					}
+				/>
+			</div>
+
+			<div className="space-y-2">
+				<Label>Object Fit</Label>
+				<Select
+					value={el.fit || "cover"}
+					onValueChange={(value) => onUpdate({ ...el, fit: value as any })}
+				>
+					<SelectTrigger>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="cover">Cover</SelectItem>
+						<SelectItem value="contain">Contain</SelectItem>
+						<SelectItem value="fill">Fill</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+		</div>
+	);
+
+	const renderCodeProperties = (el: CodeElement) => (
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label>Code Content</Label>
+				<textarea
+					value={el.content}
+					onChange={(e) => onUpdate({ ...el, content: e.target.value })}
+					className="w-full min-h-[120px] p-2 border rounded font-mono text-sm bg-gray-50 dark:bg-gray-950"
+					placeholder="Enter code here..."
+				/>
+			</div>
+
+			<div className="space-y-2">
+				<Label>Language</Label>
+				<Select
+					value={el.language}
+					onValueChange={(value) => onUpdate({ ...el, language: value })}
+				>
+					<SelectTrigger>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="javascript">JavaScript</SelectItem>
+						<SelectItem value="typescript">TypeScript</SelectItem>
+						<SelectItem value="python">Python</SelectItem>
+						<SelectItem value="html">HTML</SelectItem>
+						<SelectItem value="css">CSS</SelectItem>
+						<SelectItem value="json">JSON</SelectItem>
+						<SelectItem value="sql">SQL</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<div className="space-y-2">
+					<Label>Font Size</Label>
+					<Input
+						type="number"
+						min="8"
+						max="72"
+						value={el.fontSize || 14}
+						onChange={(e) =>
+							onUpdate({
+								...el,
+								fontSize: Number.parseInt(e.target.value) || 14,
+							})
+						}
+					/>
+				</div>
+				<div className="space-y-2">
+					<Label>Theme</Label>
+					<Select
+						value={el.theme || "light"}
+						onValueChange={(value) => onUpdate({ ...el, theme: value as any })}
+					>
+						<SelectTrigger>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="light">Light</SelectItem>
+							<SelectItem value="dark">Dark</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+
+			<div className="flex items-center gap-2">
+				<input
+					type="checkbox"
+					id="showLineNumbers"
+					checked={el.showLineNumbers !== false}
+					onChange={(e) =>
+						onUpdate({ ...el, showLineNumbers: e.target.checked })
+					}
+					className="rounded border-gray-300"
+				/>
+				<Label htmlFor="showLineNumbers">Show Line Numbers</Label>
+			</div>
+		</div>
+	);
+
+	const renderFormProperties = (el: FormElement) => (
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label>Label</Label>
+				<Input
+					value={el.label}
+					onChange={(e) => onUpdate({ ...el, label: e.target.value })}
+					placeholder="Field Label"
+				/>
+			</div>
+
+			{["text", "textarea"].includes(el.formType) && (
+				<div className="space-y-2">
+					<Label>Placeholder</Label>
+					<Input
+						value={el.placeholder || ""}
+						onChange={(e) => onUpdate({ ...el, placeholder: e.target.value })}
+						placeholder="Placeholder text"
+					/>
+				</div>
+			)}
+
+			{el.formType === "range" && (
+				<div className="grid grid-cols-3 gap-2">
+					<div className="space-y-1">
+						<Label className="text-xs">Min</Label>
+						<Input
+							type="number"
+							value={el.min || 0}
+							onChange={(e) => onUpdate({ ...el, min: Number(e.target.value) })}
+						/>
+					</div>
+					<div className="space-y-1">
+						<Label className="text-xs">Max</Label>
+						<Input
+							type="number"
+							value={el.max || 100}
+							onChange={(e) => onUpdate({ ...el, max: Number(e.target.value) })}
+						/>
+					</div>
+					<div className="space-y-1">
+						<Label className="text-xs">Step</Label>
+						<Input
+							type="number"
+							value={el.step || 1}
+							onChange={(e) =>
+								onUpdate({ ...el, step: Number(e.target.value) })
+							}
+						/>
+					</div>
+				</div>
+			)}
+
+			{["checkbox", "radio", "dropdown"].includes(el.formType) && (
+				<div className="space-y-2 border-t pt-2">
+					<div className="flex justify-between items-center">
+						<Label>Options</Label>
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-6 text-xs"
+							onClick={() => {
+								const currentOptions = el.options || [];
+								onUpdate({
+									...el,
+									options: [
+										...currentOptions,
+										`Option ${currentOptions.length + 1}`,
+									],
+								});
+							}}
+						>
+							<Plus size={12} className="mr-1" /> Add
+						</Button>
+					</div>
+					<div className="space-y-2 max-h-[200px] overflow-y-auto">
+						{(el.options || []).map((option, index) => (
+							<div key={index} className="flex gap-2">
+								<Input
+									value={option}
+									onChange={(e) => {
+										const newOptions = [...(el.options || [])];
+										newOptions[index] = e.target.value;
+										onUpdate({ ...el, options: newOptions });
+									}}
+									className="h-8 text-xs"
+								/>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="h-8 w-8 p-0 text-red-500"
+									onClick={() => {
+										const newOptions = (el.options || []).filter(
+											(_, i) => i !== index,
+										);
+										onUpdate({ ...el, options: newOptions });
+									}}
+								>
+									<Trash2 size={14} />
+								</Button>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+			<div className="flex items-center gap-2 pt-2 border-t">
+				<input
+					type="checkbox"
+					id="required"
+					checked={el.required}
+					onChange={(e) => onUpdate({ ...el, required: e.target.checked })}
+					className="rounded border-gray-300"
+				/>
+				<Label htmlFor="required">Required Field</Label>
 			</div>
 		</div>
 	);
@@ -694,6 +946,10 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						renderTableProperties(element as TableElement)}
 					{element.type === "chart" &&
 						renderChartProperties(element as ChartElement)}
+					{element.type === "code" &&
+						renderCodeProperties(element as CodeElement)}
+					{element.type === "form" &&
+						renderFormProperties(element as FormElement)}
 					{element.type === "pencil" && (
 						<div className="space-y-2">
 							<div className="text-sm text-gray-500 dark:text-gray-400">

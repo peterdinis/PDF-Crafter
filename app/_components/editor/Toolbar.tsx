@@ -224,6 +224,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				icon: Hash,
 				description: "Six-sided shape",
 			},
+			{
+				name: "Cloud",
+				value: "shape_cloud" as Tool,
+				icon: Hash,
+				description: "Cloud shape",
+			},
+			{
+				name: "Speech Bubble",
+				value: "shape_speech_bubble" as Tool,
+				icon: Hash,
+				description: "Speech bubble shape",
+			},
 		],
 		tables: [
 			{
@@ -287,6 +299,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				value: "chart_pie" as Tool,
 				icon: PieChart,
 				description: "Distribution view",
+			},
+			{
+				name: "Doughnut Chart",
+				value: "chart_doughnut" as Tool,
+				icon: PieChart,
+				description: "Ring chart",
 			},
 			{
 				name: "Area Chart",
@@ -372,6 +390,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				description: "Multiple choice box",
 			},
 			{
+				name: "Switch",
+				value: "form_switch" as Tool,
+				icon: CheckSquare,
+				description: "Toggle switch",
+			},
+			{
 				name: "Radio Button",
 				value: "form_radio" as Tool,
 				icon: Circle,
@@ -420,6 +444,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				value: "code_html" as Tool,
 				icon: Laptop,
 				description: "Embed HTML content",
+			},
+			{
+				name: "CSS",
+				value: "code_css" as Tool,
+				icon: Code,
+				description: "Style sheet code",
 			},
 			{
 				name: "Math Formula",

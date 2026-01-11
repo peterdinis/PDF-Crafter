@@ -24,6 +24,8 @@ export type Tool =
 	| "shape_arrow"
 	| "shape_heart"
 	| "shape_hexagon"
+	| "shape_cloud"
+	| "shape_speech_bubble"
 	// Table tools
 	| "table_simple"
 	| "table_striped"
@@ -36,6 +38,7 @@ export type Tool =
 	| "chart_bar"
 	| "chart_line"
 	| "chart_pie"
+	| "chart_doughnut"
 	| "chart_area"
 	| "chart_scatter"
 	| "chart_radar"
@@ -50,6 +53,7 @@ export type Tool =
 	| "form_text"
 	| "form_textarea"
 	| "form_checkbox"
+	| "form_switch"
 	| "form_radio"
 	| "form_dropdown"
 	| "form_button"
@@ -59,6 +63,7 @@ export type Tool =
 	| "code_block"
 	| "code_json"
 	| "code_html"
+	| "code_css"
 	| "code_math"
 	| "code_sql"
 	// Misc
@@ -86,7 +91,9 @@ export type ShapeType =
 	| "star"
 	| "arrow"
 	| "heart"
-	| "hexagon";
+	| "hexagon"
+	| "cloud"
+	| "speech_bubble";
 
 export type TableStyle =
 	| "simple"
@@ -101,6 +108,7 @@ export type ChartType =
 	| "bar"
 	| "line"
 	| "pie"
+	| "doughnut"
 	| "area"
 	| "scatter"
 	| "radar"
@@ -110,13 +118,14 @@ export type FormType =
 	| "text"
 	| "textarea"
 	| "checkbox"
+	| "switch"
 	| "radio"
 	| "dropdown"
 	| "button"
 	| "date"
 	| "range";
 
-export type CodeType = "block" | "json" | "html" | "math" | "sql";
+export type CodeType = "block" | "json" | "html" | "css" | "math" | "sql";
 
 export type DividerStyle = "solid" | "dashed" | "dotted";
 
@@ -236,6 +245,9 @@ export interface FormElement extends PDFElementBase {
 	required: boolean;
 	options?: string[];
 	value?: string;
+	min?: number;
+	max?: number;
+	step?: number;
 	validation?: {
 		pattern?: string;
 		minLength?: number;
@@ -323,18 +335,18 @@ export interface PDFPage {
 export interface PDFDocument {
 	title: string;
 	pageSize:
-		| "a3"
-		| "a4"
-		| "a5"
-		| "letter"
-		| "legal"
-		| "tabloid"
-		| "executive"
-		| "b5"
-		| "b4"
-		| "jisb4"
-		| "jisb5"
-		| "custom";
+	| "a3"
+	| "a4"
+	| "a5"
+	| "letter"
+	| "legal"
+	| "tabloid"
+	| "executive"
+	| "b5"
+	| "b4"
+	| "jisb4"
+	| "jisb5"
+	| "custom";
 	orientation: "portrait" | "landscape";
 	defaultTextColor: string;
 	defaultFontFamily: string;
