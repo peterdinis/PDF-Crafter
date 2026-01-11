@@ -61,6 +61,7 @@ const PDFEditor = () => {
 	const [showSettings, setShowSettings] = useState(false);
 	const [showClearPageDialog, setShowClearPageDialog] = useState(false);
 	const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
+	const [enableCompression, setEnableCompression] = useState(false);
 
 	// Keyboard shortcuts
 	useEffect(() => {
@@ -103,7 +104,7 @@ const PDFEditor = () => {
 						break;
 					case "s":
 						e.preventDefault();
-						if (e.shiftKey) setActiveTool("shape_rectangle");
+						setActiveTool("shape_rectangle");
 						break;
 					case "l":
 						e.preventDefault();
@@ -128,7 +129,7 @@ const PDFEditor = () => {
 	const handleDownload = async () => {
 		try {
 			toast.loading("Generating PDF...");
-			await generatePDF(document);
+			await generatePDF(document, { compress: enableCompression });
 			toast.dismiss();
 			toast.success("PDF downloaded successfully!");
 		} catch (error) {
@@ -289,9 +290,9 @@ const PDFEditor = () => {
 			rows:
 				style === "empty"
 					? [
-							["", ""],
-							["", ""],
-						]
+						["", ""],
+						["", ""],
+					]
 					: baseData.slice(0, 2),
 		};
 	};
@@ -546,6 +547,8 @@ console.log("Total:", total);`;
 				case "shape_line":
 				case "shape_heart":
 				case "shape_hexagon":
+				case "shape_cloud":
+				case "shape_speech_bubble":
 					const shapeType = activeTool.replace("shape_", "");
 					newElement = {
 						id,
@@ -598,6 +601,7 @@ console.log("Total:", total);`;
 				case "chart_bar":
 				case "chart_line":
 				case "chart_pie":
+				case "chart_doughnut":
 				case "chart_area":
 				case "chart_scatter":
 				case "chart_radar":
@@ -622,6 +626,7 @@ console.log("Total:", total);`;
 				case "form_text":
 				case "form_textarea":
 				case "form_checkbox":
+				case "form_switch":
 				case "form_radio":
 				case "form_dropdown":
 				case "form_button":
@@ -651,6 +656,7 @@ console.log("Total:", total);`;
 				case "code_block":
 				case "code_json":
 				case "code_html":
+				case "code_css":
 				case "code_math":
 				case "code_sql":
 					const codeType = activeTool.replace("code_", "");
@@ -668,11 +674,13 @@ console.log("Total:", total);`;
 								? "json"
 								: codeType === "html"
 									? "html"
-									: codeType === "math"
-										? "latex"
-										: codeType === "sql"
-											? "sql"
-											: "javascript",
+									: codeType === "css"
+										? "css"
+										: codeType === "math"
+											? "latex"
+											: codeType === "sql"
+												? "sql"
+												: "javascript",
 						theme: "light",
 						showLineNumbers: true,
 						fontSize: 14,
@@ -789,6 +797,7 @@ console.log("Total:", total);`;
 
 			setSelectedElement(newElement.id);
 			setShowPropertiesPanel(true);
+			if (newElement.type !== "drawing") setActiveTool("select");
 			toast.success(
 				`${newElement.type.charAt(0).toUpperCase() + newElement.type.slice(1)} added`,
 			);
@@ -919,8 +928,8 @@ console.log("Total:", total);`;
 	// Get selected element object
 	const selectedElementObj = selectedElement
 		? document.pages[document.currentPage]?.elements.find(
-				(el) => el.id === selectedElement,
-			) || null
+			(el) => el.id === selectedElement,
+		) || null
 		: null;
 
 	// Show properties panel when element is selected
@@ -966,6 +975,21 @@ console.log("Total:", total);`;
 							<Trash2 size={16} />
 							Clear Page
 						</Button>
+						<div className="flex items-center gap-2 mr-2">
+							<input
+								type="checkbox"
+								id="compression"
+								checked={enableCompression}
+								onChange={(e) => setEnableCompression(e.target.checked)}
+								className="w-4 h-4 rounded border-gray-300 dark:border-gray-700"
+							/>
+							<label
+								htmlFor="compression"
+								className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+							>
+								Compress
+							</label>
+						</div>
 						<Button
 							onClick={handleDownload}
 							variant="default"
@@ -988,11 +1012,10 @@ console.log("Total:", total);`;
 									}
 									size="sm"
 									onClick={() => changePage(index)}
-									className={`min-w-10 h-8 ${
-										document.currentPage === index
+									className={`min-w-10 h-8 ${document.currentPage === index
 											? "bg-editor-primary hover:bg-editor-primary/90"
 											: "border-gray-300 dark:border-gray-700"
-									}`}
+										}`}
 								>
 									{index + 1}
 								</Button>

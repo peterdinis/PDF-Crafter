@@ -554,7 +554,10 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
 	};
 };
 
-export const generatePDF = async (document: PDFDocument) => {
+export const generatePDF = async (
+	document: PDFDocument,
+	options: { compress?: boolean } = {},
+) => {
 	let format: string | [number, number] = "a4";
 
 	// Nastav formát podľa pageSize
@@ -583,6 +586,7 @@ export const generatePDF = async (document: PDFDocument) => {
 		orientation,
 		unit: "pt",
 		format,
+		compress: options.compress,
 	});
 
 	// Nastav metadáta PDF

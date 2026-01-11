@@ -335,18 +335,18 @@ export interface PDFPage {
 export interface PDFDocument {
 	title: string;
 	pageSize:
-	| "a3"
-	| "a4"
-	| "a5"
-	| "letter"
-	| "legal"
-	| "tabloid"
-	| "executive"
-	| "b5"
-	| "b4"
-	| "jisb4"
-	| "jisb5"
-	| "custom";
+		| "a3"
+		| "a4"
+		| "a5"
+		| "letter"
+		| "legal"
+		| "tabloid"
+		| "executive"
+		| "b5"
+		| "b4"
+		| "jisb4"
+		| "jisb5"
+		| "custom";
 	orientation: "portrait" | "landscape";
 	defaultTextColor: string;
 	defaultFontFamily: string;
