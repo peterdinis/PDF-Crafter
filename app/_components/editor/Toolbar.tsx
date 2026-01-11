@@ -746,8 +746,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 	return (
 		<>
 			<div className="w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full shadow-sm">
-				<div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-br from-editor-primary/5 to-transparent">
-					<h2 className="text-xl font-bold text-gray-900 dark:text-gray-900 flex items-center gap-2">
+				<div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-br from-editor-primary/5 to-transparent">
+					<h2 className="text-xl font-bold flex items-center gap-2">
 						<div className="w-8 h-8 bg-editor-primary rounded-lg flex items-center justify-center text-zinc-800 dark:text-sky-100 shadow-lg">
 							P
 						</div>
@@ -783,7 +783,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 									key={cat.id}
 									onClick={() => setActiveCategory(cat.id)}
 									className={cn(
-										"px-4 py-3 text-xs font-semibold flex items-center gap-2 transition-all border-b-2 whitespace-nowrap flex-shrink-0",
+										"px-4 py-3 text-xs font-semibold flex items-center gap-2 transition-all border-b-2 whitespace-nowrap shrink-0",
 										activeCategory === cat.id
 											? "border-editor-primary text-editor-primary bg-editor-primary/5"
 											: "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800",
