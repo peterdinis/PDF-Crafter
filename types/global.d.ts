@@ -1,3 +1,5 @@
+import { CSSProperties } from "react";
+
 export type Tool =
   | "select"
   // Text tools
@@ -132,6 +134,8 @@ export interface TextElement extends PDFElementBase {
   fontSize: number;
   fontFamily: string;
   color: string;
+  fontWeight: string;
+  fontStyle: string;
   align?: "left" | "center" | "right" | "justify";
   lineHeight?: number;
   backgroundColor?: string;

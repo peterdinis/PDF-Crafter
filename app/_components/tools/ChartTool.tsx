@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { ChartDataPoint, ChartElement } from "@/types/global";
+import type { ChartElement } from "@/types/global";
 import { type FC, type MouseEvent, useMemo } from "react";
 
 interface ChartToolProps {

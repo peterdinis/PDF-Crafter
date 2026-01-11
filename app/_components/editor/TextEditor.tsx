@@ -20,10 +20,10 @@ interface TextEditorProps {
 	isSelected: boolean;
 	onMouseDown: (e: React.MouseEvent) => void;
 	onUpdate: (element: TextElement) => void;
-	onDelete?: (id: string) => void; // Nový prop pre mazanie
+	onDelete?: (id: string) => void;
 	isEditing?: boolean;
 	setIsEditing?: (isEditing: boolean) => void;
-	onContextMenu?: (e: React.MouseEvent) => void; // Nový prop pre kontextové menu
+	onContextMenu?: (e: React.MouseEvent) => void;
 }
 
 const fontOptions = [
@@ -367,7 +367,7 @@ export const TextEditor: FC<TextEditorProps> = ({
 							color: element.color,
 						}}
 						className={cn(
-							"whitespace-pre-wrap break-words",
+							"whitespace-pre-wrap wrap-break-word",
 							isSelected && "cursor-text",
 						)}
 					>

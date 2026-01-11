@@ -924,7 +924,7 @@ console.log("Total:", total);`;
             <Button
               onClick={handleDownload}
               variant="default"
-              className="flex items-center gap-2 bg-editor-primary hover:bg-editor-primary/90"
+              className="flex items-center gap-2 bg-amber-400 hover:bg-editor-primary/90"
             >
               <Download size={16} />
               Download PDF
