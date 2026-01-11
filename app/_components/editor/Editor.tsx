@@ -38,6 +38,7 @@ import { PdfSettings } from "../pdf/PdfSettings";
 import { ScrollToTop } from "../shared/ScrollToTop";
 import { PropertiesPanel } from "./PropertiesPanel";
 import { Toolbar } from "./Toolbar";
+import { Label } from "@/components/ui/label";
 
 const PDFEditor = () => {
 	const [document, setDocument] = useState<PDFDocument>({
@@ -983,12 +984,12 @@ console.log("Total:", total);`;
 								onChange={(e) => setEnableCompression(e.target.checked)}
 								className="w-4 h-4 rounded border-gray-300 dark:border-gray-700"
 							/>
-							<label
+							<Label
 								htmlFor="compression"
 								className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
 							>
 								Compress
-							</label>
+							</Label>
 						</div>
 						<Button
 							onClick={handleDownload}

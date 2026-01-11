@@ -1,6 +1,5 @@
 import type {
 	ChartElement,
-	DrawingElement,
 	ImageElement,
 	PDFDocument,
 	PDFElement,
