@@ -32,18 +32,23 @@ export const ChartTool: FC<ChartToolProps> = ({
 	const innerWidth = width - padding * 2;
 	const innerHeight = height - padding * 2;
 
+	const { labels, datasets } = data;
+	const dataset = datasets[0] || { data: [] };
+	const values = dataset.data;
+
 	const maxValue = useMemo(() => {
-		if (data.length === 0) return 100;
-		return Math.max(...data.map((d) => d.value), 10);
-	}, [data]);
+		if (values.length === 0) return 100;
+		return Math.max(...values, 10);
+	}, [values]);
 
 	const renderBars = () => {
-		const barWidth = innerWidth / data.length;
-		return data.map((d, i) => {
-			const barHeight = (d.value / maxValue) * innerHeight;
+		if (values.length === 0) return null;
+		const barWidth = innerWidth / values.length;
+		return values.map((value, i) => {
+			const barHeight = (value / maxValue) * innerHeight;
 			const x = padding + i * barWidth + barWidth * 0.1;
 			const y = height - padding - barHeight;
-			const color = d.color || seriesColors[i % seriesColors.length];
+			const color = dataset.backgroundColor || seriesColors[i % seriesColors.length];
 
 			return (
 				<rect
@@ -60,12 +65,12 @@ export const ChartTool: FC<ChartToolProps> = ({
 	};
 
 	const renderLine = () => {
-		if (data.length < 2) return null;
-		const step = innerWidth / (data.length - 1);
-		const points = data
-			.map((d, i) => {
+		if (values.length < 2) return null;
+		const step = innerWidth / (values.length - 1);
+		const points = values
+			.map((value, i) => {
 				const x = padding + i * step;
-				const y = height - padding - (d.value / maxValue) * innerHeight;
+				const y = height - padding - (value / maxValue) * innerHeight;
 				return `${x},${y}`;
 			})
 			.join(" ");
@@ -80,9 +85,9 @@ export const ChartTool: FC<ChartToolProps> = ({
 					strokeLinejoin="round"
 					strokeLinecap="round"
 				/>
-				{data.map((d, i) => {
+				{values.map((value, i) => {
 					const x = padding + i * step;
-					const y = height - padding - (d.value / maxValue) * innerHeight;
+					const y = height - padding - (value / maxValue) * innerHeight;
 					return (
 						<circle
 							key={`point-${i}`}
@@ -100,7 +105,7 @@ export const ChartTool: FC<ChartToolProps> = ({
 	};
 
 	const renderPie = () => {
-		const total = data.reduce((sum, d) => sum + d.value, 0);
+		const total = values.reduce((sum, val) => sum + val, 0);
 		if (total === 0) return null;
 
 		const centerX = width / 2;
@@ -108,8 +113,8 @@ export const ChartTool: FC<ChartToolProps> = ({
 		const radius = Math.min(innerWidth, innerHeight) / 2;
 
 		let startAngle = 0;
-		return data.map((d, i) => {
-			const sliceAngle = (d.value / total) * 360;
+		return values.map((value, i) => {
+			const sliceAngle = (value / total) * 360;
 			const endAngle = startAngle + sliceAngle;
 
 			const x1 = centerX + radius * Math.cos((Math.PI * startAngle) / 180);
@@ -120,7 +125,7 @@ export const ChartTool: FC<ChartToolProps> = ({
 			const largeArcFlag = sliceAngle > 180 ? 1 : 0;
 			const dPath = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 
-			const color = d.color || seriesColors[i % seriesColors.length];
+			const color = seriesColors[i % seriesColors.length];
 			startAngle = endAngle;
 
 			return (
@@ -168,6 +173,24 @@ export const ChartTool: FC<ChartToolProps> = ({
 					x2={width - padding}
 					y2={height - padding}
 				/>
+				{/* X Labels */}
+				{labels.map((label, i) => {
+					if (i % Math.ceil(labels.length / 5) !== 0) return null;
+					const x = padding + (i / (labels.length - 1)) * innerWidth;
+					return (
+						<text
+							key={`label-${i}`}
+							x={x}
+							y={height - padding + 20}
+							textAnchor="middle"
+							fontSize="10"
+							fill={axesColor}
+							strokeWidth="0"
+						>
+							{label}
+						</text>
+					)
+				})}
 			</g>
 		);
 	};

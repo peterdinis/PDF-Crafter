@@ -22,6 +22,8 @@ export type Tool =
   | "shape_diamond"
   | "shape_star"
   | "shape_arrow"
+  | "shape_heart"
+  | "shape_hexagon"
   // Table tools
   | "table_simple"
   | "table_striped"
@@ -29,12 +31,15 @@ export type Tool =
   | "table_empty"
   | "table_wide"
   | "table_calendar"
+  | "table_invoice"
   // Chart tools
   | "chart_bar"
   | "chart_line"
   | "chart_pie"
   | "chart_area"
   | "chart_scatter"
+  | "chart_radar"
+  | "chart_gauge"
   // Media tools
   | "image"
   | "pencil"
@@ -49,11 +54,13 @@ export type Tool =
   | "form_dropdown"
   | "form_button"
   | "form_date"
+  | "form_range"
   // Code tools
   | "code_block"
   | "code_json"
   | "code_html"
   | "code_math"
+  | "code_sql"
   // Misc
   | "divider";
 
@@ -166,7 +173,7 @@ export interface TableElement extends PDFElementBase {
   style: TableStyle;
   // Specific properties used in code
   tableStyle?: TableStyle;
-  headerType?: "simple" | "none" | "firstRow";
+  headerType?: "simple" | "none" | "firstRow" | "divided";
   data: {
     headers: string[];
     rows: string[][];
@@ -316,7 +323,19 @@ export interface PDFPage {
 
 export interface PDFDocument {
   title: string;
-  pageSize: "a4" | "letter" | "legal" | "a3" | "custom";
+  pageSize:
+  | "a3"
+  | "a4"
+  | "a5"
+  | "letter"
+  | "legal"
+  | "tabloid"
+  | "executive"
+  | "b5"
+  | "b4"
+  | "jisb4"
+  | "jisb5"
+  | "custom";
   orientation: "portrait" | "landscape";
   defaultTextColor: string;
   defaultFontFamily: string;

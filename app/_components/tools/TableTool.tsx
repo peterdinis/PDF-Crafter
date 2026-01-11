@@ -39,14 +39,14 @@ export const TableTool: FC<TableToolProps> = ({
 }) => {
 	const { tableStyle, headerType, data, columns, rows } = element;
 	const [editingCell, setEditingCell] = useState<{
-		row: number;
+		row: number; // -1 for header
 		col: number;
 	} | null>(null);
 	const [cellValue, setCellValue] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
-	const tableData =
-		data && data.length > 0 ? data : Array(rows).fill(Array(columns).fill(""));
+	const headers = data?.headers || Array(columns).fill("");
+	const bodyRows = data?.rows || Array(rows).fill(Array(columns).fill(""));
 
 	const getTableClassName = () => {
 		switch (tableStyle) {
@@ -67,9 +67,8 @@ export const TableTool: FC<TableToolProps> = ({
 
 		switch (tableStyle) {
 			case "striped":
-				// Pre striped: párne riadky majú pozadie (počítame od 0, takže párne = even)
-				const actualRowIndex = headerType === "none" ? rowIndex : rowIndex + 1;
-				return actualRowIndex % 2 === 0 ? "bg-gray-50 dark:bg-gray-800/30" : "";
+				// Stripped styling handled by CSS select in getTableClassName
+				return "";
 			case "bordered":
 				return "border-b border-gray-300 dark:border-gray-600";
 			case "simple":
@@ -78,45 +77,20 @@ export const TableTool: FC<TableToolProps> = ({
 		}
 	};
 
-	const handleBorderColorChange = (color: string) => {
-		onUpdate({
-			...element,
-			borderColor: color || "#000000",
-		});
-	};
-
-	const handleHeaderColorChange = (color: string) => {
-		onUpdate({
-			...element,
-			headerColor: color || "#ffffff",
-		});
-	};
-
-	const handleCellColorChange = (color: string) => {
-		onUpdate({
-			...element,
-			cellColor: color || "#ffffff",
-		});
-	};
-
-	const handleTextColorChange = (color: string) => {
-		onUpdate({
-			...element,
-			textColor: color || "#000000",
-		});
-	};
-
 	const handleCellClick = (
-		rowIndex: number,
+		rowIndex: number, // -1 for header
 		colIndex: number,
 		e: MouseEvent,
 	) => {
 		e.stopPropagation();
-		// Pre header row je rowIndex -1, inak je to normálny rowIndex
-		const actualRowIndex =
-			rowIndex === -1 ? 0 : headerType === "none" ? rowIndex : rowIndex + 1;
-		const currentValue = tableData[actualRowIndex]?.[colIndex] || "";
-		setEditingCell({ row: actualRowIndex, col: colIndex });
+		let currentValue = "";
+		if (rowIndex === -1) {
+			currentValue = headers[colIndex] || "";
+		} else {
+			currentValue = bodyRows[rowIndex]?.[colIndex] || "";
+		}
+
+		setEditingCell({ row: rowIndex, col: colIndex });
 		setCellValue(currentValue);
 	};
 
@@ -126,89 +100,99 @@ export const TableTool: FC<TableToolProps> = ({
 
 	const handleCellBlur = () => {
 		if (editingCell) {
-			const newData = [...tableData];
-			if (!newData[editingCell.row]) {
-				newData[editingCell.row] = Array(columns).fill("");
-			}
-			newData[editingCell.row][editingCell.col] = cellValue;
+			if (editingCell.row === -1) {
+				// Header update
+				const newHeaders = [...headers];
+				newHeaders[editingCell.col] = cellValue;
+				onUpdate({
+					...element,
+					data: {
+						...data,
+						headers: newHeaders,
+					},
+				});
+			} else {
+				// Body update
+				const newRows = [...bodyRows];
+				const rowIndex = editingCell.row;
+				// Ensure row exists
+				if (!newRows[rowIndex]) newRows[rowIndex] = Array(columns).fill("");
 
-			onUpdate({
-				...element,
-				data: newData,
-			});
+				const newRow = [...newRows[rowIndex]];
+				newRow[editingCell.col] = cellValue;
+				newRows[rowIndex] = newRow;
+
+				onUpdate({
+					...element,
+					data: {
+						...data,
+						rows: newRows,
+					},
+				});
+			}
 		}
 		setEditingCell(null);
 	};
 
 	const handleCellKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		// Navigation logic similar to before, but handling -1 for header
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
 			handleCellBlur();
-			// Navigácia na ďalšiu bunku
-			moveToNextCell();
+			// Move down
+			moveToCell(editingCell!.row + 1, editingCell!.col);
 		} else if (e.key === "Escape") {
 			setEditingCell(null);
 			setCellValue("");
 		} else if (e.key === "Tab") {
 			e.preventDefault();
 			handleCellBlur();
-			// Navigácia na ďalšiu bunku pomocou Tab
 			moveToNextCell(e.shiftKey);
-		} else if (e.key === "ArrowRight" && !e.shiftKey) {
-			const target = e.target as HTMLTextAreaElement;
-			if (
-				target.selectionStart === target.value.length &&
-				target.value.length > 0
-			) {
-				e.preventDefault();
-				handleCellBlur();
-				moveToNextCell();
-			}
-		} else if (e.key === "ArrowLeft" && !e.shiftKey) {
-			const target = e.target as HTMLTextAreaElement;
-			if (target.selectionStart === 0 && target.value.length > 0) {
-				e.preventDefault();
-				handleCellBlur();
-				moveToNextCell(true);
-			}
-		} else if (e.key === "ArrowDown" && !e.shiftKey) {
-			e.preventDefault();
-			handleCellBlur();
-			moveToCell(editingCell!.row + 1, editingCell!.col);
-		} else if (e.key === "ArrowUp" && !e.shiftKey) {
-			e.preventDefault();
-			handleCellBlur();
-			if (editingCell!.row > 0) {
-				moveToCell(editingCell!.row - 1, editingCell!.col);
-			}
 		}
+		// ... other arrow keys navigation could be implemented here
 	};
 
 	const moveToNextCell = (backward = false) => {
 		if (!editingCell) return;
-
+		// Simplified next cell logic
 		let newRow = editingCell.row;
 		let newCol = backward ? editingCell.col - 1 : editingCell.col + 1;
 
-		if (newCol < 0) {
-			newCol = columns - 1;
-			newRow = Math.max(0, newRow - 1);
-		} else if (newCol >= columns) {
+		if (newCol >= columns) {
 			newCol = 0;
-			newRow = Math.min(rows - 1, newRow + 1);
+			newRow++;
+		} else if (newCol < 0) {
+			newCol = columns - 1;
+			newRow--;
 		}
+
+		// Bound checking
+		if (newRow < -1) newRow = -1; // Cap at header
+		if (newRow >= bodyRows.length) newRow = bodyRows.length - 1; // Cap at end
 
 		moveToCell(newRow, newCol);
 	};
 
-	const moveToCell = (row: number, col: number) => {
-		if (row < 0 || row >= rows || col < 0 || col >= columns) return;
 
-		const currentValue = tableData[row]?.[col] || "";
+	const moveToCell = (row: number, col: number) => {
+		// Bounds check
+		// Allow row = -1 (header) if headerType != none
+		const minRow = headerType === "none" ? 0 : -1;
+
+		if (row < minRow || row >= rows || col < 0 || col >= columns) return;
+
+		let currentValue = "";
+		if (row === -1) {
+			currentValue = headers[col] || "";
+		} else {
+			currentValue = bodyRows[row]?.[col] || "";
+		}
+
 		setEditingCell({ row, col });
 		setCellValue(currentValue);
 	};
 
+	// Effects and Styles...
 	useEffect(() => {
 		if (editingCell && inputRef.current) {
 			inputRef.current.focus();
@@ -218,11 +202,6 @@ export const TableTool: FC<TableToolProps> = ({
 
 	const tableBorderStyle = {
 		...(element.borderColor && { borderColor: element.borderColor }),
-	};
-
-	const headerStyle = {
-		...(element.headerColor && { backgroundColor: element.headerColor }),
-		...(element.textColor && { color: element.textColor }),
 	};
 
 	const getCellStyle = (rowIndex: number, isHeader = false) => {
@@ -238,12 +217,9 @@ export const TableTool: FC<TableToolProps> = ({
 			};
 		}
 
-		// Pre striped tabuľky, ak je bunka v párnom riadku, použijeme špeciálnu farbu
 		if (tableStyle === "striped") {
-			const actualRowIndex = headerType === "none" ? rowIndex : rowIndex + 1;
-			if (actualRowIndex % 2 === 0) {
-				return baseStyle; // Párny riadok má už pozadie z CSS
-			}
+			// Even rows in body have specific color - depends on implementation
+			// If striped class is used, we might not want to override bg unless specific cellColor is set
 		}
 
 		return {
@@ -275,7 +251,7 @@ export const TableTool: FC<TableToolProps> = ({
 							<TableRow className={cn(getRowClassName(-1, true))}>
 								{Array.from({ length: columns }).map((_, index) => {
 									const isEditing =
-										editingCell?.row === 0 && editingCell?.col === index;
+										editingCell?.row === -1 && editingCell?.col === index;
 
 									return (
 										<TableHead
@@ -284,7 +260,7 @@ export const TableTool: FC<TableToolProps> = ({
 												"h-8 px-2 text-xs relative transition-colors",
 												isEditing && "ring-2 ring-blue-500 ring-offset-1",
 												!isEditing &&
-													"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
+												"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
 											)}
 											style={getCellStyle(-1, true)}
 											onClick={(e) => handleCellClick(-1, index, e)}
@@ -303,7 +279,7 @@ export const TableTool: FC<TableToolProps> = ({
 												/>
 											) : (
 												<span className="block truncate">
-													{tableData[0]?.[index] || `Header ${index + 1}`}
+													{headers[index] || `Header ${index + 1}`}
 												</span>
 											)}
 										</TableHead>
@@ -313,12 +289,7 @@ export const TableTool: FC<TableToolProps> = ({
 						</TableHeader>
 					)}
 					<TableBody>
-						{Array.from({
-							length: headerType === "none" ? rows : rows - 1,
-						}).map((_, rowIndex) => {
-							const actualRowIndex =
-								headerType === "none" ? rowIndex : rowIndex + 1;
-
+						{bodyRows.map((row, rowIndex) => {
 							return (
 								<TableRow
 									key={rowIndex}
@@ -326,7 +297,7 @@ export const TableTool: FC<TableToolProps> = ({
 								>
 									{Array.from({ length: columns }).map((_, colIndex) => {
 										const isEditing =
-											editingCell?.row === actualRowIndex &&
+											editingCell?.row === rowIndex &&
 											editingCell?.col === colIndex;
 
 										return (
@@ -336,7 +307,7 @@ export const TableTool: FC<TableToolProps> = ({
 													"h-8 px-2 text-xs relative transition-colors",
 													isEditing && "ring-2 ring-blue-500 ring-offset-1",
 													!isEditing &&
-														"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
+													"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
 												)}
 												style={getCellStyle(rowIndex)}
 												onClick={(e) => handleCellClick(rowIndex, colIndex, e)}
@@ -355,7 +326,7 @@ export const TableTool: FC<TableToolProps> = ({
 													/>
 												) : (
 													<span className="block truncate">
-														{tableData[actualRowIndex]?.[colIndex] || ""}
+														{row[colIndex] || ""}
 													</span>
 												)}
 											</TableCell>

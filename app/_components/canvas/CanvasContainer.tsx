@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+	ChartElement,
 	PDFDocument,
 	PDFElement,
 	ShapeElement,
@@ -286,13 +287,14 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				activeTool === "table_empty"
 					? "simple"
 					: (activeTool.replace("table_", "") as
-							| "simple"
-							| "striped"
-							| "bordered");
+						| "simple"
+						| "striped"
+						| "bordered");
 			const newTable: TableElement = {
 				id: uuidv4(),
 				type: "table",
 				tableStyle,
+				style: tableStyle,
 				x,
 				y,
 				width: 300,
@@ -303,13 +305,13 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				data:
 					activeTool === "table_empty"
 						? {
-								headers: ["", ""],
-								rows: [["", ""]],
-							}
+							headers: ["", ""],
+							rows: [["", ""]],
+						}
 						: {
-								headers: ["Header 1", "Header 2"],
-								rows: [["Data 1", "Data 2"]],
-							},
+							headers: ["Header 1", "Header 2"],
+							rows: [["Data 1", "Data 2"]],
+						},
 			};
 			onAddElement(newTable);
 		} else if (activeTool.startsWith("chart_")) {
@@ -317,23 +319,27 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				| "bar"
 				| "line"
 				| "pie";
-			const newChart: any = {
+			const newChart: ChartElement = {
 				id: uuidv4(),
 				type: "chart",
-				chartType,
+				chartType: chartType as any,
 				x,
 				y,
 				width: 400,
 				height: 300,
-				data: [
-					{ label: "Jan", value: 45 },
-					{ label: "Feb", value: 52 },
-					{ label: "Mar", value: 38 },
-					{ label: "Apr", value: 65 },
-					{ label: "May", value: 48 },
-				],
+				data: {
+					labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+					datasets: [
+						{
+							label: "Sample Data",
+							data: [45, 52, 38, 65, 48],
+							backgroundColor: "#3b82f6",
+						},
+					],
+				},
 				title: "Sample Chart",
 				showGrid: true,
+				showLegend: true,
 				showAxes: true,
 				axesColor: "#9ca3af",
 				gridColor: "#e5e7eb",
@@ -483,9 +489,8 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 					{pageElements.map((element) => (
 						<div
 							key={element.id}
-							className={`relative ${
-								element.id === selectedElement ? "z-10" : "z-0"
-							}`}
+							className={`relative ${element.id === selectedElement ? "z-10" : "z-0"
+								}`}
 							style={{
 								position: "absolute",
 								left: `${element.x}px`,

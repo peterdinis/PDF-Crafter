@@ -13,6 +13,7 @@ import {
 import type {
 	ChartElement,
 	ImageElement,
+	PencilElement,
 	PDFElement,
 	ShapeElement,
 	TableElement,
@@ -20,15 +21,12 @@ import type {
 } from "@/types/global";
 import {
 	Copy,
-	Download,
-	FileText,
 	Minus,
 	Plus,
 	Trash2,
 	Upload,
 } from "lucide-react";
 import { type FC, useState } from "react";
-import { toast } from "sonner";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 import { ChartImportDialog } from "../tools/ChartImportDialog";
 
@@ -146,7 +144,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 
 			<ColorPicker
 				label="Text Color"
-				color={el.color}
+				color={el.color || "#000000"}
 				onChange={(color) => onUpdate({ ...el, color })}
 			/>
 		</div>
@@ -221,14 +219,14 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 			{el.shapeType !== "line" && (
 				<ColorPicker
 					label="Fill Color"
-					color={el.fill}
+					color={el.fill || "transparent"}
 					onChange={(color) => onUpdate({ ...el, fill: color })}
 				/>
 			)}
 
 			<ColorPicker
 				label="Border Color"
-				color={el.stroke}
+				color={el.stroke || "#000000"}
 				onChange={(color) => onUpdate({ ...el, stroke: color })}
 			/>
 		</div>
@@ -304,10 +302,14 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						onClick={() => {
 							if (el.rows <= 1) return;
 							const newRows = el.rows - 1;
+							const currentRows = el.data?.rows || [];
 							onUpdate({
 								...el,
 								rows: newRows,
-								data: el.data.slice(0, newRows),
+								data: {
+									...el.data,
+									rows: currentRows.slice(0, newRows)
+								},
 							});
 						}}
 						disabled={el.rows <= 1}
@@ -320,12 +322,16 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						className="flex-1"
 						onClick={() => {
 							const newRows = el.rows + 1;
-							const newData = [...el.data];
+							const currentRows = el.data?.rows || [];
+							const newData = [...currentRows];
 							newData.push(Array(el.columns).fill(""));
 							onUpdate({
 								...el,
 								rows: newRows,
-								data: newData,
+								data: {
+									...el.data,
+									rows: newData
+								},
 							});
 						}}
 					>
@@ -344,11 +350,19 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						onClick={() => {
 							if (el.columns <= 1) return;
 							const newColumns = el.columns - 1;
-							const newData = el.data.map((row) => row.slice(0, newColumns));
+							const currentRows = el.data?.rows || [];
+							const currentHeaders = el.data?.headers || [];
+
+							const newRowsData = currentRows.map((row) => row.slice(0, newColumns));
+							const newHeaders = currentHeaders.slice(0, newColumns);
+
 							onUpdate({
 								...el,
 								columns: newColumns,
-								data: newData,
+								data: {
+									headers: newHeaders,
+									rows: newRowsData
+								},
 							});
 						}}
 						disabled={el.columns <= 1}
@@ -361,11 +375,19 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						className="flex-1"
 						onClick={() => {
 							const newColumns = el.columns + 1;
-							const newData = el.data.map((row) => [...row, ""]);
+							const currentRows = el.data?.rows || [];
+							const currentHeaders = el.data?.headers || [];
+
+							const newRowsData = currentRows.map((row) => [...row, ""]);
+							const newHeaders = [...currentHeaders, ""];
+
 							onUpdate({
 								...el,
 								columns: newColumns,
-								data: newData,
+								data: {
+									headers: newHeaders,
+									rows: newRowsData
+								},
 							});
 						}}
 					>
@@ -402,6 +424,36 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 
 	const renderChartProperties = (el: ChartElement) => {
 		const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+
+		// Helper to get unified data points for editing
+		const labels = el.data?.labels || [];
+		const dataset = el.data?.datasets?.[0] || { data: [], backgroundColor: "" };
+		const values = dataset.data || [];
+
+		const dataPoints = labels.map((label, i) => ({
+			label,
+			value: values[i] || 0
+		}));
+
+		const updateData = (newPoints: { label: string; value: number }[]) => {
+			const newLabels = newPoints.map(p => p.label);
+			const newValues = newPoints.map(p => p.value);
+
+			onUpdate({
+				...el,
+				data: {
+					labels: newLabels,
+					datasets: [
+						{
+							...dataset,
+							label: dataset.label || "Dataset 1",
+							data: newValues,
+							backgroundColor: dataset.backgroundColor || "#3b82f6"
+						}
+					]
+				}
+			});
+		};
 
 		return (
 			<div className="space-y-4">
@@ -441,10 +493,10 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								size="sm"
 								onClick={() => {
 									const newData = [
-										...el.data,
-										{ label: `Point ${el.data.length + 1}`, value: 0 },
+										...dataPoints,
+										{ label: `Point ${dataPoints.length + 1}`, value: 0 },
 									];
-									onUpdate({ ...el, data: newData });
+									updateData(newData);
 								}}
 								className="h-8 text-xs"
 							>
@@ -454,7 +506,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 					</div>
 
 					<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-						{el.data.map((point, index) => (
+						{dataPoints.map((point, index) => (
 							<div
 								key={index}
 								className="flex gap-2 items-end p-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800"
@@ -466,9 +518,9 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 									<Input
 										value={point.label}
 										onChange={(e) => {
-											const newData = [...el.data];
+											const newData = [...dataPoints];
 											newData[index] = { ...point, label: e.target.value };
-											onUpdate({ ...el, data: newData });
+											updateData(newData);
 										}}
 										className="h-8 text-xs bg-white dark:bg-gray-950"
 									/>
@@ -481,12 +533,12 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 										type="number"
 										value={point.value}
 										onChange={(e) => {
-											const newData = [...el.data];
+											const newData = [...dataPoints];
 											newData[index] = {
 												...point,
 												value: Number.parseFloat(e.target.value) || 0,
 											};
-											onUpdate({ ...el, data: newData });
+											updateData(newData);
 										}}
 										className="h-8 text-xs bg-white dark:bg-gray-950"
 									/>
@@ -496,8 +548,8 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 									size="sm"
 									className="h-8 w-8 text-red-500 hover:text-red-700 p-0"
 									onClick={() => {
-										const newData = el.data.filter((_, i) => i !== index);
-										onUpdate({ ...el, data: newData });
+										const newData = dataPoints.filter((_, i) => i !== index);
+										updateData(newData);
 									}}
 								>
 									<Trash2 size={14} />
@@ -510,7 +562,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				<ChartImportDialog
 					isOpen={isImportDialogOpen}
 					onClose={() => setIsImportDialogOpen(false)}
-					onImport={(newData) => onUpdate({ ...el, data: newData })}
+					onImport={(newData) => updateData(newData)}
 				/>
 
 				<div className="space-y-2 pt-2 border-t text-editor-foreground">
@@ -657,19 +709,19 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 									type="number"
 									min="1"
 									max="20"
-									value={(element as any).strokeWidth || 2}
+									value={(element as PencilElement).strokeWidth || 2}
 									onChange={(e) =>
 										onUpdate({
 											...element,
 											strokeWidth: Number.parseInt(e.target.value) || 2,
-										} as any)
+										} as PencilElement)
 									}
 								/>
 							</div>
 							<ColorPicker
 								label="Stroke Color"
-								color={(element as any).color || "#000000"}
-								onChange={(color) => onUpdate({ ...element, color } as any)}
+								color={(element as PencilElement).color || "#000000"}
+								onChange={(color) => onUpdate({ ...element, color } as PencilElement)}
 							/>
 						</div>
 					)}

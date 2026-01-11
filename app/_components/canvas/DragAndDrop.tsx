@@ -97,6 +97,9 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 					} else if (elementData.tool === "text_italic") {
 						fontStyle = "italic";
 						content = "Italic text";
+					} else if (elementData.tool === "text_paragraph") {
+						content =
+							"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 					}
 
 					onAddElement({
@@ -112,6 +115,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						color: "#000000",
 						width: 200,
 						height: fontSize * 1.5,
+						style: "normal",
 					} as TextElement);
 				} else if (elementData.type === "shape") {
 					onAddElement({
@@ -132,6 +136,7 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						id,
 						type: "table",
 						tableStyle: isEmpty ? "simple" : elementData.tableStyle || "simple",
+						style: isEmpty ? "simple" : elementData.tableStyle || "simple",
 						x,
 						y,
 						width: 300,
@@ -140,14 +145,14 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						rows: 2,
 						headerType: isEmpty ? "none" : "simple",
 						data: isEmpty
-							? [
-									["", ""],
-									["", ""],
-								]
-							: [
-									["Header 1", "Header 2"],
-									["Data 1", "Data 2"],
-								],
+							? {
+								headers: ["", ""],
+								rows: [["", ""]],
+							}
+							: {
+								headers: ["Header 1", "Header 2"],
+								rows: [["Data 1", "Data 2"]],
+							},
 					} as TableElement);
 				} else if (elementData.type === "chart") {
 					onAddElement({
@@ -158,15 +163,19 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						y,
 						width: 400,
 						height: 300,
-						data: [
-							{ label: "Jan", value: 45 },
-							{ label: "Feb", value: 52 },
-							{ label: "Mar", value: 38 },
-							{ label: "Apr", value: 65 },
-							{ label: "May", value: 48 },
-						],
+						data: {
+							labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+							datasets: [
+								{
+									label: "Sales",
+									data: [45, 52, 38, 65, 48],
+									backgroundColor: "#3b82f6",
+								},
+							],
+						},
 						title: "Sample Chart",
 						showGrid: true,
+						showLegend: true,
 						showAxes: true,
 						axesColor: "#9ca3af",
 						gridColor: "#e5e7eb",
@@ -178,10 +187,96 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 							"#8b5cf6",
 						],
 					} as ChartElement);
+				} else if (elementData.type === "image") {
+					// Placeholder for image - in real app would trigger upload or use placeholder
+					onAddElement({
+						id,
+						type: "image",
+						src: "/placeholder-image.png", // Ensure this exists or use base64 placeholder
+						alt: "Placeholder Image",
+						x,
+						y,
+						width: 200,
+						height: 200,
+					} as any);
+				} else if (elementData.type === "form") {
+					onAddElement({
+						id,
+						type: "form",
+						formType: elementData.formType || "text",
+						label: "Form Label",
+						placeholder: "Placeholder...",
+						x,
+						y,
+						width: 200,
+						height: 60,
+						required: false,
+					} as any);
+				} else if (elementData.type === "code") {
+					onAddElement({
+						id,
+						type: "code",
+						codeType: elementData.codeType || "block",
+						content: '// Your code here\nconsole.log("Hello World");',
+						language: "javascript",
+						x,
+						y,
+						width: 300,
+						height: 150,
+					} as any);
+				} else if (elementData.type === "qrcode") {
+					onAddElement({
+						id,
+						type: "qrcode",
+						content: "https://example.com",
+						color: "#000000",
+						backgroundColor: "#ffffff",
+						x,
+						y,
+						width: 100,
+						height: 100,
+					} as any);
+				} else if (elementData.type === "barcode") {
+					onAddElement({
+						id,
+						type: "barcode",
+						value: "1234567890",
+						format: "CODE128",
+						color: "#000000",
+						backgroundColor: "#ffffff",
+						x,
+						y,
+						width: 200,
+						height: 80,
+					} as any);
+				} else if (elementData.type === "signature") {
+					onAddElement({
+						id,
+						type: "signature",
+						penColor: "#000000",
+						penWidth: 2,
+						x,
+						y,
+						width: 200,
+						height: 100,
+					} as any);
+				} else if (elementData.type === "divider") {
+					onAddElement({
+						id,
+						type: "divider",
+						style: "solid",
+						color: "#000000",
+						thickness: 2,
+						x,
+						y,
+						width: 300,
+						height: 20,
+					} as any);
 				}
 				toast.success("Element dropped");
 			} catch (error) {
 				console.error("Error parsing dropped data:", error);
+				toast.error("Failed to drop element");
 			}
 		}
 	};
@@ -198,8 +293,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			className={cn(
 				"pdf-page relative transition-colors duration-200",
 				isDraggingOver &&
-					!isEditing &&
-					"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
+				!isEditing &&
+				"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
 				activeTool === "pencil" && !isEditing && "cursor-crosshair",
 			)}
 			style={{
