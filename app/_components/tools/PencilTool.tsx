@@ -1,10 +1,11 @@
 "use client";
 
-import type { PencilDrawingElement } from "@/types/global";
+import type { DrawingElement, PDFElement } from "@/types/global";
+import { cn } from "@/lib/utils";
 import type { FC, MouseEvent } from "react";
 
 interface PencilToolProps {
-	element: PencilDrawingElement;
+	element: PDFElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
 }
@@ -14,12 +15,33 @@ export const PencilTool: FC<PencilToolProps> = ({
 	isSelected,
 	onMouseDown,
 }) => {
-	const pathData = element.points.reduce((acc, point, index) => {
+	// Handle both "pencil" type (with points) and "drawing" type (with paths)
+	const pencilElement = element as any;
+	const points = pencilElement.points || [];
+	const paths = (element as DrawingElement).paths || [];
+	
+	// If we have paths, convert to points for rendering
+	let allPoints: Array<{ x: number; y: number }> = [];
+	if (points.length > 0) {
+		allPoints = points;
+	} else if (paths.length > 0) {
+		// Flatten all paths into points
+		paths.forEach((path: any) => {
+			if (path.points) {
+				allPoints = [...allPoints, ...path.points];
+			}
+		});
+	}
+
+	const pathData = allPoints.reduce((acc, point, index) => {
 		if (index === 0) {
 			return `M ${point.x} ${point.y}`;
 		}
 		return `${acc} L ${point.x} ${point.y}`;
 	}, "");
+
+	const color = pencilElement.color || (element as DrawingElement).strokeColor || "#000000";
+	const strokeWidth = pencilElement.strokeWidth || (element as DrawingElement).strokeWidth || 2;
 
 	const handleMouseDownSvg = (e: MouseEvent) => {
 		e.stopPropagation();
@@ -28,9 +50,13 @@ export const PencilTool: FC<PencilToolProps> = ({
 
 	return (
 		<div
-			className={`w-full h-full ${isSelected ? "ring-2 ring-editor-primary ring-offset-2" : ""}`}
+			className={cn(
+				"w-full h-full",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2",
+			)}
 			style={{
 				pointerEvents: "none",
+				backgroundColor: (element as DrawingElement).background || "transparent",
 			}}
 		>
 			<svg
@@ -39,14 +65,16 @@ export const PencilTool: FC<PencilToolProps> = ({
 				style={{ pointerEvents: "auto" }}
 				onMouseDown={handleMouseDownSvg}
 			>
-				<path
-					d={pathData}
-					stroke={element.color}
-					strokeWidth={element.strokeWidth}
-					fill="none"
-					strokeLinejoin="round"
-					strokeLinecap="round"
-				/>
+				{pathData && (
+					<path
+						d={pathData}
+						stroke={color}
+						strokeWidth={strokeWidth}
+						fill="none"
+						strokeLinejoin="round"
+						strokeLinecap="round"
+					/>
+				)}
 			</svg>
 		</div>
 	);

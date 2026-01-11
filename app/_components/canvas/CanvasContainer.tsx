@@ -223,6 +223,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			const newText: TextElement = {
 				id: uuidv4(),
 				type: "text",
+				style: "normal",
 				content,
 				x,
 				y,
@@ -244,8 +245,8 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				y,
 				width: 100,
 				height: 80,
-				fill: "#e5e7eb",
-				stroke: "#9ca3af",
+				fillColor: "#e5e7eb",
+				strokeColor: "#9ca3af",
 				strokeWidth: 1,
 				rotation: 0,
 			};
@@ -259,8 +260,8 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				y,
 				width: 80,
 				height: 80,
-				fill: "#e5e7eb",
-				stroke: "#9ca3af",
+				fillColor: "#e5e7eb",
+				strokeColor: "#9ca3af",
 				strokeWidth: 1,
 				rotation: 0,
 			};
@@ -274,8 +275,8 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				y,
 				width: 100,
 				height: 0,
-				fill: "transparent",
-				stroke: "#9ca3af",
+				fillColor: "transparent",
+				strokeColor: "#9ca3af",
 				strokeWidth: 2,
 				rotation: 0,
 			};
@@ -301,14 +302,14 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				headerType: activeTool === "table_empty" ? "none" : "simple",
 				data:
 					activeTool === "table_empty"
-						? [
-								["", ""],
-								["", ""],
-							]
-						: [
-								["Header 1", "Header 2"],
-								["Data 1", "Data 2"],
-							],
+						? {
+								headers: ["", ""],
+								rows: [["", ""]],
+							}
+						: {
+								headers: ["Header 1", "Header 2"],
+								rows: [["Data 1", "Data 2"]],
+							},
 			};
 			onAddElement(newTable);
 		} else if (activeTool.startsWith("chart_")) {

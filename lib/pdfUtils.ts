@@ -1,9 +1,9 @@
 import type {
   ChartElement,
+  DrawingElement,
   ImageElement,
   PDFDocument,
   PDFElement,
-  PencilDrawingElement,
   ShapeElement,
   TableElement,
   TextElement,
@@ -333,7 +333,7 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
         pdf.restoreGraphicsState();
         
       } else if (element.type === "pencil") {
-        const pencilElement = element as PencilDrawingElement;
+        const pencilElement = element as any;
 
         if (pencilElement.points && pencilElement.points.length > 1) {
           const rgb = hexToRgb(pencilElement.color);

@@ -29,7 +29,9 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 	const [showControls, setShowControls] = useState(false);
 
 	const renderShape = () => {
-		const { shapeType, fill, stroke, strokeWidth } = element;
+		const { shapeType, fillColor, strokeColor, strokeWidth } = element;
+		const fill = (element as any).fill || fillColor;
+		const stroke = (element as any).stroke || strokeColor;
 
 		if (shapeType === "rectangle") {
 			return (
@@ -69,15 +71,15 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 	const handleFillColorChange = (color: string) => {
 		onUpdate({
 			...element,
-			fill: color,
-		});
+			fillColor: color,
+		} as ShapeElement);
 	};
 
 	const handleStrokeColorChange = (color: string) => {
 		onUpdate({
 			...element,
-			stroke: color,
-		});
+			strokeColor: color,
+		} as ShapeElement);
 	};
 
 	const handleStrokeWidthChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -224,14 +226,14 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 						{element.shapeType !== "line" && (
 							<ColorPicker
 								label="Fill Color"
-								color={element.fill}
+								color={(element as any).fill || element.fillColor}
 								onChange={handleFillColorChange}
 							/>
 						)}
 
 						<ColorPicker
 							label="Border Color"
-							color={element.stroke}
+							color={(element as any).stroke || element.strokeColor}
 							onChange={handleStrokeColorChange}
 						/>
 					</div>

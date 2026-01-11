@@ -4,7 +4,8 @@ import { useCanvasKeyboardHandler } from "@/app/_hooks/useCanvasKeyboardHandler"
 import type {
 	PDFDocument,
 	PDFElement,
-	PencilDrawingElement,
+	DrawingElement,
+	ShapeElement,
 	Tool,
 } from "@/types/global";
 import { type FC, useState } from "react";
@@ -81,14 +82,17 @@ export const Canvas: FC<CanvasProps> = ({
 					}
 				}}
 				onAddElement={(element) => {
-					if (element.type === "pencil") {
-						(element as PencilDrawingElement).color = pencilColor;
-						(element as PencilDrawingElement).strokeWidth = pencilStrokeWidth;
+					if (element.type === "drawing" || (element as any).type === "pencil") {
+						const drawingEl = element as any;
+						drawingEl.color = pencilColor;
+						drawingEl.strokeColor = pencilColor;
+						drawingEl.strokeWidth = pencilStrokeWidth;
 					} else if (element.type === "shape") {
-						element.stroke = shapeColor;
-						element.strokeWidth = shapeStrokeWidth;
-						if (element.shapeType !== "line") {
-							element.fill = shapeFillColor;
+						const shapeEl = element as ShapeElement;
+						shapeEl.strokeColor = shapeColor;
+						shapeEl.strokeWidth = shapeStrokeWidth;
+						if (shapeEl.shapeType !== "line") {
+							shapeEl.fillColor = shapeFillColor;
 						}
 					} else if (element.type === "table") {
 						element.borderColor = tableColor;
@@ -116,6 +120,7 @@ export const Canvas: FC<CanvasProps> = ({
 							id: crypto.randomUUID(),
 							type: "image",
 							src,
+							alt: "Uploaded image",
 							x: centerX,
 							y: centerY,
 							width: 200,

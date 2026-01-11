@@ -654,8 +654,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     <>
       <div className="w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full shadow-sm">
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-br from-editor-primary/5 to-transparent">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <div className="w-8 h-8 bg-editor-primary rounded-lg flex items-center justify-center text-white dark:text-sky-100 shadow-lg">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-900 flex items-center gap-2">
+            <div className="w-8 h-8 bg-editor-primary rounded-lg flex items-center justify-center text-zinc-800 dark:text-sky-100 shadow-lg">
               P
             </div>
             PDF Crafter

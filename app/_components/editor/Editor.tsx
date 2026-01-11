@@ -677,7 +677,7 @@ console.log("Total:", total);`;
             paths: [],
             strokeColor: "#000000",
             strokeWidth: 2,
-            background: "#ffffff",
+            background: "transparent",
           } as DrawingElement;
           break;
 
@@ -691,7 +691,7 @@ console.log("Total:", total);`;
             height: 120,
             content: "https://example.com",
             color: "#000000",
-            backgroundColor: "#ffffff",
+            backgroundColor: "transparent",
             errorCorrection: "M",
           } as QRCodeElement;
           break;
@@ -707,7 +707,7 @@ console.log("Total:", total);`;
             value: "123456789012",
             format: "CODE128",
             color: "#000000",
-            backgroundColor: "#ffffff",
+            backgroundColor: "transparent",
           } as BarcodeElement;
           break;
 

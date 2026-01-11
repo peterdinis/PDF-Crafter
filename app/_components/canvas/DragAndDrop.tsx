@@ -122,8 +122,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						y,
 						width: 100,
 						height: 80,
-						fill: "#e5e7eb",
-						stroke: "#9ca3af",
+						fillColor: "#e5e7eb",
+						strokeColor: "#9ca3af",
 						strokeWidth: 1,
 					} as ShapeElement);
 				} else if (elementData.type === "table") {
