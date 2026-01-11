@@ -13,19 +13,13 @@ import {
 import type {
 	ChartElement,
 	ImageElement,
-	PencilElement,
 	PDFElement,
+	PencilElement,
 	ShapeElement,
 	TableElement,
 	TextElement,
 } from "@/types/global";
-import {
-	Copy,
-	Minus,
-	Plus,
-	Trash2,
-	Upload,
-} from "lucide-react";
+import { Copy, Minus, Plus, Trash2, Upload } from "lucide-react";
 import { type FC, useState } from "react";
 import { ColorPicker } from "../shared/pickers/ColorPicker";
 import { ChartImportDialog } from "../tools/ChartImportDialog";
@@ -308,7 +302,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								rows: newRows,
 								data: {
 									...el.data,
-									rows: currentRows.slice(0, newRows)
+									rows: currentRows.slice(0, newRows),
 								},
 							});
 						}}
@@ -330,7 +324,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								rows: newRows,
 								data: {
 									...el.data,
-									rows: newData
+									rows: newData,
 								},
 							});
 						}}
@@ -353,7 +347,9 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 							const currentRows = el.data?.rows || [];
 							const currentHeaders = el.data?.headers || [];
 
-							const newRowsData = currentRows.map((row) => row.slice(0, newColumns));
+							const newRowsData = currentRows.map((row) =>
+								row.slice(0, newColumns),
+							);
 							const newHeaders = currentHeaders.slice(0, newColumns);
 
 							onUpdate({
@@ -361,7 +357,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								columns: newColumns,
 								data: {
 									headers: newHeaders,
-									rows: newRowsData
+									rows: newRowsData,
 								},
 							});
 						}}
@@ -386,7 +382,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 								columns: newColumns,
 								data: {
 									headers: newHeaders,
-									rows: newRowsData
+									rows: newRowsData,
 								},
 							});
 						}}
@@ -432,12 +428,12 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 
 		const dataPoints = labels.map((label, i) => ({
 			label,
-			value: values[i] || 0
+			value: values[i] || 0,
 		}));
 
 		const updateData = (newPoints: { label: string; value: number }[]) => {
-			const newLabels = newPoints.map(p => p.label);
-			const newValues = newPoints.map(p => p.value);
+			const newLabels = newPoints.map((p) => p.label);
+			const newValues = newPoints.map((p) => p.value);
 
 			onUpdate({
 				...el,
@@ -448,10 +444,10 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 							...dataset,
 							label: dataset.label || "Dataset 1",
 							data: newValues,
-							backgroundColor: dataset.backgroundColor || "#3b82f6"
-						}
-					]
-				}
+							backgroundColor: dataset.backgroundColor || "#3b82f6",
+						},
+					],
+				},
 			});
 		};
 
@@ -721,7 +717,9 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 							<ColorPicker
 								label="Stroke Color"
 								color={(element as PencilElement).color || "#000000"}
-								onChange={(color) => onUpdate({ ...element, color } as PencilElement)}
+								onChange={(color) =>
+									onUpdate({ ...element, color } as PencilElement)
+								}
 							/>
 						</div>
 					)}

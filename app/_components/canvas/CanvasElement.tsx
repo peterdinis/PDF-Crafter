@@ -101,10 +101,7 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 				/>
 			)}
 			{(element.type === "pencil" || element.type === "drawing") && (
-				<PencilTool
-					element={element}
-					{...commonProps}
-				/>
+				<PencilTool element={element} {...commonProps} />
 			)}
 			{element.type === "chart" && (
 				<ChartTool element={element as ChartElement} {...commonProps} />
@@ -125,7 +122,10 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 				<BarcodeElement element={element as BarcodeElement} {...commonProps} />
 			)}
 			{element.type === "signature" && (
-				<SignatureElement element={element as SignatureElement} {...commonProps} />
+				<SignatureElement
+					element={element as SignatureElement}
+					{...commonProps}
+				/>
 			)}
 		</div>
 	);
@@ -175,7 +175,8 @@ const FormElement: FC<{
 		<div
 			className={cn(
 				"w-full h-full min-h-[40px] border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-50 dark:bg-gray-800",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				isSelected &&
+					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
@@ -210,22 +211,18 @@ const FormElement: FC<{
 			)}
 			{element.formType === "checkbox" && (
 				<div className="flex items-center gap-2">
-					<input
-						type="checkbox"
-						className="w-4 h-4"
-						disabled
-					/>
-					<span className="text-gray-700 dark:text-gray-300">{element.placeholder || "Checkbox option"}</span>
+					<input type="checkbox" className="w-4 h-4" disabled />
+					<span className="text-gray-700 dark:text-gray-300">
+						{element.placeholder || "Checkbox option"}
+					</span>
 				</div>
 			)}
 			{element.formType === "radio" && (
 				<div className="flex items-center gap-2">
-					<input
-						type="radio"
-						className="w-4 h-4"
-						disabled
-					/>
-					<span className="text-gray-700 dark:text-gray-300">{element.placeholder || "Radio option"}</span>
+					<input type="radio" className="w-4 h-4" disabled />
+					<span className="text-gray-700 dark:text-gray-300">
+						{element.placeholder || "Radio option"}
+					</span>
 				</div>
 			)}
 			{element.formType === "dropdown" && (
@@ -234,7 +231,9 @@ const FormElement: FC<{
 					disabled
 				>
 					{element.options?.map((opt, idx) => (
-						<option key={idx} value={opt}>{opt}</option>
+						<option key={idx} value={opt}>
+							{opt}
+						</option>
 					))}
 				</select>
 			)}
@@ -246,13 +245,7 @@ const FormElement: FC<{
 				/>
 			)}
 			{element.formType === "range" && (
-				<input
-					type="range"
-					min="0"
-					max="100"
-					className="w-full"
-					disabled
-				/>
+				<input type="range" min="0" max="100" className="w-full" disabled />
 			)}
 		</div>
 	);
@@ -269,12 +262,15 @@ const CodeElement: FC<{
 		<div
 			className={cn(
 				"w-full h-full min-h-[100px] border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-900 text-gray-100 font-mono text-sm overflow-auto",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				isSelected &&
+					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<pre className="whitespace-pre-wrap text-gray-100">{element.content || "// Code block"}</pre>
+			<pre className="whitespace-pre-wrap text-gray-100">
+				{element.content || "// Code block"}
+			</pre>
 		</div>
 	);
 };
@@ -325,12 +321,14 @@ const QRCodeElement: FC<{
 		<div
 			className={cn(
 				"w-full h-full min-h-[120px] flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				isSelected &&
+					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			style={{
-				backgroundColor: element.backgroundColor && element.backgroundColor !== "transparent" 
-					? element.backgroundColor 
-					: undefined,
+				backgroundColor:
+					element.backgroundColor && element.backgroundColor !== "transparent"
+						? element.backgroundColor
+						: undefined,
 			}}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
@@ -353,12 +351,14 @@ const BarcodeElement: FC<{
 		<div
 			className={cn(
 				"w-full h-full min-h-[80px] flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				isSelected &&
+					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			style={{
-				backgroundColor: element.backgroundColor && element.backgroundColor !== "transparent" 
-					? element.backgroundColor 
-					: undefined,
+				backgroundColor:
+					element.backgroundColor && element.backgroundColor !== "transparent"
+						? element.backgroundColor
+						: undefined,
 			}}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
@@ -381,7 +381,8 @@ const SignatureElement: FC<{
 		<div
 			className={cn(
 				"w-full h-full min-h-[100px] border-2 border-dashed border-gray-400 dark:border-gray-500 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				isSelected &&
+					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}

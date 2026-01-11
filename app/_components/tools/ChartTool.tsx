@@ -48,7 +48,8 @@ export const ChartTool: FC<ChartToolProps> = ({
 			const barHeight = (value / maxValue) * innerHeight;
 			const x = padding + i * barWidth + barWidth * 0.1;
 			const y = height - padding - barHeight;
-			const color = dataset.backgroundColor || seriesColors[i % seriesColors.length];
+			const color =
+				dataset.backgroundColor || seriesColors[i % seriesColors.length];
 
 			return (
 				<rect
@@ -189,7 +190,7 @@ export const ChartTool: FC<ChartToolProps> = ({
 						>
 							{label}
 						</text>
-					)
+					);
 				})}
 			</g>
 		);

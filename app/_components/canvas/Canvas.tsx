@@ -2,9 +2,9 @@
 
 import { useCanvasKeyboardHandler } from "@/app/_hooks/useCanvasKeyboardHandler";
 import type {
+	DrawingElement,
 	PDFDocument,
 	PDFElement,
-	DrawingElement,
 	ShapeElement,
 	Tool,
 } from "@/types/global";
@@ -82,7 +82,10 @@ export const Canvas: FC<CanvasProps> = ({
 					}
 				}}
 				onAddElement={(element) => {
-					if (element.type === "drawing" || (element as any).type === "pencil") {
+					if (
+						element.type === "drawing" ||
+						(element as any).type === "pencil"
+					) {
 						const drawingEl = element as any;
 						drawingEl.color = pencilColor;
 						drawingEl.strokeColor = pencilColor;

@@ -1,7 +1,7 @@
 "use client";
 
-import type { DrawingElement, PDFElement } from "@/types/global";
 import { cn } from "@/lib/utils";
+import type { DrawingElement, PDFElement } from "@/types/global";
 import type { FC, MouseEvent } from "react";
 
 interface PencilToolProps {
@@ -19,7 +19,7 @@ export const PencilTool: FC<PencilToolProps> = ({
 	const pencilElement = element as any;
 	const points = pencilElement.points || [];
 	const paths = (element as DrawingElement).paths || [];
-	
+
 	// If we have paths, convert to points for rendering
 	let allPoints: Array<{ x: number; y: number }> = [];
 	if (points.length > 0) {
@@ -40,8 +40,10 @@ export const PencilTool: FC<PencilToolProps> = ({
 		return `${acc} L ${point.x} ${point.y}`;
 	}, "");
 
-	const color = pencilElement.color || (element as DrawingElement).strokeColor || "#000000";
-	const strokeWidth = pencilElement.strokeWidth || (element as DrawingElement).strokeWidth || 2;
+	const color =
+		pencilElement.color || (element as DrawingElement).strokeColor || "#000000";
+	const strokeWidth =
+		pencilElement.strokeWidth || (element as DrawingElement).strokeWidth || 2;
 
 	const handleMouseDownSvg = (e: MouseEvent) => {
 		e.stopPropagation();
@@ -56,7 +58,8 @@ export const PencilTool: FC<PencilToolProps> = ({
 			)}
 			style={{
 				pointerEvents: "none",
-				backgroundColor: (element as DrawingElement).background || "transparent",
+				backgroundColor:
+					(element as DrawingElement).background || "transparent",
 			}}
 		>
 			<svg

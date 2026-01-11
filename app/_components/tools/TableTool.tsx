@@ -173,7 +173,6 @@ export const TableTool: FC<TableToolProps> = ({
 		moveToCell(newRow, newCol);
 	};
 
-
 	const moveToCell = (row: number, col: number) => {
 		// Bounds check
 		// Allow row = -1 (header) if headerType != none
@@ -260,7 +259,7 @@ export const TableTool: FC<TableToolProps> = ({
 												"h-8 px-2 text-xs relative transition-colors",
 												isEditing && "ring-2 ring-blue-500 ring-offset-1",
 												!isEditing &&
-												"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
+													"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
 											)}
 											style={getCellStyle(-1, true)}
 											onClick={(e) => handleCellClick(-1, index, e)}
@@ -307,7 +306,7 @@ export const TableTool: FC<TableToolProps> = ({
 													"h-8 px-2 text-xs relative transition-colors",
 													isEditing && "ring-2 ring-blue-500 ring-offset-1",
 													!isEditing &&
-													"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
+														"hover:bg-gray-100 dark:hover:bg-gray-700 cursor-text",
 												)}
 												style={getCellStyle(rowIndex)}
 												onClick={(e) => handleCellClick(rowIndex, colIndex, e)}

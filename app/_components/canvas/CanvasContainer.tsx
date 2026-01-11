@@ -287,9 +287,9 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				activeTool === "table_empty"
 					? "simple"
 					: (activeTool.replace("table_", "") as
-						| "simple"
-						| "striped"
-						| "bordered");
+							| "simple"
+							| "striped"
+							| "bordered");
 			const newTable: TableElement = {
 				id: uuidv4(),
 				type: "table",
@@ -305,13 +305,13 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				data:
 					activeTool === "table_empty"
 						? {
-							headers: ["", ""],
-							rows: [["", ""]],
-						}
+								headers: ["", ""],
+								rows: [["", ""]],
+							}
 						: {
-							headers: ["Header 1", "Header 2"],
-							rows: [["Data 1", "Data 2"]],
-						},
+								headers: ["Header 1", "Header 2"],
+								rows: [["Data 1", "Data 2"]],
+							},
 			};
 			onAddElement(newTable);
 		} else if (activeTool.startsWith("chart_")) {
@@ -489,8 +489,9 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 					{pageElements.map((element) => (
 						<div
 							key={element.id}
-							className={`relative ${element.id === selectedElement ? "z-10" : "z-0"
-								}`}
+							className={`relative ${
+								element.id === selectedElement ? "z-10" : "z-0"
+							}`}
 							style={{
 								position: "absolute",
 								left: `${element.x}px`,
