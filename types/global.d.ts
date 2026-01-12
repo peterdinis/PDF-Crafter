@@ -337,18 +337,17 @@ export interface PDFPage {
 export interface PDFDocument {
 	title: string;
 	pageSize:
-		| "a3"
-		| "a4"
-		| "a5"
-		| "letter"
-		| "legal"
-		| "tabloid"
-		| "executive"
-		| "b5"
-		| "b4"
-		| "jisb4"
-		| "jisb5"
-		| "custom";
+	| "a0" | "a1" | "a2" | "a3" | "a4" | "a5" | "a6" | "a7" | "a8" | "a9" | "a10"
+	| "b0" | "b1" | "b2" | "b3" | "b4" | "b5" | "b6" | "b7" | "b8" | "b9" | "b10"
+	| "letter" | "legal" | "tabloid" | "ledger" | "executive" | "folio"
+	| "quarto" | "government_letter" | "government_legal" | "junior_legal"
+	| "half_letter" | "statement" | "crown_quarto" | "crown_octavo"
+	| "demy_quarto" | "demy_octavo" | "jisb0" | "jisb1" | "jisb2" | "jisb3"
+	| "jisb4" | "jisb5" | "jisb6" | "jisb7" | "jisb8" | "jisb9" | "jisb10"
+	| "c0" | "c1" | "c2" | "c3" | "c4" | "c5" | "c6" | "c7" | "c8" | "c9" | "c10"
+	| "photo_4x6" | "photo_5x7" | "photo_8x10"
+	| "square_200x200" | "square_250x250" | "square_300x300"
+	| "custom";
 	orientation: "portrait" | "landscape";
 	defaultTextColor: string;
 	defaultFontFamily: string;

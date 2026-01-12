@@ -291,9 +291,9 @@ const PDFEditor = () => {
 			rows:
 				style === "empty"
 					? [
-							["", ""],
-							["", ""],
-						]
+						["", ""],
+						["", ""],
+					]
 					: baseData.slice(0, 2),
 		};
 	};
@@ -929,8 +929,8 @@ console.log("Total:", total);`;
 	// Get selected element object
 	const selectedElementObj = selectedElement
 		? document.pages[document.currentPage]?.elements.find(
-				(el) => el.id === selectedElement,
-			) || null
+			(el) => el.id === selectedElement,
+		) || null
 		: null;
 
 	// Show properties panel when element is selected
@@ -981,7 +981,16 @@ console.log("Total:", total);`;
 								type="checkbox"
 								id="compression"
 								checked={enableCompression}
-								onChange={(e) => setEnableCompression(e.target.checked)}
+								onChange={(e) => {
+									const isChecked = e.target.checked;
+									setEnableCompression(isChecked);
+
+									if (isChecked) {
+										toast.success("Compression activated");
+									} else {
+										toast.info("Compression deactivated");
+									}
+								}}
 								className="w-4 h-4 rounded border-gray-300 dark:border-gray-700"
 							/>
 							<Label
@@ -1013,11 +1022,10 @@ console.log("Total:", total);`;
 									}
 									size="sm"
 									onClick={() => changePage(index)}
-									className={`min-w-10 h-8 ${
-										document.currentPage === index
+									className={`min-w-10 h-8 ${document.currentPage === index
 											? "bg-editor-primary hover:bg-editor-primary/90"
 											: "border-gray-300 dark:border-gray-700"
-									}`}
+										}`}
 								>
 									{index + 1}
 								</Button>
