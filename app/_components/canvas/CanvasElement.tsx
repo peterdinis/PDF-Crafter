@@ -174,7 +174,7 @@ const FormElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-[40px] border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-50 dark:bg-gray-800",
+				"w-full h-full min-h-10 border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-50 dark:bg-gray-800",
 				isSelected &&
 					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
@@ -197,7 +197,7 @@ const FormElement: FC<{
 				<textarea
 					placeholder={element.placeholder}
 					value={element.value || ""}
-					className="w-full px-2 py-1 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-[60px]"
+					className="w-full px-2 py-1 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-15"
 					readOnly
 				/>
 			)}
@@ -261,7 +261,7 @@ const CodeElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-[100px] border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-900 text-gray-100 font-mono text-sm overflow-auto",
+				"w-full h-full min-h-25 border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-900 text-gray-100 font-mono text-sm overflow-auto",
 				isSelected &&
 					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
@@ -320,7 +320,7 @@ const QRCodeElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-[120px] flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
+				"w-full h-full min-h-30 flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
 				isSelected &&
 					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
@@ -350,7 +350,7 @@ const BarcodeElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-[80px] flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
+				"w-full h-full min-h-20 flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
 				isSelected &&
 					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
@@ -380,7 +380,7 @@ const SignatureElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-[100px] border-2 border-dashed border-gray-400 dark:border-gray-500 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800",
+				"w-full h-full min-h-25 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800",
 				isSelected &&
 					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}

@@ -173,7 +173,7 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 			{renderShape()}
 
 			{isSelected && showControls && (
-				<div className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50 min-w-[240px] shape-controls">
+				<div className="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded shadow-md z-50 min-w-60 shape-controls">
 					<div className="space-y-4">
 						<div className="flex gap-4">
 							<div className="w-1/2">

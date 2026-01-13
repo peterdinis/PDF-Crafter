@@ -61,7 +61,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				<textarea
 					value={el.content}
 					onChange={(e) => onUpdate({ ...el, content: e.target.value })}
-					className="w-full min-h-[80px] p-2 border rounded"
+					className="w-full min-h-20 p-2 border rounded"
 					placeholder="Enter text..."
 				/>
 			</div>
@@ -333,7 +333,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				<textarea
 					value={el.content}
 					onChange={(e) => onUpdate({ ...el, content: e.target.value })}
-					className="w-full min-h-[120px] p-2 border rounded font-mono text-sm bg-gray-50 dark:bg-gray-950"
+					className="w-full min-h-30 p-2 border rounded font-mono text-sm bg-gray-50 dark:bg-gray-950"
 					placeholder="Enter code here..."
 				/>
 			</div>
@@ -482,7 +482,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 							<Plus size={12} className="mr-1" /> Add
 						</Button>
 					</div>
-					<div className="space-y-2 max-h-[200px] overflow-y-auto">
+					<div className="space-y-2 max-h-50 overflow-y-auto">
 						{(el.options || []).map((option, index) => (
 							<div key={index} className="flex gap-2">
 								<Input
@@ -771,7 +771,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						</div>
 					</div>
 
-					<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+					<div className="space-y-3 max-h-75 overflow-y-auto pr-2 custom-scrollbar">
 						{dataPoints.map((point, index) => (
 							<div
 								key={index}

@@ -531,12 +531,11 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 						</div>
 					))}
 				</DragDropArea>
-
-				{/* KONTEXTOVÉ MENU - VYLEPŠENÉ */}
+				
 				{contextMenu && (
 					<div
 						ref={contextMenuRef}
-						className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl z-[9999] py-1 min-w-[200px] overflow-hidden"
+						className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-2xl z-9999 py-1 min-w-50 overflow-hidden"
 						style={{
 							left: `${contextMenu.x}px`,
 							top: `${contextMenu.y}px`,

@@ -271,7 +271,7 @@ export const TableTool: FC<TableToolProps> = ({
 													onChange={(e) => handleCellChange(e.target.value)}
 													onBlur={handleCellBlur}
 													onKeyDown={handleCellKeyDown}
-													className="min-h-[24px] text-xs p-1 resize-none border-blue-500 focus:ring-2 focus:ring-blue-500 w-full"
+													className="min-h-6 text-xs p-1 resize-none border-blue-500 focus:ring-2 focus:ring-blue-500 w-full"
 													onClick={(e) => e.stopPropagation()}
 													onMouseDown={(e) => e.stopPropagation()}
 													rows={1}
@@ -318,7 +318,7 @@ export const TableTool: FC<TableToolProps> = ({
 														onChange={(e) => handleCellChange(e.target.value)}
 														onBlur={handleCellBlur}
 														onKeyDown={handleCellKeyDown}
-														className="min-h-[24px] text-xs p-1 resize-none border-blue-500 focus:ring-2 focus:ring-blue-500 w-full"
+														className="min-h-6 text-xs p-1 resize-none border-blue-500 focus:ring-2 focus:ring-blue-500 w-full"
 														onClick={(e) => e.stopPropagation()}
 														onMouseDown={(e) => e.stopPropagation()}
 														rows={1}
