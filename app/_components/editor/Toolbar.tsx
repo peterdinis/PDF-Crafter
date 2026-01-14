@@ -32,9 +32,6 @@ import {
 	Pencil,
 	PieChart,
 	Plus,
-	PointerIcon,
-	QrCode,
-	Quote,
 	Settings,
 	Shapes,
 	Square,
@@ -44,6 +41,7 @@ import {
 	Type,
 	Underline,
 	Upload,
+	Check,
 } from "lucide-react";
 import type React from "react";
 import { useRef, useState } from "react";
@@ -73,12 +71,25 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 	onCustomGraphUpload,
 }) => {
 	const [activeCategory, setActiveCategory] = useState<string>("basic");
+	const [activeFormConfig, setActiveFormConfig] = useState<{
+		type: string;
+		label: string;
+		placeholder: string;
+		options?: string[];
+		required: boolean;
+	}>({
+		type: "text",
+		label: "Text Field",
+		placeholder: "Enter text...",
+		required: false,
+	});
 	const [showCustomGraphModal, setShowCustomGraphModal] = useState(false);
+	const [showFormConfigModal, setShowFormConfigModal] = useState(false);
 	const [customGraphData, setCustomGraphData] = useState("");
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 
 	const categories = [
-		{ id: "basic", name: "Basic", icon: PointerIcon },
+		{ id: "basic", name: "Basic", icon: MousePointer2 },
 		{ id: "shapes", name: "Shapes", icon: Shapes },
 		{ id: "tables", name: "Tables", icon: Grid3X3 },
 		{ id: "charts", name: "Charts", icon: BarChart3 },
@@ -93,7 +104,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 			{
 				name: "Selection",
 				value: "select" as Tool,
-				icon: MousePointer2, // Opravené z PointerIcon
+				icon: MousePointer2,
 				description: "Select and move elements",
 			},
 			{
@@ -147,7 +158,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 			{
 				name: "Quote",
 				value: "text_quote" as Tool,
-				icon: Quote,
+				icon: Type,
 				description: "Block quotation",
 			},
 			{
@@ -360,7 +371,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 			{
 				name: "QR Code",
 				value: "qrcode" as Tool,
-				icon: QrCode,
+				icon: Hash,
 				description: "Generate QR code",
 			},
 			{
@@ -466,6 +477,28 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 		],
 	};
 
+	// Form presets
+	const formPresets = {
+		contact: {
+			label: "Contact Form",
+			fields: [
+				{ type: "text", label: "Full Name", required: true },
+				{ type: "text", label: "Email", required: true },
+				{ type: "textarea", label: "Message", required: false },
+				{ type: "button", label: "Submit" }
+			]
+		},
+		survey: {
+			label: "Survey",
+			fields: [
+				{ type: "text", label: "Question 1" },
+				{ type: "radio", label: "Options", options: ["Option A", "Option B", "Option C"] },
+				{ type: "checkbox", label: "Select all that apply", options: ["Choice 1", "Choice 2"] },
+				{ type: "range", label: "Rating" }
+			]
+		}
+	};
+
 	const scrollLeft = () => {
 		if (scrollContainerRef.current) {
 			scrollContainerRef.current.scrollBy({ left: -200, behavior: "smooth" });
@@ -493,7 +526,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 				setShowCustomGraphModal(false);
 				setCustomGraphData("");
 			} else {
-				// Fallback - create a custom chart element
 				onToolSelect("chart_custom");
 				toast.success(
 					"Custom graph tool selected. Click on canvas to place it.",
@@ -505,8 +537,35 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 		}
 	};
 
+	// Helper functions for form configuration
+	const getFormPlaceholder = (type: string): string => {
+		const placeholders: Record<string, string> = {
+			text: "Enter text...",
+			textarea: "Enter multiline text...",
+			date: "Select date...",
+			dropdown: "Choose option...",
+			range: "Slide to adjust...",
+		};
+		return placeholders[type] || "Enter value...";
+	};
+
+	const handleQuickFormConfig = (formType: string) => {
+		const defaultConfig = {
+			type: formType,
+			label: `${formType.charAt(0).toUpperCase() + formType.slice(1).replace(/_/g, " ")}`,
+			placeholder: getFormPlaceholder(formType),
+			required: false,
+			options: formType === "dropdown" ? ["Option 1", "Option 2", "Option 3"] : undefined,
+		};
+		
+		setActiveFormConfig(defaultConfig);
+		setShowFormConfigModal(true);
+		onToolSelect(`form_${formType}`);
+	};
+
+	// Render functions
 	const renderShapePreview = (type: string) => {
-		const strokeColor = "rgb(59, 130, 246)"; // editor-primary color
+		const strokeColor = "rgb(59, 130, 246)";
 
 		return (
 			<div className="w-full h-12 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700/50 flex items-center justify-center p-1 mt-2">
@@ -693,49 +752,208 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 		);
 	};
 
-	const renderFormPreview = (type: string) => {
-		const borderColor = "rgb(209, 213, 219)"; // gray-300
-		const darkBorderColor = "rgb(55, 65, 81)"; // gray-700
-		const textColor = "rgb(17, 24, 39)"; // gray-900
-		const darkTextColor = "rgb(243, 244, 246)"; // gray-100
+	const renderInteractivePreview = (formType: string, config: any) => {
+		const borderColor = "rgb(209, 213, 219)";
+		const darkBorderColor = "rgb(55, 65, 81)";
+
+		switch (formType) {
+			case "text":
+				return (
+					<div className="relative">
+						<label className="absolute -top-2 left-2 px-1 text-[8px] font-medium bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+							{config?.label || "Text Field"}
+							{config?.required && <span className="text-red-500 ml-0.5">*</span>}
+						</label>
+						<input
+							type="text"
+							className="w-full border border-gray-300 dark:border-gray-700 rounded px-2 py-1.5 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+							placeholder={config?.placeholder || "Enter text..."}
+							disabled
+						/>
+					</div>
+				);
+				
+			case "textarea":
+				return (
+					<div className="relative">
+						<label className="absolute -top-2 left-2 px-1 text-[8px] font-medium bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+							{config?.label || "Text Area"}
+							{config?.required && <span className="text-red-500 ml-0.5">*</span>}
+						</label>
+						<textarea
+							className="w-full border border-gray-300 dark:border-gray-700 rounded px-2 py-1.5 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+							placeholder={config?.placeholder || "Enter multiline text..."}
+							rows={2}
+							disabled
+						/>
+					</div>
+				);
+				
+			case "checkbox":
+				return (
+					<div className="flex items-center gap-2">
+						<div className="relative">
+							<input
+								type="checkbox"
+								className="w-3.5 h-3.5 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-800 checked:bg-blue-500 checked:border-blue-500 focus:ring-1 focus:ring-blue-500"
+								disabled
+							/>
+							{config?.required && (
+								<div className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+							)}
+						</div>
+						<label className="text-xs text-gray-700 dark:text-gray-300">
+							{config?.label || "Checkbox"}
+						</label>
+					</div>
+				);
+				
+			case "radio":
+				return (
+					<div className="space-y-1">
+						<div className="flex items-center gap-2">
+							<div className="relative">
+								<input
+									type="radio"
+									name="preview-radio"
+									className="w-3.5 h-3.5 border border-gray-400 dark:border-gray-600 rounded-full bg-white dark:bg-gray-800 checked:bg-blue-500 focus:ring-1 focus:ring-blue-500"
+									disabled
+								/>
+								{config?.required && (
+									<div className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+								)}
+							</div>
+							<label className="text-xs text-gray-700 dark:text-gray-300">
+								{config?.label || "Radio Option 1"}
+							</label>
+						</div>
+					</div>
+				);
+				
+			case "dropdown":
+				return (
+					<div className="relative">
+						<label className="absolute -top-2 left-2 px-1 text-[8px] font-medium bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+							{config?.label || "Dropdown"}
+							{config?.required && <span className="text-red-500 ml-0.5">*</span>}
+						</label>
+						<select
+							className="w-full border border-gray-300 dark:border-gray-700 rounded px-2 py-1.5 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 appearance-none"
+							disabled
+						>
+							<option value="">{config?.placeholder || "Choose option..."}</option>
+							{config?.options?.map((opt: string, idx: number) => (
+								<option key={idx} value={opt}>{opt}</option>
+							))}
+						</select>
+						<ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+					</div>
+				);
+				
+			case "button":
+				return (
+					<button
+						className="w-full px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+						disabled
+					>
+						{config?.label || "Submit"}
+					</button>
+				);
+				
+			case "range":
+				return (
+					<div className="space-y-1">
+						<div className="flex items-center justify-between">
+							<label className="text-[8px] font-medium text-gray-600 dark:text-gray-400">
+								{config?.label || "Range Slider"}
+								{config?.required && <span className="text-red-500 ml-0.5">*</span>}
+							</label>
+							<span className="text-[8px] text-gray-500">50%</span>
+						</div>
+						<input
+							type="range"
+							className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
+							defaultValue="50"
+							disabled
+						/>
+					</div>
+				);
+				
+			case "date":
+				return (
+					<div className="relative">
+						<label className="absolute -top-2 left-2 px-1 text-[8px] font-medium bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+							{config?.label || "Date"}
+							{config?.required && <span className="text-red-500 ml-0.5">*</span>}
+						</label>
+						<div className="flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded px-2 py-1.5 bg-white dark:bg-gray-800">
+							<span className="text-xs text-gray-400">{config?.placeholder || "MM/DD/YYYY"}</span>
+							<Calendar size={12} className="text-gray-400" />
+						</div>
+					</div>
+				);
+				
+			case "switch":
+				return (
+					<div className="flex items-center justify-between">
+						<label className="text-xs text-gray-700 dark:text-gray-300">
+							{config?.label || "Toggle Switch"}
+							{config?.required && <span className="text-red-500 ml-0.5">*</span>}
+						</label>
+						<div className="relative inline-block w-8 h-4">
+							<div className="w-8 h-4 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+							<div className="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full shadow-sm"></div>
+						</div>
+					</div>
+				);
+				
+			default:
+				return (
+					<div className="border border-gray-300 dark:border-gray-700 rounded px-2 py-1.5 bg-white dark:bg-gray-800 text-xs text-gray-400">
+						{formType.replace(/_/g, " ")}
+					</div>
+				);
+		}
+	};
+
+	const renderFormPreview = (type: string, tool: any) => {
+		const isSelected = activeTool === tool.value;
+		const formType = type.replace("form_", "");
+		const config = activeFormConfig.type === formType ? activeFormConfig : null;
 
 		return (
-			<div className="w-full h-12 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700/50 flex items-center justify-center p-1 mt-2">
-				<div className="w-full px-2">
-					{type === "form_text" && (
-						<div className="border border-gray-300 dark:border-gray-700 rounded px-2 py-1 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-gray-100">
-							Text field
-						</div>
-					)}
-					{type === "form_textarea" && (
-						<div className="border border-gray-300 dark:border-gray-700 rounded px-2 py-1 bg-white dark:bg-gray-800 h-8 text-xs text-gray-900 dark:text-gray-100">
-							Multi-line text
-						</div>
-					)}
-					{type === "form_checkbox" && (
-						<div className="flex items-center gap-2">
-							<div className="w-3 h-3 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-800"></div>
-							<span className="text-xs text-gray-700 dark:text-gray-300">
-								Checkbox
-							</span>
-						</div>
-					)}
-					{type === "form_radio" && (
-						<div className="flex items-center gap-2">
-							<div className="w-3 h-3 border border-gray-400 dark:border-gray-600 rounded-full bg-white dark:bg-gray-800"></div>
-							<span className="text-xs text-gray-700 dark:text-gray-300">
-								Radio
-							</span>
-						</div>
-					)}
-					{type === "form_button" && (
-						<button className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors">
-							Button
-						</button>
-					)}
-					{type === "form_range" && (
-						<div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-							<div className="bg-blue-500 h-1.5 rounded-full w-1/3"></div>
+			<div className="w-full">
+				<div className={cn(
+					"w-full h-12 bg-gray-50 dark:bg-gray-800/50 rounded border flex items-center justify-center p-1 mt-2 transition-all",
+					isSelected 
+						? "border-editor-primary ring-2 ring-editor-primary/20" 
+						: "border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
+				)}>
+					<div className="w-full px-2">
+						{renderInteractivePreview(formType, config)}
+					</div>
+				</div>
+				
+				<div className="flex items-center justify-between mt-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+					<button
+						onClick={(e) => {
+							e.stopPropagation();
+							handleQuickFormConfig(formType);
+						}}
+						className="text-[10px] text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
+						title="Customize"
+					>
+						<Settings size={10} />
+						Customize
+					</button>
+					
+					{config && (
+						<div className="flex items-center gap-1">
+							{config.required && (
+								<span className="text-[8px] px-1 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
+									Required
+								</span>
+							)}
 						</div>
 					)}
 				</div>
@@ -953,7 +1171,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 													: "border-transparent hover:border-editor-primary/20 hover:bg-gray-50 dark:hover:bg-gray-800",
 											)}
 											onClick={() => {
-												if (tool.value === "chart_custom") {
+												if (tool.value.startsWith("form_")) {
+													const formType = tool.value.replace("form_", "");
+													handleQuickFormConfig(formType);
+												} else if (tool.value === "chart_custom") {
 													setShowCustomGraphModal(true);
 												} else {
 													onToolSelect(tool.value);
@@ -1001,7 +1222,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 												{activeCategory === "charts" &&
 													renderChartPreview(tool.value)}
 												{activeCategory === "forms" &&
-													renderFormPreview(tool.value)}
+													renderFormPreview(tool.value, tool)}
 											</div>
 											<div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
 												<Plus size={14} className="text-editor-primary" />
@@ -1011,6 +1232,39 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 								})
 							)}
 						</div>
+
+						{/* Form Presets Section */}
+						{activeCategory === "forms" && (
+							<div className="mt-4">
+								<h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 px-2">
+									QUICK PRESETS
+								</h4>
+								<div className="space-y-2">
+									{Object.entries(formPresets).map(([key, preset]) => (
+										<button
+											key={key}
+											onClick={() => {
+												toast.success(`Form preset "${preset.label}" selected`);
+												onToolSelect("form_text");
+											}}
+											className="w-full text-left p-2 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors group"
+										>
+											<div className="flex items-center justify-between">
+												<div>
+													<p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+														{preset.label}
+													</p>
+													<p className="text-[10px] text-gray-500 dark:text-gray-400">
+														{preset.fields.length} fields
+													</p>
+												</div>
+												<Plus size={14} className="text-blue-500 opacity-0 group-hover:opacity-100" />
+											</div>
+										</button>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 
@@ -1090,6 +1344,112 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 								>
 									<Upload size={16} className="mr-2" />
 									Upload Graph
+								</Button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Form Configuration Modal */}
+			{showFormConfigModal && (
+				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+					<div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full p-6">
+						<div className="flex items-center justify-between mb-4">
+							<h3 className="text-lg font-bold text-gray-900 dark:text-white">
+								Configure {activeFormConfig.type.replace(/_/g, " ")}
+							</h3>
+							<button
+								onClick={() => setShowFormConfigModal(false)}
+								className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+							>
+								✕
+							</button>
+						</div>
+
+						<div className="space-y-4">
+							<div>
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+									Label
+								</label>
+								<input
+									type="text"
+									value={activeFormConfig.label}
+									onChange={(e) => setActiveFormConfig(prev => ({ ...prev, label: e.target.value }))}
+									className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+									placeholder="Enter field label..."
+								/>
+							</div>
+
+							<div>
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+									Placeholder / Hint Text
+								</label>
+								<input
+									type="text"
+									value={activeFormConfig.placeholder}
+									onChange={(e) => setActiveFormConfig(prev => ({ ...prev, placeholder: e.target.value }))}
+									className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+									placeholder="Enter placeholder text..."
+								/>
+							</div>
+
+							{activeFormConfig.type === "dropdown" && (
+								<div>
+									<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+										Options (one per line)
+									</label>
+									<textarea
+										value={activeFormConfig.options?.join("\n") || ""}
+										onChange={(e) => setActiveFormConfig(prev => ({ 
+											...prev, 
+											options: e.target.value.split("\n").filter(opt => opt.trim())
+										}))}
+										className="w-full h-24 p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+										placeholder="Option 1\nOption 2\nOption 3"
+									/>
+								</div>
+							)}
+
+							<div className="flex items-center gap-2">
+								<input
+									type="checkbox"
+									id="required-field"
+									checked={activeFormConfig.required}
+									onChange={(e) => setActiveFormConfig(prev => ({ ...prev, required: e.target.checked }))}
+									className="w-4 h-4 rounded border-gray-300 dark:border-gray-700"
+								/>
+								<label htmlFor="required-field" className="text-sm text-gray-700 dark:text-gray-300">
+									Required field (will show asterisk)
+								</label>
+							</div>
+
+							<div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+								<h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+									Live Preview
+								</h4>
+								<div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+									{renderInteractivePreview(activeFormConfig.type, activeFormConfig)}
+								</div>
+							</div>
+
+							<div className="flex gap-3 pt-4">
+								<Button
+									variant="outline"
+									className="flex-1"
+									onClick={() => setShowFormConfigModal(false)}
+								>
+									Cancel
+								</Button>
+								<Button
+									className="flex-1 bg-editor-primary hover:bg-editor-primary/90"
+									onClick={() => {
+										toast.success(`${activeFormConfig.label} configured`);
+										setShowFormConfigModal(false);
+									}}
+								>
+									<Check size={16} className="mr-2" />
+									Apply & Add to Canvas
 								</Button>
 							</div>
 						</div>
