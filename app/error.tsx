@@ -17,7 +17,7 @@ interface ErrorProps {
 	style?: React.CSSProperties;
 }
 
-export const Error: React.FC<ErrorProps> = ({
+const Error: React.FC<ErrorProps> = ({
 	message,
 	type = "error",
 	duration = 5000,
@@ -207,3 +207,5 @@ export const Error: React.FC<ErrorProps> = ({
 		</AnimatePresence>
 	);
 };
+
+export default Error;
