@@ -140,11 +140,66 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 					/>
 				</svg>
 			);
-		} else if (shapeType === "speech_bubble") {
+		} else if (shapeType === "right_triangle") {
 			return (
-				<svg width="100%" height="100%" viewBox="0 0 100 80" preserveAspectRatio="none">
-					<path
-						d="M5,5 L95,5 L95,55 L70,55 L60,75 L50,55 L5,55 Z"
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="5,5 5,95 95,95"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "pentagon") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="50,5 95,38 79,90 21,90 5,38"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "octagon") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "parallelogram") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="25,5 95,5 75,95 5,95"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "trapezoid") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="20,5 80,5 95,95 5,95"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "cross") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="35,5 65,5 65,35 95,35 95,65 65,65 65,95 35,95 35,65 5,65 5,35 35,35"
 						fill={fill}
 						stroke={stroke}
 						strokeWidth={strokeWidth}

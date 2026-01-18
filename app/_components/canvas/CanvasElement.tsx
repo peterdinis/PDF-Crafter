@@ -25,6 +25,8 @@ import { ChartTool } from "../tools/ChartTool";
 import { PencilTool } from "../tools/PencilTool";
 import { ShapeTool } from "../tools/ShapeTool";
 import { TableTool } from "../tools/TableTool";
+import { SignatureDialog } from "../tools/SignatureDialog";
+import { useState } from "react";
 
 interface CanvasElementProps {
 	element: PDFElement;
@@ -127,6 +129,7 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 				<SignatureElementComponent
 					element={element as SignatureElement}
 					{...commonProps}
+					onUpdate={onUpdate}
 				/>
 			)}
 		</div>
@@ -397,7 +400,7 @@ const BarcodeElementComponent: FC<{
 			<div className="w-full h-full flex items-center justify-center">
 				<Barcode
 					value={element.value || "1234567890"}
-					format={element.format || "CODE128"}
+					format={(element.format || "CODE128") as any}
 					width={2}
 					height={(element.height || 80) - 40}
 					displayValue={true}
@@ -415,31 +418,55 @@ const SignatureElementComponent: FC<{
 	onMouseDown: (e: MouseEvent) => void;
 	onContextMenu?: (e: MouseEvent) => void;
 	onDeleteClick?: (e: MouseEvent) => void;
-}> = ({ element, isSelected, onMouseDown, onContextMenu }) => {
+	onUpdate?: (element: PDFElement) => void;
+}> = ({ element, isSelected, onMouseDown, onContextMenu, onUpdate }) => {
+	const [showDialog, setShowDialog] = useState(false);
+
+	const handleSave = (signatureData: string) => {
+		if (onUpdate) {
+			onUpdate({ ...element, signatureData });
+		}
+	};
+
 	return (
-		<div
-			className={cn(
-				"w-full h-full border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 cursor-move p-4",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
-			)}
-			onMouseDown={onMouseDown}
-			onContextMenu={onContextMenu}
-		>
-			{element.signatureData ? (
-				<div className="w-full h-full flex items-center justify-center">
-					<img src={element.signatureData} alt="Signature" className="max-w-full max-h-full" />
-				</div>
-			) : (
-				<>
-					<svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-					</svg>
-					<div className="text-sm text-gray-600 dark:text-gray-400 font-medium text-center">
-						{element.placeholder || "Sign here"}
+		<>
+			<div
+				className={cn(
+					"w-full h-full border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 cursor-move p-4",
+					isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				)}
+				onMouseDown={onMouseDown}
+				onContextMenu={onContextMenu}
+				onDoubleClick={(e) => {
+					e.stopPropagation();
+					if (onUpdate) setShowDialog(true);
+				}}
+				style={{ backgroundColor: element.backgroundColor || "transparent" }}
+			>
+				{element.signatureData ? (
+					<div className="w-full h-full flex items-center justify-center">
+						<img src={element.signatureData} alt="Signature" className="max-w-full max-h-full object-contain" />
 					</div>
-					<div className="mt-4 w-4/5 border-t-2 border-gray-300 dark:border-gray-600"></div>
-				</>
+				) : (
+					<>
+						<svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+						</svg>
+						<div className="text-sm text-gray-600 dark:text-gray-400 font-medium text-center pointer-events-none">
+							{element.placeholder || "Sign here"}
+						</div>
+						<div className="mt-4 w-4/5 border-t-2 border-gray-300 dark:border-gray-600"></div>
+					</>
+				)}
+			</div>
+			{onUpdate && (
+				<SignatureDialog
+					isOpen={showDialog}
+					onClose={() => setShowDialog(false)}
+					onSave={handleSave}
+					initialData={element.signatureData}
+				/>
 			)}
-		</div>
+		</>
 	);
 };

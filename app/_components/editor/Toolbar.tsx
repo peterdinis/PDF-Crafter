@@ -38,6 +38,7 @@ import {
   Table,
   TableProperties,
   Trash2,
+  Triangle,
   Type,
   Underline,
   Upload,
@@ -258,11 +259,46 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         preview: "cloud"
       },
       {
-        name: "Speech Bubble",
-        value: "shape_speech_bubble" as Tool,
+        name: "Right Triangle",
+        value: "shape_right_triangle" as Tool,
+        icon: Triangle,
+        description: "Right-angled triangle",
+        preview: "right_triangle"
+      },
+      {
+        name: "Pentagon",
+        value: "shape_pentagon" as Tool,
         icon: Hash,
-        description: "Speech bubble shape",
-        preview: "speech_bubble"
+        description: "Five-sided shape",
+        preview: "pentagon"
+      },
+      {
+        name: "Octagon",
+        value: "shape_octagon" as Tool,
+        icon: Hash,
+        description: "Eight-sided shape",
+        preview: "octagon"
+      },
+      {
+        name: "Parallelogram",
+        value: "shape_parallelogram" as Tool,
+        icon: Hash,
+        description: "Slanted rectangle",
+        preview: "parallelogram"
+      },
+      {
+        name: "Trapezoid",
+        value: "shape_trapezoid" as Tool,
+        icon: Hash,
+        description: "Trapezoid shape",
+        preview: "trapezoid"
+      },
+      {
+        name: "Cross",
+        value: "shape_cross" as Tool,
+        icon: Plus,
+        description: "Cross shape",
+        preview: "cross"
       },
     ],
     tables: [
@@ -389,13 +425,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         icon: Image,
         description: "Upload or paste image",
         preview: "image"
-      },
-      {
-        name: "Free Draw",
-        value: "pencil" as Tool,
-        icon: Pencil,
-        description: "Sketch with pencil",
-        preview: "pencil"
       },
       {
         name: "Signature",
@@ -681,12 +710,34 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               fill={fillColor} stroke={strokeColor} strokeWidth="2" />
           )}
 
-          {/* Speech Bubble */}
-          {previewType === "speech_bubble" && (
-            <>
-              <rect x="15" y="10" width="70" height="25" fill={fillColor} stroke={strokeColor} strokeWidth="2" rx="5" />
-              <polygon points="40,35 50,35 45,45" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
-            </>
+          {/* Right Triangle */}
+          {previewType === "right_triangle" && (
+            <polygon points="20,10 20,40 80,40" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
+          )}
+
+          {/* Pentagon */}
+          {previewType === "pentagon" && (
+            <polygon points="50,10 80,30 70,45 30,45 20,30" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
+          )}
+
+          {/* Octagon */}
+          {previewType === "octagon" && (
+            <polygon points="35,10 65,10 80,20 80,35 65,45 35,45 20,35 20,20" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
+          )}
+
+          {/* Parallelogram */}
+          {previewType === "parallelogram" && (
+            <polygon points="30,10 80,10 70,40 20,40" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
+          )}
+
+          {/* Trapezoid */}
+          {previewType === "trapezoid" && (
+            <polygon points="30,10 70,10 85,40 15,40" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
+          )}
+
+          {/* Cross */}
+          {previewType === "cross" && (
+            <polygon points="40,10 60,10 60,20 80,20 80,30 60,30 60,40 40,40 40,30 20,30 20,20 40,20" fill={fillColor} stroke={strokeColor} strokeWidth="2" />
           )}
         </svg>
       </div>
@@ -1071,13 +1122,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           )}
 
           {previewType === "qrcode" && (
+            <path d="M30,10 h10 v10 h-10 z M32,12 v6 h6 v-6 z M50,10 h10 v10 h-10 z M52,12 v6 h6 v-6 z M30,30 h10 v10 h-10 z M32,32 v6 h6 v-6 z M45,20 h2 v2 h-2 z M55,25 h2 v2 h-2 z M65,35 h-5 v-5 h5 z" fill="#3b82f6" />
+          )}
+
+          {previewType === "barcode" && (
             <>
-              <rect x="20" y="10" width="60" height="20" fill="white" stroke="#3b82f6" strokeWidth="1" />
-              <rect x="25" y="15" width="10" height="10" fill="black" />
-              <rect x="45" y="15" width="5" height="5" fill="black" />
-              <rect x="65" y="15" width="10" height="10" fill="black" />
-              <rect x="35" y="25" width="5" height="5" fill="black" />
-              <rect x="55" y="25" width="5" height="5" fill="black" />
+              <rect x="20" y="10" width="2" height="20" fill="#3b82f6" />
+              <rect x="24" y="10" width="6" height="20" fill="#3b82f6" />
+              <rect x="32" y="10" width="2" height="20" fill="#3b82f6" />
+              <rect x="38" y="10" width="4" height="20" fill="#3b82f6" />
+              <rect x="44" y="10" width="2" height="20" fill="#3b82f6" />
+              <rect x="50" y="10" width="6" height="20" fill="#3b82f6" />
+              <rect x="58" y="10" width="2" height="20" fill="#3b82f6" />
+              <rect x="64" y="10" width="4" height="20" fill="#3b82f6" />
+              <rect x="70" y="10" width="2" height="20" fill="#3b82f6" />
             </>
           )}
 
@@ -1278,7 +1336,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                         type: tool.value.split("_")[0],
                         tool: tool.value,
                         content: tool.name,
-                        shapeType: tool.value.startsWith("shape_") ? tool.value.split("_")[1] : undefined,
+                        shapeType: tool.value.startsWith("shape_") ? tool.value.replace("shape_", "") : undefined,
                         tableStyle: tool.value.startsWith("table_") ? tool.value.split("_")[1] : undefined,
                         chartType: tool.value.startsWith("chart_") ? tool.value.split("_")[1] : undefined,
                         formType: tool.value.startsWith("form_") ? tool.value.split("_")[1] : undefined,

@@ -16,6 +16,9 @@ import type {
 	FormElement,
 	ImageElement,
 	PDFElement,
+	QRCodeElement,
+	BarcodeElement,
+	SignatureElement,
 	PencilElement,
 	ShapeElement,
 	TableElement,
@@ -909,6 +912,196 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 		</div>
 	);
 
+	const renderQRCodeProperties = (el: QRCodeElement) => (
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label>Content</Label>
+				<Input
+					value={el.content || ""}
+					onChange={(e) => onUpdate({ ...el, content: e.target.value })}
+					placeholder="https://example.com"
+				/>
+			</div>
+
+			<div className="space-y-2">
+				<Label>Error Correction Level</Label>
+				<Select
+					value={el.errorCorrection || "M"}
+					onValueChange={(value) => onUpdate({ ...el, errorCorrection: value as "L" | "M" | "Q" | "H" })}
+				>
+					<SelectTrigger>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="L">Low (7%)</SelectItem>
+						<SelectItem value="M">Medium (15%)</SelectItem>
+						<SelectItem value="Q">Quartile (25%)</SelectItem>
+						<SelectItem value="H">High (30%)</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<div className="space-y-2">
+					<Label>Width</Label>
+					<Input
+						type="number"
+						min="50"
+						value={el.width || 120}
+						onChange={(e) =>
+							onUpdate({
+								...el,
+								width: Number.parseInt(e.target.value) || 120,
+								height: Number.parseInt(e.target.value) || 120, // Keep aspect ratio
+							})
+						}
+					/>
+				</div>
+			</div>
+
+			<ColorPicker
+				label="Code Color"
+				color={el.color || "#000000"}
+				onChange={(color) => onUpdate({ ...el, color })}
+			/>
+
+			<ColorPicker
+				label="Background Color"
+				color={el.backgroundColor || "#ffffff"}
+				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+			/>
+		</div>
+	);
+
+	const renderBarcodeProperties = (el: BarcodeElement) => (
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label>Value</Label>
+				<Input
+					value={el.value || ""}
+					onChange={(e) => onUpdate({ ...el, value: e.target.value })}
+					placeholder="1234567890"
+				/>
+			</div>
+
+			<div className="space-y-2">
+				<Label>Format</Label>
+				<Select
+					value={el.format || "CODE128"}
+					onValueChange={(value) => onUpdate({ ...el, format: value as any })}
+				>
+					<SelectTrigger>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="CODE128">CODE128</SelectItem>
+						<SelectItem value="CODE39">CODE39</SelectItem>
+						<SelectItem value="EAN13">EAN13</SelectItem>
+						<SelectItem value="UPC">UPC</SelectItem>
+						<SelectItem value="ITF14">ITF14</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<div className="space-y-2">
+					<Label>Width</Label>
+					<Input
+						type="number"
+						min="100"
+						value={el.width || 200}
+						onChange={(e) =>
+							onUpdate({
+								...el,
+								width: Number.parseInt(e.target.value) || 200,
+							})
+						}
+					/>
+				</div>
+				<div className="space-y-2">
+					<Label>Height</Label>
+					<Input
+						type="number"
+						min="40"
+						value={el.height || 80}
+						onChange={(e) =>
+							onUpdate({
+								...el,
+								height: Number.parseInt(e.target.value) || 80,
+							})
+						}
+					/>
+				</div>
+			</div>
+
+			<ColorPicker
+				label="Line Color"
+				color={el.color || "#000000"}
+				onChange={(color) => onUpdate({ ...el, color })}
+			/>
+
+			<ColorPicker
+				label="Background Color"
+				color={el.backgroundColor || "#ffffff"}
+				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+			/>
+		</div>
+	);
+
+	const renderSignatureProperties = (el: SignatureElement) => (
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<Label>Placeholder Text</Label>
+				<Input
+					value={el.placeholder || ""}
+					onChange={(e) => onUpdate({ ...el, placeholder: e.target.value })}
+					placeholder="Sign here"
+				/>
+			</div>
+
+			<div className="grid grid-cols-2 gap-4">
+				<div className="space-y-2">
+					<Label>Width</Label>
+					<Input
+						type="number"
+						min="100"
+						value={el.width || 200}
+						onChange={(e) =>
+							onUpdate({
+								...el,
+								width: Number.parseInt(e.target.value) || 200,
+							})
+						}
+					/>
+				</div>
+				<div className="space-y-2">
+					<Label>Height</Label>
+					<Input
+						type="number"
+						min="60"
+						value={el.height || 100}
+						onChange={(e) =>
+							onUpdate({
+								...el,
+								height: Number.parseInt(e.target.value) || 100,
+							})
+						}
+					/>
+				</div>
+			</div>
+
+			<ColorPicker
+				label="Background Color"
+				color={el.backgroundColor || "transparent"}
+				onChange={(color) => onUpdate({ ...el, backgroundColor: color })}
+			/>
+
+			<p className="text-xs text-muted-foreground mt-4">
+				Double-click on the signature element on canvas to sign.
+			</p>
+		</div>
+	);
+
 	return (
 		<div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
 			<div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -968,35 +1161,12 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						renderCodeProperties(element as CodeElement)}
 					{element.type === "form" &&
 						renderFormProperties(element as FormElement)}
-					{element.type === "pencil" && (
-						<div className="space-y-2">
-							<div className="text-sm text-gray-500 dark:text-gray-400">
-								Pencil drawings can be moved and deleted.
-							</div>
-							<div className="space-y-2">
-								<Label>Stroke Width</Label>
-								<Input
-									type="number"
-									min="1"
-									max="20"
-									value={(element as PencilElement).strokeWidth || 2}
-									onChange={(e) =>
-										onUpdate({
-											...element,
-											strokeWidth: Number.parseInt(e.target.value) || 2,
-										} as PencilElement)
-									}
-								/>
-							</div>
-							<ColorPicker
-								label="Stroke Color"
-								color={(element as PencilElement).color || "#000000"}
-								onChange={(color) =>
-									onUpdate({ ...element, color } as PencilElement)
-								}
-							/>
-						</div>
-					)}
+					{element.type === "qrcode" &&
+						renderQRCodeProperties(element as QRCodeElement)}
+					{element.type === "barcode" &&
+						renderBarcodeProperties(element as BarcodeElement)}
+					{element.type === "signature" &&
+						renderSignatureProperties(element as SignatureElement)}
 				</div>
 
 				{/* Position Properties */}

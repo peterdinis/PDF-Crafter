@@ -25,7 +25,13 @@ export type Tool =
 	| "shape_heart"
 	| "shape_hexagon"
 	| "shape_cloud"
-	| "shape_speech_bubble"
+	| "shape_cloud"
+	| "shape_right_triangle"
+	| "shape_pentagon"
+	| "shape_octagon"
+	| "shape_parallelogram"
+	| "shape_trapezoid"
+	| "shape_cross"
 	// Table tools
 	| "table_simple"
 	| "table_striped"
@@ -93,7 +99,13 @@ export type ShapeType =
 	| "heart"
 	| "hexagon"
 	| "cloud"
-	| "speech_bubble";
+	| "cloud"
+	| "right_triangle"
+	| "pentagon"
+	| "octagon"
+	| "parallelogram"
+	| "trapezoid"
+	| "cross";
 
 export type TableStyle =
 	| "simple"
@@ -289,6 +301,7 @@ export interface SignatureElement extends PDFElementBase {
 	penColor: string;
 	penWidth: number;
 	placeholder?: string;
+	backgroundColor?: string;
 }
 
 export interface BarcodeElement extends PDFElementBase {
