@@ -49,10 +49,7 @@ export const Canvas: FC<CanvasProps> = ({
 	const currentPageElements =
 		document.pages[document.currentPage]?.elements || [];
 
-	const isShapeTool =
-		activeTool === "shape_rectangle" ||
-		activeTool === "shape_circle" ||
-		activeTool === "shape_line";
+	const isShapeTool = activeTool.startsWith("shape_");
 	const isChartTool = activeTool.startsWith("chart_");
 	const isTableTool =
 		activeTool === "table_simple" ||
@@ -61,9 +58,7 @@ export const Canvas: FC<CanvasProps> = ({
 
 	const getToolTitle = () => {
 		if (activeTool === "pencil") return "Pencil Style";
-		if (activeTool === "shape_rectangle") return "Rectangle Style";
-		if (activeTool === "shape_circle") return "Circle Style";
-		if (activeTool === "shape_line") return "Line Style";
+		if (activeTool.startsWith("shape_")) return "Shape Style";
 		if (activeTool.startsWith("table_")) return "Table Style";
 		if (activeTool.startsWith("chart_")) return "Chart Style";
 		return "Drawing Style";
@@ -159,7 +154,7 @@ export const Canvas: FC<CanvasProps> = ({
 					color={tableColor}
 					strokeWidth={1}
 					onColorChange={setTableColor}
-					onStrokeWidthChange={() => {}}
+					onStrokeWidthChange={() => { }}
 				/>
 			)}
 		</div>

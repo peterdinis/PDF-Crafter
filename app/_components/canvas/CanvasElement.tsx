@@ -17,7 +17,9 @@ import type {
 	Tool,
 } from "@/types/global";
 import Image from "next/image";
+import { QRCodeSVG } from "qrcode.react";
 import type { FC, MouseEvent } from "react";
+import Barcode from "react-barcode";
 import { TextEditor } from "../editor/TextEditor";
 import { ChartTool } from "../tools/ChartTool";
 import { PencilTool } from "../tools/PencilTool";
@@ -107,22 +109,22 @@ export const CanvasElement: FC<CanvasElementProps> = ({
 				<ChartTool element={element as ChartElement} {...commonProps} />
 			)}
 			{element.type === "form" && (
-				<FormElement element={element as FormElement} {...commonProps} />
+				<FormElementComponent element={element as FormElement} {...commonProps} />
 			)}
 			{element.type === "code" && (
-				<CodeElement element={element as CodeElement} {...commonProps} />
+				<CodeElementComponent element={element as CodeElement} {...commonProps} />
 			)}
 			{element.type === "divider" && (
-				<DividerElement element={element as DividerElement} {...commonProps} />
+				<DividerElementComponent element={element as DividerElement} {...commonProps} />
 			)}
 			{element.type === "qrcode" && (
-				<QRCodeElement element={element as QRCodeElement} {...commonProps} />
+				<QRCodeElementComponent element={element as QRCodeElement} {...commonProps} />
 			)}
 			{element.type === "barcode" && (
-				<BarcodeElement element={element as BarcodeElement} {...commonProps} />
+				<BarcodeElementComponent element={element as BarcodeElement} {...commonProps} />
 			)}
 			{element.type === "signature" && (
-				<SignatureElement
+				<SignatureElementComponent
 					element={element as SignatureElement}
 					{...commonProps}
 				/>
@@ -137,7 +139,7 @@ const ImageElement: FC<{
 	onMouseDown: (e: MouseEvent) => void;
 	onContextMenu?: (e: MouseEvent) => void;
 	onDeleteClick?: (e: MouseEvent) => void;
-}> = ({ element, isSelected, onMouseDown, onContextMenu, onDeleteClick }) => {
+}> = ({ element, isSelected, onMouseDown, onContextMenu }) => {
 	if (element.type !== "image") return null;
 
 	return (
@@ -164,7 +166,7 @@ const ImageElement: FC<{
 	);
 };
 
-const FormElement: FC<{
+const FormElementComponent: FC<{
 	element: FormElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
@@ -174,84 +176,113 @@ const FormElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-10 border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-50 dark:bg-gray-800",
-				isSelected &&
-					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm cursor-move",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<label className="block text-sm font-medium mb-1 text-gray-900 dark:text-gray-100">
+			<label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">
 				{element.label}
+				{element.required && <span className="text-red-500 ml-1">*</span>}
 			</label>
+
 			{element.formType === "text" && (
 				<input
 					type="text"
 					placeholder={element.placeholder}
-					value={element.value || ""}
-					className="w-full px-2 py-1 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+					className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
 					readOnly
 				/>
 			)}
+
 			{element.formType === "textarea" && (
 				<textarea
 					placeholder={element.placeholder}
-					value={element.value || ""}
-					className="w-full px-2 py-1 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 min-h-15"
+					className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 resize-none"
+					rows={3}
 					readOnly
 				/>
 			)}
+
 			{element.formType === "button" && (
-				<button
-					className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-					disabled
-				>
+				<button className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-md shadow transition-colors">
 					{element.label}
 				</button>
 			)}
+
 			{element.formType === "checkbox" && (
-				<div className="flex items-center gap-2">
-					<input type="checkbox" className="w-4 h-4" disabled />
-					<span className="text-gray-700 dark:text-gray-300">
-						{element.placeholder || "Checkbox option"}
-					</span>
+				<div className="flex items-center gap-3">
+					<div className="w-5 h-5 border-2 border-gray-400 dark:border-gray-500 rounded bg-white dark:bg-gray-700"></div>
+					<span className="text-sm text-gray-700 dark:text-gray-300">{element.placeholder || "Checkbox option"}</span>
 				</div>
 			)}
+
 			{element.formType === "radio" && (
-				<div className="flex items-center gap-2">
-					<input type="radio" className="w-4 h-4" disabled />
-					<span className="text-gray-700 dark:text-gray-300">
-						{element.placeholder || "Radio option"}
-					</span>
+				<div className="space-y-2">
+					{element.options?.map((opt, idx) => (
+						<div key={idx} className="flex items-center gap-3">
+							<div className="w-5 h-5 border-2 border-gray-400 dark:border-gray-500 rounded-full bg-white dark:bg-gray-700"></div>
+							<span className="text-sm text-gray-700 dark:text-gray-300">{opt}</span>
+						</div>
+					))}
 				</div>
 			)}
+
 			{element.formType === "dropdown" && (
-				<select
-					className="w-full px-2 py-1 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-					disabled
-				>
-					{element.options?.map((opt, idx) => (
-						<option key={idx} value={opt}>
-							{opt}
-						</option>
-					))}
-				</select>
+				<div className="relative">
+					<select className="w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 appearance-none cursor-pointer">
+						<option>{element.placeholder || "Select an option"}</option>
+						{element.options?.map((opt, idx) => (
+							<option key={idx} value={opt}>{opt}</option>
+						))}
+					</select>
+					<div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+						<svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+						</svg>
+					</div>
+				</div>
 			)}
+
 			{element.formType === "date" && (
 				<input
 					type="date"
-					className="w-full px-2 py-1 border border-gray-400 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+					className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
 					readOnly
 				/>
 			)}
+
 			{element.formType === "range" && (
-				<input type="range" min="0" max="100" className="w-full" disabled />
+				<div className="space-y-2">
+					<input
+						type="range"
+						min="0"
+						max="100"
+						defaultValue="50"
+						className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer"
+					/>
+					<div className="flex justify-between text-xs text-gray-500">
+						<span>0</span>
+						<span>50</span>
+						<span>100</span>
+					</div>
+				</div>
+			)}
+
+			{element.formType === "switch" && (
+				<div className="flex items-center gap-3">
+					<div className="relative inline-block w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full">
+						<div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+					</div>
+					<span className="text-sm text-gray-700 dark:text-gray-300">{element.placeholder || "Toggle option"}</span>
+				</div>
 			)}
 		</div>
 	);
 };
 
-const CodeElement: FC<{
+const CodeElementComponent: FC<{
 	element: CodeElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
@@ -261,39 +292,45 @@ const CodeElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-25 border-2 border-gray-400 dark:border-gray-500 rounded p-2 bg-gray-900 text-gray-100 font-mono text-sm overflow-auto",
-				isSelected &&
-					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full rounded-lg overflow-hidden cursor-move shadow-lg",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<pre className="whitespace-pre-wrap text-gray-100">
-				{element.content || "// Code block"}
-			</pre>
+			<div className="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-gray-700">
+				<div className="flex items-center gap-2">
+					<div className="flex gap-1.5">
+						<div className="w-3 h-3 rounded-full bg-red-500"></div>
+						<div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+						<div className="w-3 h-3 rounded-full bg-green-500"></div>
+					</div>
+					<span className="text-xs text-gray-400 ml-2">{element.language || "code"}</span>
+				</div>
+			</div>
+			<div className="bg-gray-900 p-4 overflow-auto" style={{ height: 'calc(100% - 40px)' }}>
+				<pre className="text-sm text-gray-100 font-mono whitespace-pre-wrap leading-relaxed">
+					<code>{element.content || "// Your code here"}</code>
+				</pre>
+			</div>
 		</div>
 	);
 };
 
-const DividerElement: FC<{
+const DividerElementComponent: FC<{
 	element: DividerElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
 	onContextMenu?: (e: MouseEvent) => void;
 	onDeleteClick?: (e: MouseEvent) => void;
 }> = ({ element, isSelected, onMouseDown, onContextMenu }) => {
-	const borderStyle =
-		element.style === "dashed"
-			? "dashed"
-			: element.style === "dotted"
-				? "dotted"
-				: "solid";
+	const borderStyle = element.style === "dashed" ? "dashed" : element.style === "dotted" ? "dotted" : "solid";
 
 	return (
 		<div
 			className={cn(
-				"w-full h-full flex items-center",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2",
+				"w-full h-full flex items-center cursor-move px-2",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2 rounded",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
@@ -302,7 +339,7 @@ const DividerElement: FC<{
 				style={{
 					width: "100%",
 					border: "none",
-					borderTop: `${element.thickness}px ${borderStyle} ${element.color}`,
+					borderTop: `${element.thickness || 2}px ${borderStyle} ${element.color || "#d1d5db"}`,
 					margin: 0,
 				}}
 			/>
@@ -310,7 +347,7 @@ const DividerElement: FC<{
 	);
 };
 
-const QRCodeElement: FC<{
+const QRCodeElementComponent: FC<{
 	element: QRCodeElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
@@ -320,27 +357,27 @@ const QRCodeElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-30 flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
-				isSelected &&
-					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full flex flex-col items-center justify-center rounded-lg cursor-move shadow-md overflow-hidden",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
-			style={{
-				backgroundColor:
-					element.backgroundColor && element.backgroundColor !== "transparent"
-						? element.backgroundColor
-						: undefined,
-			}}
+			style={{ backgroundColor: element.backgroundColor !== "transparent" ? element.backgroundColor : "#ffffff" }}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<div className="text-xs text-gray-700 dark:text-gray-300 p-2 text-center font-medium">
-				QR Code: {element.content || "No content"}
+			<div className="p-2 bg-white rounded flex items-center justify-center w-full h-full">
+				<QRCodeSVG
+					value={element.content || "https://example.com"}
+					size={Math.min(element.width || 120, element.height || 120) - 20}
+					fgColor={element.color || "#000000"}
+					bgColor={element.backgroundColor || "#ffffff"}
+					level={element.errorCorrection || "M"}
+				/>
 			</div>
 		</div>
 	);
 };
 
-const BarcodeElement: FC<{
+const BarcodeElementComponent: FC<{
 	element: BarcodeElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
@@ -350,27 +387,29 @@ const BarcodeElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-20 flex items-center justify-center border-2 border-gray-400 dark:border-gray-500 rounded bg-gray-100 dark:bg-gray-800",
-				isSelected &&
-					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full flex flex-col items-center justify-center rounded-lg p-2 cursor-move shadow-md overflow-hidden",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
-			style={{
-				backgroundColor:
-					element.backgroundColor && element.backgroundColor !== "transparent"
-						? element.backgroundColor
-						: undefined,
-			}}
+			style={{ backgroundColor: element.backgroundColor !== "transparent" ? element.backgroundColor : "#ffffff" }}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<div className="text-xs text-gray-700 dark:text-gray-300 p-2 text-center font-medium">
-				Barcode: {element.value || "No value"}
+			<div className="w-full h-full flex items-center justify-center">
+				<Barcode
+					value={element.value || "1234567890"}
+					format={element.format || "CODE128"}
+					width={2}
+					height={(element.height || 80) - 40}
+					displayValue={true}
+					lineColor={element.color || "#000000"}
+					background={element.backgroundColor || "#ffffff"}
+				/>
 			</div>
 		</div>
 	);
 };
 
-const SignatureElement: FC<{
+const SignatureElementComponent: FC<{
 	element: SignatureElement;
 	isSelected: boolean;
 	onMouseDown: (e: MouseEvent) => void;
@@ -380,16 +419,27 @@ const SignatureElement: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full min-h-25 border-2 border-dashed border-gray-400 dark:border-gray-500 rounded flex items-center justify-center bg-gray-50 dark:bg-gray-800",
-				isSelected &&
-					"ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 cursor-move p-4",
+				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-				{element.placeholder || "Sign here"}
-			</div>
+			{element.signatureData ? (
+				<div className="w-full h-full flex items-center justify-center">
+					<img src={element.signatureData} alt="Signature" className="max-w-full max-h-full" />
+				</div>
+			) : (
+				<>
+					<svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+					</svg>
+					<div className="text-sm text-gray-600 dark:text-gray-400 font-medium text-center">
+						{element.placeholder || "Sign here"}
+					</div>
+					<div className="mt-4 w-4/5 border-t-2 border-gray-300 dark:border-gray-600"></div>
+				</>
+			)}
 		</div>
 	);
 };

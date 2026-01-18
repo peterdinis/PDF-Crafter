@@ -100,6 +100,16 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 					} else if (elementData.tool === "text_paragraph") {
 						content =
 							"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+					} else if (elementData.tool === "text_underline") {
+						fontStyle = "underline";
+						content = "Underlined text";
+					} else if (elementData.tool === "text_list") {
+						content = "• List item";
+					} else if (elementData.tool === "text_numbered") {
+						content = "1. List item";
+					} else if (elementData.tool === "text_quote") {
+						fontStyle = "italic";
+						content = "\"Quote text\"";
 					}
 
 					onAddElement({
@@ -132,6 +142,57 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 					} as ShapeElement);
 				} else if (elementData.type === "table") {
 					const isEmpty = elementData.tool === "table_empty";
+					const isWide = elementData.tool === "table_wide";
+					const isCalendar = elementData.tool === "table_calendar";
+					const isInvoice = elementData.tool === "table_invoice";
+
+					let columns = 2;
+					let rows = 3;
+					let headers = ["Header 1", "Header 2"];
+					let dataRows = [
+						["Data 1", "Data 2"],
+						["Data 3", "Data 4"],
+						["Data 5", "Data 6"],
+					];
+					let headerType: "simple" | "none" = "simple";
+
+					if (isEmpty) {
+						columns = 2;
+						rows = 3;
+						headers = ["", ""];
+						dataRows = [["", ""], ["", ""], ["", ""]];
+						headerType = "none";
+					} else if (isWide) {
+						columns = 5;
+						rows = 3;
+						headers = ["Col 1", "Col 2", "Col 3", "Col 4", "Col 5"];
+						dataRows = [
+							["Data 1", "Data 2", "Data 3", "Data 4", "Data 5"],
+							["Data 6", "Data 7", "Data 8", "Data 9", "Data 10"],
+							["Data 11", "Data 12", "Data 13", "Data 14", "Data 15"],
+						];
+					} else if (isCalendar) {
+						columns = 7;
+						rows = 6;
+						headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+						dataRows = [
+							["", "1", "2", "3", "4", "5", "6"],
+							["7", "8", "9", "10", "11", "12", "13"],
+							["14", "15", "16", "17", "18", "19", "20"],
+							["21", "22", "23", "24", "25", "26", "27"],
+							["28", "29", "30", "31", "", "", ""],
+						];
+					} else if (isInvoice) {
+						columns = 4;
+						rows = 4;
+						headers = ["Item Description", "Qty", "Price", "Total"];
+						dataRows = [
+							["Service A", "1", "$100.00", "$100.00"],
+							["Service B", "2", "$50.00", "$100.00"],
+							["Service C", "1", "$150.00", "$150.00"],
+						];
+					}
+
 					onAddElement({
 						id,
 						type: "table",
@@ -139,20 +200,15 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 						style: isEmpty ? "simple" : elementData.tableStyle || "simple",
 						x,
 						y,
-						width: 300,
+						width: isWide || isCalendar || isInvoice ? 500 : 300,
 						height: isEmpty ? 100 : 200,
-						columns: 2,
-						rows: 2,
-						headerType: isEmpty ? "none" : "simple",
-						data: isEmpty
-							? {
-									headers: ["", ""],
-									rows: [["", ""]],
-								}
-							: {
-									headers: ["Header 1", "Header 2"],
-									rows: [["Data 1", "Data 2"]],
-								},
+						columns,
+						rows,
+						headerType,
+						data: {
+							headers,
+							rows: dataRows,
+						},
 					} as TableElement);
 				} else if (elementData.type === "chart") {
 					onAddElement({
@@ -293,8 +349,8 @@ export const DragDropArea: FC<DragDropAreaProps> = ({
 			className={cn(
 				"pdf-page relative transition-colors duration-200",
 				isDraggingOver &&
-					!isEditing &&
-					"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
+				!isEditing &&
+				"bg-editor-primary/5 ring-4 ring-inset ring-editor-primary/20",
 				activeTool === "pencil" && !isEditing && "cursor-crosshair",
 			)}
 			style={{

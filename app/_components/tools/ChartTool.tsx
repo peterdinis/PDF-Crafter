@@ -141,6 +141,253 @@ export const ChartTool: FC<ChartToolProps> = ({
 		});
 	};
 
+	const renderDoughnut = () => {
+		const total = values.reduce((sum, val) => sum + val, 0);
+		if (total === 0) return null;
+
+		const centerX = width / 2;
+		const centerY = height / 2;
+		const outerRadius = Math.min(innerWidth, innerHeight) / 2;
+		const innerRadius = outerRadius * 0.6;
+
+		let startAngle = 0;
+		return (
+			<>
+				{values.map((value, i) => {
+					const sliceAngle = (value / total) * 360;
+					const endAngle = startAngle + sliceAngle;
+
+					// Calculate points for outer arc
+					const x1_out =
+						centerX + outerRadius * Math.cos((Math.PI * startAngle) / 180);
+					const y1_out =
+						centerY + outerRadius * Math.sin((Math.PI * startAngle) / 180);
+					const x2_out =
+						centerX + outerRadius * Math.cos((Math.PI * endAngle) / 180);
+					const y2_out =
+						centerY + outerRadius * Math.sin((Math.PI * endAngle) / 180);
+
+					// Calculate points for inner arc
+					const x1_in =
+						centerX + innerRadius * Math.cos((Math.PI * startAngle) / 180);
+					const y1_in =
+						centerY + innerRadius * Math.sin((Math.PI * startAngle) / 180);
+					const x2_in =
+						centerX + innerRadius * Math.cos((Math.PI * endAngle) / 180);
+					const y2_in =
+						centerY + innerRadius * Math.sin((Math.PI * endAngle) / 180);
+
+					const largeArcFlag = sliceAngle > 180 ? 1 : 0;
+
+					const dPath = [
+						`M ${x1_out} ${y1_out}`,
+						`A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2_out} ${y2_out}`,
+						`L ${x2_in} ${y2_in}`,
+						`A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x1_in} ${y1_in}`,
+						"Z",
+					].join(" ");
+
+					const color = seriesColors[i % seriesColors.length];
+					startAngle = endAngle;
+
+					return (
+						<path
+							key={`slice-${i}`}
+							d={dPath}
+							fill={color}
+							stroke="white"
+							strokeWidth="1"
+						/>
+					);
+				})}
+			</>
+		);
+	};
+
+	const renderArea = () => {
+		if (values.length < 2) return null;
+		const step = innerWidth / (values.length - 1);
+
+		// Build the line path
+		const points = values.map((value, i) => {
+			const x = padding + i * step;
+			const y = height - padding - (value / maxValue) * innerHeight;
+			return { x, y };
+		});
+
+		const firstPoint = points[0];
+		const lastPoint = points[points.length - 1];
+
+		const dPath = [
+			`M ${firstPoint.x} ${height - padding}`, // Start at bottom left
+			...points.map((p) => `L ${p.x} ${p.y}`), // Go through all points
+			`L ${lastPoint.x} ${height - padding}`, // Go to bottom right
+			"Z", // Close
+		].join(" ");
+
+		return (
+			<>
+				<path
+					d={dPath}
+					fill={seriesColors[0]}
+					fillOpacity="0.3"
+					stroke="none"
+				/>
+				<polyline
+					points={points.map((p) => `${p.x},${p.y}`).join(" ")}
+					fill="none"
+					stroke={seriesColors[0]}
+					strokeWidth="2"
+					strokeLinejoin="round"
+					strokeLinecap="round"
+				/>
+				{points.map((p, i) => (
+					<circle
+						key={`point-${i}`}
+						cx={p.x}
+						cy={p.y}
+						r="4"
+						fill={seriesColors[0]}
+						stroke="white"
+						strokeWidth="1"
+					/>
+				))}
+			</>
+		);
+	};
+
+	const renderScatter = () => {
+		// Mock scatter data generation from scalar values
+		// In a real app, data structure would need to support x/y pairs
+		// Here we map index to x and value to y
+		if (values.length === 0) return null;
+
+		return (
+			<>
+				{values.map((value, i) => {
+					// Add some randomness to x to simulate scatter if using just 1D array
+					// Or just map linearly
+					const x =
+						padding +
+						(i / (values.length - 1)) * innerWidth +
+						(Math.random() * 20 - 10);
+					const y = height - padding - (value / maxValue) * innerHeight;
+					const color = seriesColors[i % seriesColors.length];
+					return (
+						<circle
+							key={`point-${i}`}
+							cx={x}
+							cy={y}
+							r="5"
+							fill={color}
+							opacity="0.7"
+						/>
+					);
+				})}
+			</>
+		);
+	};
+
+	const renderRadar = () => {
+		if (values.length < 3) return null; // Need at least 3 points for a radar
+		const centerX = width / 2;
+		const centerY = height / 2;
+		const radius = Math.min(innerWidth, innerHeight) / 2;
+		const angleStep = (2 * Math.PI) / values.length;
+
+		const points = values.map((value, i) => {
+			const angle = i * angleStep - Math.PI / 2; // Start from top
+			const r = (value / maxValue) * radius;
+			const x = centerX + r * Math.cos(angle);
+			const y = centerY + r * Math.sin(angle);
+			return `${x},${y}`;
+		}).join(" ");
+
+		const gridPoints = values.map((_, i) => {
+			const angle = i * angleStep - Math.PI / 2;
+			const x = centerX + radius * Math.cos(angle);
+			const y = centerY + radius * Math.sin(angle);
+			return { x, y };
+		});
+
+		return (
+			<>
+				{/* Background Grid */}
+				<polygon
+					points={gridPoints.map(p => `${p.x},${p.y}`).join(" ")}
+					fill="none"
+					stroke={gridColor}
+					strokeWidth="1"
+				/>
+				{/* Axis lines */}
+				{gridPoints.map((p, i) => (
+					<line
+						key={`axis-${i}`}
+						x1={centerX}
+						y1={centerY}
+						x2={p.x}
+						y2={p.y}
+						stroke={gridColor}
+						strokeWidth="1"
+					/>
+				))}
+				{/* Data Polygon */}
+				<polygon
+					points={points}
+					fill={seriesColors[0]}
+					fillOpacity="0.4"
+					stroke={seriesColors[0]}
+					strokeWidth="2"
+				/>
+			</>
+		);
+	};
+
+	const renderGauge = () => {
+		if (values.length === 0) return null;
+		const value = values[0]; // Take first value
+		const percent = Math.min(Math.max(value / maxValue, 0), 1);
+
+		const centerX = width / 2;
+		const centerY = height - padding;
+		const radius = Math.min(innerWidth, height - padding * 2);
+
+		const startAngle = Math.PI; // 180 deg
+		const endAngle = 0; // 0 deg
+		const currentAngle = startAngle - (startAngle - endAngle) * percent;
+
+		const x = centerX + radius * Math.cos(currentAngle);
+		const y = centerY - radius * Math.sin(currentAngle); // Subtract because y goes down
+
+		return (
+			<>
+				{/* Background Arc */}
+				<path
+					d={`M ${centerX - radius} ${centerY} A ${radius} ${radius} 0 0 1 ${centerX + radius} ${centerY}`}
+					fill="none"
+					stroke="#e5e7eb"
+					strokeWidth="20"
+					strokeLinecap="round"
+				/>
+				{/* Value Arc (This is tricky with simple SVG path for arc, easier to overlay a masked circle or just simple arc) */}
+				{/* Needle */}
+				<line
+					x1={centerX}
+					y1={centerY}
+					x2={centerX + radius * 0.8 * Math.cos(currentAngle)}
+					y2={centerY - radius * 0.8 * Math.sin(Math.abs(currentAngle))} // Correct y calculation for svg coord system
+					stroke={seriesColors[0]}
+					strokeWidth="4"
+					strokeLinecap="round"
+				/>
+				<circle cx={centerX} cy={centerY} r="8" fill={seriesColors[0]} />
+				<text x={centerX} y={centerY + 25} textAnchor="middle" fontSize="16" fontWeight="bold">
+					{Math.round(value)}
+				</text>
+			</>
+		);
+	};
+
 	const renderGrid = () => {
 		if (!showGrid || chartType === "pie") return null;
 		const lines = 5;
@@ -211,6 +458,11 @@ export const ChartTool: FC<ChartToolProps> = ({
 				{chartType === "bar" && renderBars()}
 				{chartType === "line" && renderLine()}
 				{chartType === "pie" && renderPie()}
+				{chartType === "doughnut" && renderDoughnut()}
+				{chartType === "area" && renderArea()}
+				{chartType === "scatter" && renderScatter()}
+				{chartType === "radar" && renderRadar()}
+				{chartType === "gauge" && renderGauge()}
 			</svg>
 		</div>
 	);

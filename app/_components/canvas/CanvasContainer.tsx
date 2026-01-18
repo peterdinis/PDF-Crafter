@@ -219,6 +219,16 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			} else if (activeTool === "text_italic") {
 				fontStyle = "italic";
 				content = "Italic text";
+			} else if (activeTool === "text_underline") {
+				fontStyle = "underline";
+				content = "Underlined text";
+			} else if (activeTool === "text_list") {
+				content = "• List item";
+			} else if (activeTool === "text_numbered") {
+				content = "1. List item";
+			} else if (activeTool === "text_quote") {
+				fontStyle = "italic";
+				content = "\"Quote text\"";
 			}
 
 			const newText: TextElement = {
@@ -237,59 +247,109 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				height: fontSize * 1.5,
 			};
 			onAddElement(newText);
-		} else if (activeTool === "shape_rectangle") {
+		} else if (activeTool.startsWith("shape_")) {
+			const shapeType = activeTool.replace("shape_", "") as any;
+			let width = 100;
+			let height = 100;
+			let fillColor = "#e5e7eb";
+			let strokeColor = "#9ca3af";
+			let strokeWidth = 2; // Default stroke width for shapes is 2
+
+			// Adjust dimensions/defaults based on shape type
+			if (shapeType === "rectangle") {
+				height = 80;
+				strokeWidth = 1;
+			} else if (shapeType === "circle") {
+				width = 80;
+				height = 80;
+				strokeWidth = 1;
+			} else if (shapeType === "line") {
+				height = 0; // Height 0 for line
+				fillColor = "transparent";
+			} else if (shapeType === "speech_bubble") {
+				width = 120;
+				height = 80;
+			} else if (shapeType === "arrow") {
+				width = 100;
+				height = 60;
+			}
+
 			const newShape: ShapeElement = {
 				id: uuidv4(),
 				type: "shape",
-				shapeType: "rectangle",
+				shapeType,
 				x,
 				y,
-				width: 100,
-				height: 80,
-				fillColor: "#e5e7eb",
-				strokeColor: "#9ca3af",
-				strokeWidth: 1,
-				rotation: 0,
-			};
-			onAddElement(newShape);
-		} else if (activeTool === "shape_circle") {
-			const newShape: ShapeElement = {
-				id: uuidv4(),
-				type: "shape",
-				shapeType: "circle",
-				x,
-				y,
-				width: 80,
-				height: 80,
-				fillColor: "#e5e7eb",
-				strokeColor: "#9ca3af",
-				strokeWidth: 1,
-				rotation: 0,
-			};
-			onAddElement(newShape);
-		} else if (activeTool === "shape_line") {
-			const newShape: ShapeElement = {
-				id: uuidv4(),
-				type: "shape",
-				shapeType: "line",
-				x,
-				y,
-				width: 100,
-				height: 0,
-				fillColor: "transparent",
-				strokeColor: "#9ca3af",
-				strokeWidth: 2,
+				width,
+				height,
+				fillColor,
+				strokeColor,
+				strokeWidth,
 				rotation: 0,
 			};
 			onAddElement(newShape);
 		} else if (activeTool.startsWith("table_")) {
-			const tableStyle =
-				activeTool === "table_empty"
-					? "simple"
-					: (activeTool.replace("table_", "") as
-							| "simple"
-							| "striped"
-							| "bordered");
+			const isSimple = activeTool === "table_simple";
+			const isStriped = activeTool === "table_striped";
+			const isBordered = activeTool === "table_bordered";
+			const isEmpty = activeTool === "table_empty";
+			const isWide = activeTool === "table_wide";
+			const isCalendar = activeTool === "table_calendar";
+			const isInvoice = activeTool === "table_invoice";
+
+			const tableStyle = (isStriped
+				? "striped"
+				: isBordered
+					? "bordered"
+					: "simple") as "simple" | "striped" | "bordered";
+
+			let columns = 2;
+			let rows = 3;
+			let headers = ["Header 1", "Header 2"];
+			let dataRows = [
+				["Data 1", "Data 2"],
+				["Data 3", "Data 4"],
+				["Data 5", "Data 6"],
+			];
+			let headerType: "simple" | "none" = "simple";
+
+			if (isEmpty) {
+				columns = 2;
+				rows = 3;
+				headers = ["", ""];
+				dataRows = [["", ""], ["", ""], ["", ""]];
+				headerType = "none";
+			} else if (isWide) {
+				columns = 5;
+				rows = 3;
+				headers = ["Col 1", "Col 2", "Col 3", "Col 4", "Col 5"];
+				dataRows = [
+					["Data 1", "Data 2", "Data 3", "Data 4", "Data 5"],
+					["Data 6", "Data 7", "Data 8", "Data 9", "Data 10"],
+					["Data 11", "Data 12", "Data 13", "Data 14", "Data 15"],
+				];
+			} else if (isCalendar) {
+				columns = 7;
+				rows = 6;
+				headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+				dataRows = [
+					["", "1", "2", "3", "4", "5", "6"],
+					["7", "8", "9", "10", "11", "12", "13"],
+					["14", "15", "16", "17", "18", "19", "20"],
+					["21", "22", "23", "24", "25", "26", "27"],
+					["28", "29", "30", "31", "", "", ""],
+				];
+			} else if (isInvoice) {
+				columns = 4;
+				rows = 4;
+				headers = ["Item Description", "Qty", "Price", "Total"];
+				dataRows = [
+					["Service A", "1", "$100.00", "$100.00"],
+					["Service B", "2", "$50.00", "$100.00"],
+					["Service C", "1", "$150.00", "$150.00"],
+				];
+			}
+
 			const newTable: TableElement = {
 				id: uuidv4(),
 				type: "table",
@@ -297,21 +357,15 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 				style: tableStyle,
 				x,
 				y,
-				width: 300,
-				height: activeTool === "table_empty" ? 100 : 200,
-				columns: 2,
-				rows: 2,
-				headerType: activeTool === "table_empty" ? "none" : "simple",
-				data:
-					activeTool === "table_empty"
-						? {
-								headers: ["", ""],
-								rows: [["", ""]],
-							}
-						: {
-								headers: ["Header 1", "Header 2"],
-								rows: [["Data 1", "Data 2"]],
-							},
+				width: isWide || isCalendar || isInvoice ? 500 : 300,
+				height: isEmpty ? 100 : 200,
+				columns,
+				rows,
+				headerType,
+				data: {
+					headers,
+					rows: dataRows,
+				},
 			};
 			onAddElement(newTable);
 		} else if (activeTool.startsWith("chart_")) {
@@ -489,9 +543,8 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 					{pageElements.map((element) => (
 						<div
 							key={element.id}
-							className={`relative ${
-								element.id === selectedElement ? "z-10" : "z-0"
-							}`}
+							className={`relative ${element.id === selectedElement ? "z-10" : "z-0"
+								}`}
 							style={{
 								position: "absolute",
 								left: `${element.x}px`,
@@ -531,7 +584,7 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 						</div>
 					))}
 				</DragDropArea>
-				
+
 				{contextMenu && (
 					<div
 						ref={contextMenuRef}

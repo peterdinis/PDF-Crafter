@@ -16,31 +16,54 @@ const getFontStyle = (fontWeight?: string, fontStyle?: string) => {
 	return "normal";
 };
 
+const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
+	if (!hex || hex === "transparent") return { r: 0, g: 0, b: 0 };
+	hex = hex.replace(/^#/, "");
+	if (hex.length === 3) {
+		hex = hex.split("").map((c) => c + c).join("");
+	}
+	const num = parseInt(hex, 16);
+	return {
+		r: (num >> 16) & 255,
+		g: (num >> 8) & 255,
+		b: num & 255,
+	};
+};
+
 const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 	for (const element of elements) {
 		try {
 			if (element.type === "text") {
 				const textElement = element as TextElement;
+				const style = textElement.style || "normal";
+				
+				// Určenie font štýlu na základe text štýlu
+				let fontWeight = textElement.fontWeight || "normal";
+				let fontStyle = textElement.fontStyle || "normal";
+				
+				if (style === "bold") {
+					fontWeight = "bold";
+				} else if (style === "italic") {
+					fontStyle = "italic";
+				} else if (style === "underline") {
+					// Underline sa aplikuje nižšie
+				} else if (style.startsWith("h")) {
+					fontWeight = "bold";
+				}
+				
+				const fontStyleStr = getFontStyle(fontWeight, fontStyle);
 
-				const fontStyle = getFontStyle(
-					textElement.fontWeight,
-					textElement.fontStyle,
-				);
-
-				// Nastav font, ak nie je k dispozícii, použij Helvetica
 				try {
-					pdf.setFont(textElement.fontFamily || "Helvetica", fontStyle);
+					pdf.setFont(textElement.fontFamily || "Helvetica", fontStyleStr);
 				} catch {
-					pdf.setFont("Helvetica", fontStyle);
+					pdf.setFont("Helvetica", fontStyleStr);
 				}
 
-				const fontSize =
-					typeof textElement.fontSize === "string"
-						? Number.parseInt(textElement.fontSize, 10)
-						: textElement.fontSize || 12;
+				const fontSize = typeof textElement.fontSize === "string"
+					? parseInt(textElement.fontSize, 10)
+					: textElement.fontSize || 12;
 				pdf.setFontSize(fontSize);
 
-				// Nastav farbu textu
 				if (textElement.color) {
 					const color = hexToRgb(textElement.color);
 					pdf.setTextColor(color.r, color.g, color.b);
@@ -48,25 +71,68 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					pdf.setTextColor(0, 0, 0);
 				}
 
-				const lines = pdf.splitTextToSize(
-					textElement.content || "",
-					textElement.width || 200,
-				);
-				pdf.text(lines, element.x || 0, (element.y || 0) + fontSize);
+				const content = textElement.content || "";
+				const x = element.x || 0;
+				const y = element.y || 0;
+
+				// Špecifické vykreslenie pre rôzne štýly
+				if (style === "list" || style === "numbered") {
+					// Zoznam s bodkami alebo číslami
+					const lines = content.split('\n');
+					let currentY = y + fontSize;
+					
+					lines.forEach((line, index) => {
+						if (line.trim()) {
+							// Odstránime existujúce bodky/čísla ak sú v texte
+							const cleanLine = line.replace(/^[•\-\*]\s*/, '').replace(/^\d+\.\s*/, '');
+							
+							if (style === "list") {
+								// Bullet list
+								pdf.circle(x + 5, currentY - fontSize/3, 2, "F");
+								pdf.text(cleanLine, x + 15, currentY);
+							} else {
+								// Numbered list
+								pdf.text(`${index + 1}.`, x, currentY);
+								pdf.text(cleanLine, x + 20, currentY);
+							}
+							currentY += fontSize * 1.5;
+						}
+					});
+				} else if (style === "quote") {
+					// Citát s čiarou na ľavej strane
+					pdf.setDrawColor(100, 100, 100);
+					pdf.setLineWidth(3);
+					pdf.line(x, y, x, y + textElement.height);
+					
+					const lines = pdf.splitTextToSize(content, (textElement.width || 200) - 20);
+					pdf.text(lines, x + 15, y + fontSize);
+				} else if (style === "underline") {
+					// Podčiarknutý text
+					const lines = pdf.splitTextToSize(content, textElement.width || 200);
+					pdf.text(lines, x, y + fontSize);
+					
+					// Pridáme podčiarknutie
+					const textWidth = pdf.getTextWidth(content);
+					pdf.setDrawColor(0, 0, 0);
+					pdf.setLineWidth(0.5);
+					pdf.line(x, y + fontSize + 2, x + textWidth, y + fontSize + 2);
+				} else {
+					// Normálny text, nadpisy, paragraf
+					const lines = pdf.splitTextToSize(content, textElement.width || 200);
+					pdf.text(lines, x, y + fontSize);
+				}
+
 			} else if (element.type === "image") {
 				const imageElement = element as ImageElement;
-
-				// Skontroluj, či máme platný zdroj obrázka
 				if (!imageElement.src || imageElement.src.trim() === "") {
 					console.warn("Image element has no source");
 					continue;
 				}
 
 				try {
-					// Pokús sa pridať obrázok
 					pdf.addImage(
 						imageElement.src,
-						"PNG", // Použi PNG ako default
+						"PNG",
 						imageElement.x || 0,
 						imageElement.y || 0,
 						imageElement.width || 100,
@@ -74,367 +140,376 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					);
 				} catch (error) {
 					console.error("Failed to add image to PDF:", error);
-					// Nakresli placeholder
 					pdf.setDrawColor(200, 200, 200);
 					pdf.setFillColor(240, 240, 240);
-					pdf.rect(
-						imageElement.x || 0,
-						imageElement.y || 0,
-						imageElement.width || 100,
-						imageElement.height || 100,
-						"FD",
-					);
-					pdf.setFontSize(10);
-					pdf.setTextColor(150, 150, 150);
-					pdf.text(
-						"Image",
-						(imageElement.x || 0) + (imageElement.width || 100) / 2 - 10,
-						(imageElement.y || 0) + (imageElement.height || 100) / 2,
-					);
+					pdf.rect(imageElement.x || 0, imageElement.y || 0, imageElement.width || 100, imageElement.height || 100, "FD");
 				}
+
 			} else if (element.type === "shape") {
 				const shapeElement = element as ShapeElement;
-
 				pdf.saveGraphicsState();
 
-				// Použi fillColor alebo fill pre farbu výplne
-				const fillColor = shapeElement.fillColor || shapeElement.fill;
+				const fillColor = shapeElement.fillColor;
 				if (fillColor && fillColor !== "transparent") {
 					const rgb = hexToRgb(fillColor);
 					pdf.setFillColor(rgb.r, rgb.g, rgb.b);
 				}
 
-				// Použi strokeColor alebo stroke pre farbu čiary
-				const strokeColor = shapeElement.strokeColor || shapeElement.stroke;
+				const strokeColor = shapeElement.strokeColor;
 				if (strokeColor && strokeColor !== "transparent") {
 					const rgb = hexToRgb(strokeColor);
 					pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
 					pdf.setLineWidth(shapeElement.strokeWidth || 1);
 				}
 
-				const rotation = shapeElement.rotation || 0;
-				if (rotation !== 0) {
-					const angleInRadians = (rotation * Math.PI) / 180;
-					const cos = Math.cos(angleInRadians);
-					const sin = Math.sin(angleInRadians);
+				const x = shapeElement.x || 0;
+				const y = shapeElement.y || 0;
+				const w = shapeElement.width || 100;
+				const h = shapeElement.height || 100;
 
-					const centerX = shapeElement.x + shapeElement.width / 2;
-					const centerY = shapeElement.y + shapeElement.height / 2;
+				// Vykreslenie rôznych tvarov
+				switch (shapeElement.shapeType) {
+					case "rectangle":
+						if (fillColor && fillColor !== "transparent") {
+							pdf.rect(x, y, w, h, "F");
+						}
+						if (strokeColor && strokeColor !== "transparent") {
+							pdf.rect(x, y, w, h, "D");
+						}
+						break;
 
-					if (shapeElement.shapeType === "rectangle") {
-						const halfWidth = shapeElement.width / 2;
-						const halfHeight = shapeElement.height / 2;
+					case "circle":
+						const radius = w / 2;
+						const centerX = x + radius;
+						const centerY = y + radius;
+						if (fillColor && fillColor !== "transparent") {
+							pdf.circle(centerX, centerY, radius, "F");
+						}
+						if (strokeColor && strokeColor !== "transparent") {
+							pdf.circle(centerX, centerY, radius, "D");
+						}
+						break;
 
+					case "line":
+						if (strokeColor && strokeColor !== "transparent") {
+							pdf.setLineWidth(shapeElement.strokeWidth || 2);
+							pdf.line(x, y + h / 2, x + w, y + h / 2);
+						}
+						break;
+
+					case "triangle":
 						const points = [
-							[-halfWidth, -halfHeight],
-							[halfWidth, -halfHeight],
-							[halfWidth, halfHeight],
-							[-halfWidth, halfHeight],
+							[x + w / 2, y],
+							[x + w, y + h],
+							[x, y + h]
 						];
-
-						const rotatedPoints = points.map(([x, y]) => {
-							const rotX = x * cos - y * sin + centerX;
-							const rotY = x * sin + y * cos + centerY;
-							return [rotX, rotY];
-						});
-
 						if (fillColor && fillColor !== "transparent") {
-							for (let i = 0; i < rotatedPoints.length; i++) {
-								const p1 = rotatedPoints[i];
-								const p2 = rotatedPoints[(i + 1) % rotatedPoints.length];
-								pdf.triangle(centerX, centerY, p1[0], p1[1], p2[0], p2[1], "F");
-							}
+							pdf.triangle(points[0][0], points[0][1], points[1][0], points[1][1], points[2][0], points[2][1], "F");
 						}
-
 						if (strokeColor && strokeColor !== "transparent") {
-							for (let i = 0; i < rotatedPoints.length; i++) {
-								const p1 = rotatedPoints[i];
-								const p2 = rotatedPoints[(i + 1) % rotatedPoints.length];
-								pdf.line(p1[0], p1[1], p2[0], p2[1]);
-							}
+							pdf.line(points[0][0], points[0][1], points[1][0], points[1][1]);
+							pdf.line(points[1][0], points[1][1], points[2][0], points[2][1]);
+							pdf.line(points[2][0], points[2][1], points[0][0], points[0][1]);
 						}
-					} else if (shapeElement.shapeType === "circle") {
-						const radius = shapeElement.width / 2;
+						break;
 
+					case "arrow":
+						if (strokeColor && strokeColor !== "transparent") {
+							const arrowW = shapeElement.strokeWidth || 2;
+							pdf.setLineWidth(arrowW);
+							// Telo šípky
+							pdf.line(x, y + h / 2, x + w - 15, y + h / 2);
+							// Hrot šípky
+							pdf.line(x + w - 15, y + h / 2 - 10, x + w, y + h / 2);
+							pdf.line(x + w - 15, y + h / 2 + 10, x + w, y + h / 2);
+						}
+						break;
+
+					default:
+						// Pre ostatné tvary vykreslíme rectangle ako fallback
 						if (fillColor && fillColor !== "transparent") {
-							pdf.circle(centerX, centerY, radius, "F");
+							pdf.rect(x, y, w, h, "F");
 						}
-
 						if (strokeColor && strokeColor !== "transparent") {
-							pdf.circle(centerX, centerY, radius, "D");
+							pdf.rect(x, y, w, h, "D");
 						}
-					} else if (shapeElement.shapeType === "line") {
-						const halfLength = shapeElement.width / 2;
-						const x1 = centerX - halfLength * cos;
-						const y1 = centerY - halfLength * sin;
-						const x2 = centerX + halfLength * cos;
-						const y2 = centerY + halfLength * sin;
-
-						if (strokeColor && strokeColor !== "transparent") {
-							pdf.setLineWidth(
-								shapeElement.strokeWidth || shapeElement.height || 1,
-							);
-							pdf.line(x1, y1, x2, y2);
-						}
-					}
-				} else {
-					// Bez rotácie
-					if (shapeElement.shapeType === "rectangle") {
-						if (fillColor && fillColor !== "transparent") {
-							pdf.rect(
-								shapeElement.x,
-								shapeElement.y,
-								shapeElement.width,
-								shapeElement.height,
-								"F",
-							);
-						}
-
-						if (strokeColor && strokeColor !== "transparent") {
-							pdf.rect(
-								shapeElement.x,
-								shapeElement.y,
-								shapeElement.width,
-								shapeElement.height,
-								"D",
-							);
-						}
-					} else if (shapeElement.shapeType === "circle") {
-						const radius = shapeElement.width / 2;
-						const centerX = shapeElement.x + radius;
-						const centerY = shapeElement.y + radius;
-
-						if (fillColor && fillColor !== "transparent") {
-							pdf.circle(centerX, centerY, radius, "F");
-						}
-
-						if (strokeColor && strokeColor !== "transparent") {
-							pdf.circle(centerX, centerY, radius, "D");
-						}
-					} else if (shapeElement.shapeType === "line") {
-						if (strokeColor && strokeColor !== "transparent") {
-							pdf.setLineWidth(shapeElement.strokeWidth || 1);
-							pdf.line(
-								shapeElement.x,
-								shapeElement.y,
-								shapeElement.x + shapeElement.width,
-								shapeElement.y + (shapeElement.height || 0),
-							);
-						}
-					}
 				}
 
 				pdf.restoreGraphicsState();
+
 			} else if (element.type === "table") {
 				const tableElement = element as TableElement;
-				const {
-					x = 0,
-					y = 0,
-					width = 300,
-					height = 200,
-					rows = 2,
-					columns = 2,
-					data = { headers: [], rows: [] },
-					tableStyle = "simple",
-					headerType = "firstRow",
-				} = tableElement;
+				const { x = 0, y = 0, width = 300, height = 200, data = { headers: [], rows: [] } } = tableElement;
 
+				const columns = data.headers?.length || 2;
+				const rows = (data.rows?.length || 0) + 1; // +1 pre header
 				const cellWidth = width / columns;
 				const cellHeight = height / rows;
 
 				pdf.saveGraphicsState();
 
-				// Nastav farbu okrajov
+				// Ohraničenie tabuľky
 				if (tableElement.borderColor) {
 					const rgb = hexToRgb(tableElement.borderColor);
 					pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
-				} else {
-					pdf.setDrawColor(0, 0, 0);
 				}
 				pdf.setLineWidth(tableElement.borderWidth || 1);
 
-				// Priprav dátá pre tabuľku
-				const tableData =
-					data.rows || Array(rows).fill(Array(columns).fill(""));
-				const headers = data.headers || Array(columns).fill(`Header`);
-
-				for (let r = 0; r < rows; r++) {
-					const isHeader = headerType !== "none" && r === 0;
-					const rowY = y + r * cellHeight;
-
-					// Vyplň riadok
-					if (isHeader && tableElement.headerColor) {
+				// Header riadok
+				if (data.headers && data.headers.length > 0) {
+					if (tableElement.headerColor) {
 						const rgb = hexToRgb(tableElement.headerColor);
 						pdf.setFillColor(rgb.r, rgb.g, rgb.b);
-						pdf.rect(x, rowY, width, cellHeight, "F");
-					} else if (!isHeader) {
-						if (tableStyle === "striped" && r % 2 === 0) {
+						pdf.rect(x, y, width, cellHeight, "F");
+					}
+
+					pdf.setTextColor(255, 255, 255);
+					pdf.setFont("Helvetica", "bold");
+					pdf.setFontSize(10);
+
+					data.headers.forEach((header, col) => {
+						const cellX = x + col * cellWidth;
+						const text = pdf.splitTextToSize(header, cellWidth - 4);
+						pdf.text(text, cellX + 2, y + cellHeight / 2 + 3);
+						
+						// Vertikálne čiary
+						if (tableElement.style === "bordered") {
+							pdf.line(cellX, y, cellX, y + cellHeight);
+						}
+					});
+					
+					// Horizontálna čiara pod headerom
+					pdf.line(x, y + cellHeight, x + width, y + cellHeight);
+				}
+
+				// Dátové riadky
+				if (data.rows && data.rows.length > 0) {
+					pdf.setFont("Helvetica", "normal");
+					pdf.setTextColor(0, 0, 0);
+
+					data.rows.forEach((row, rowIndex) => {
+						const rowY = y + cellHeight * (rowIndex + 1);
+
+						// Pruhované pozadie
+						if (tableElement.style === "striped" && rowIndex % 2 === 1) {
 							pdf.setFillColor(245, 245, 245);
 							pdf.rect(x, rowY, width, cellHeight, "F");
-						} else if (tableElement.cellColor) {
-							const rgb = hexToRgb(tableElement.cellColor);
-							pdf.setFillColor(rgb.r, rgb.g, rgb.b);
-							pdf.rect(x, rowY, width, cellHeight, "F");
-						}
-					}
-
-					for (let c = 0; c < columns; c++) {
-						const cellX = x + c * cellWidth;
-
-						// Nakresli ohraničenie
-						if (tableStyle === "bordered") {
-							pdf.rect(cellX, rowY, cellWidth, cellHeight, "D");
 						}
 
-						// Získaj obsah bunky
-						let content = "";
-						if (isHeader && headers[c]) {
-							content = headers[c];
-						} else if (tableData[r] && tableData[r][c] !== undefined) {
-							content = String(tableData[r][c]);
-						}
+						row.forEach((cell, col) => {
+							const cellX = x + col * cellWidth;
+							const text = pdf.splitTextToSize(String(cell), cellWidth - 4);
+							pdf.text(text, cellX + 2, rowY + cellHeight / 2 + 3);
 
-						// Zobraz obsah
-						if (content) {
-							// Nastav farbu textu
-							if (tableElement.textColor) {
-								const rgb = hexToRgb(tableElement.textColor);
-								pdf.setTextColor(rgb.r, rgb.g, rgb.b);
-							} else {
-								pdf.setTextColor(0, 0, 0);
+							// Vertikálne čiary pre bordered štýl
+							if (tableElement.style === "bordered") {
+								pdf.line(cellX, rowY, cellX, rowY + cellHeight);
 							}
+						});
 
-							pdf.setFontSize(10);
-							if (isHeader) {
-								pdf.setFont("Helvetica", "bold");
-							} else {
-								pdf.setFont("Helvetica", "normal");
-							}
-
-							const textLines = pdf.splitTextToSize(content, cellWidth - 4);
-							const textX = cellX + 2;
-							const textY = rowY + cellHeight / 2 + 3;
-							pdf.text(textLines, textX, textY);
+						// Horizontálne čiary
+						if (tableElement.style === "bordered") {
+							pdf.line(x, rowY + cellHeight, x + width, rowY + cellHeight);
 						}
-					}
+					});
 				}
 
-				// Nakresli vonkajšie ohraničenie
-				if (tableStyle !== "bordered") {
-					pdf.rect(x, y, width, height, "D");
-				}
-
+				// Vonkajší rámec
+				pdf.rect(x, y, width, height, "D");
 				pdf.restoreGraphicsState();
-			} else if (element.type === "pencil") {
-				const pencilElement = element as any;
 
-				if (pencilElement.points && pencilElement.points.length > 1) {
-					const rgb = hexToRgb(pencilElement.color);
+			} else if (element.type === "drawing") {
+				const drawingElement = element as any;
+				if (drawingElement.paths && drawingElement.paths.length > 0) {
+					const rgb = hexToRgb(drawingElement.strokeColor || "#000000");
 					pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
-					pdf.setLineWidth(pencilElement.strokeWidth || 1);
+					pdf.setLineWidth(drawingElement.strokeWidth || 2);
 
-					for (let i = 1; i < pencilElement.points.length; i++) {
-						const prevPoint = pencilElement.points[i - 1];
-						const currentPoint = pencilElement.points[i];
+					drawingElement.paths.forEach((path: any) => {
+						if (path.points && path.points.length > 1) {
+							for (let i = 1; i < path.points.length; i++) {
+								const p1 = path.points[i - 1];
+								const p2 = path.points[i];
+								pdf.line(
+									(element.x || 0) + p1.x,
+									(element.y || 0) + p1.y,
+									(element.x || 0) + p2.x,
+									(element.y || 0) + p2.y
+								);
+							}
+						}
+					});
+				}
 
-						pdf.line(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
+			} else if (element.type === "qrcode") {
+				const qrcodeElement = element as any;
+				// QR kód vykreslíme ako placeholder, pretože jsPDF nepodporuje QR kódy natívne
+				pdf.setDrawColor(0, 0, 0);
+				pdf.setFillColor(255, 255, 255);
+				pdf.rect(qrcodeElement.x || 0, qrcodeElement.y || 0, qrcodeElement.width || 100, qrcodeElement.height || 100, "FD");
+				pdf.setFontSize(8);
+				pdf.setTextColor(100, 100, 100);
+				pdf.text("QR Code", (qrcodeElement.x || 0) + 10, (qrcodeElement.y || 0) + 50);
+				pdf.text(qrcodeElement.content || "", (qrcodeElement.x || 0) + 10, (qrcodeElement.y || 0) + 60);
+
+			} else if (element.type === "barcode") {
+				const barcodeElement = element as any;
+				// Barcode vykreslíme ako placeholder
+				pdf.setDrawColor(0, 0, 0);
+				pdf.setFillColor(255, 255, 255);
+				pdf.rect(barcodeElement.x || 0, barcodeElement.y || 0, barcodeElement.width || 200, barcodeElement.height || 80, "FD");
+				
+				// Simulácia čiarového kódu
+				const barWidth = (barcodeElement.width || 200) / 12;
+				for (let i = 0; i < 12; i++) {
+					if (i % 2 === 0) {
+						pdf.setFillColor(0, 0, 0);
+						pdf.rect((barcodeElement.x || 0) + i * barWidth, (barcodeElement.y || 0) + 10, barWidth * 0.8, (barcodeElement.height || 80) - 30, "F");
 					}
 				}
+				
+				pdf.setFontSize(10);
+				pdf.setTextColor(0, 0, 0);
+				pdf.text(barcodeElement.value || "", (barcodeElement.x || 0) + 10, (barcodeElement.y || 0) + (barcodeElement.height || 80) - 5);
+
+			} else if (element.type === "signature") {
+				const signatureElement = element as any;
+				pdf.setDrawColor(200, 200, 200);
+				pdf.setLineWidth(1);
+				pdf.line(
+					signatureElement.x || 0,
+					(signatureElement.y || 0) + (signatureElement.height || 100) - 5,
+					(signatureElement.x || 0) + (signatureElement.width || 200),
+					(signatureElement.y || 0) + (signatureElement.height || 100) - 5
+				);
+				pdf.setFontSize(10);
+				pdf.setTextColor(150, 150, 150);
+				pdf.text(
+					signatureElement.placeholder || "Sign here",
+					(signatureElement.x || 0) + 10,
+					(signatureElement.y || 0) + (signatureElement.height || 100) / 2
+				);
+
+			} else if (element.type === "divider") {
+				const dividerElement = element as any;
+				const rgb = hexToRgb(dividerElement.color || "#d1d5db");
+				pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
+				pdf.setLineWidth(dividerElement.thickness || 1);
+				
+				if (dividerElement.style === "dashed") {
+					pdf.setLineDash([5, 5]);
+				} else if (dividerElement.style === "dotted") {
+					pdf.setLineDash([1, 3]);
+				}
+				
+				pdf.line(
+					dividerElement.x || 0,
+					(dividerElement.y || 0) + (dividerElement.height || 2) / 2,
+					(dividerElement.x || 0) + (dividerElement.width || 400),
+					(dividerElement.y || 0) + (dividerElement.height || 2) / 2
+				);
+				
+				pdf.setLineDash([]);
+
+			} else if (element.type === "form") {
+				const formElement = element as any;
+				
+				// Label
+				pdf.setFontSize(10);
+				pdf.setTextColor(0, 0, 0);
+				pdf.text(formElement.label || "", formElement.x || 0, (formElement.y || 0) - 5);
+				
+				// Pole
+				pdf.setDrawColor(200, 200, 200);
+				pdf.setFillColor(255, 255, 255);
+				pdf.rect(
+					formElement.x || 0,
+					formElement.y || 0,
+					formElement.width || 200,
+					formElement.height || 40,
+					"FD"
+				);
+				
+				// Placeholder text
+				pdf.setFontSize(9);
+				pdf.setTextColor(150, 150, 150);
+				pdf.text(
+					formElement.placeholder || "",
+					(formElement.x || 0) + 5,
+					(formElement.y || 0) + 20
+				);
+
+			} else if (element.type === "code") {
+				const codeElement = element as any;
+				
+				// Pozadie kódu
+				pdf.setFillColor(30, 41, 59);
+				pdf.rect(
+					codeElement.x || 0,
+					codeElement.y || 0,
+					codeElement.width || 400,
+					codeElement.height || 200,
+					"F"
+				);
+				
+				// Text kódu
+				pdf.setFontSize(codeElement.fontSize || 10);
+				pdf.setFont("Courier", "normal");
+				pdf.setTextColor(203, 213, 225);
+				
+				const lines = (codeElement.content || "").split("\n");
+				lines.forEach((line: string, index: number) => {
+					pdf.text(
+						line,
+						(codeElement.x || 0) + 10,
+						(codeElement.y || 0) + 20 + index * (codeElement.fontSize || 10) * 1.5
+					);
+				});
+
 			} else if (element.type === "chart") {
 				const chartElement = element as ChartElement;
-				const {
-					x = 0,
-					y = 0,
-					width = 300,
-					height = 200,
-					chartType = "bar",
-					data,
-					seriesColors = [
-						"#3b82f6",
-						"#10b981",
-						"#f59e0b",
-						"#ef4444",
-						"#8b5cf6",
-					],
-				} = chartElement;
+				const { x = 0, y = 0, width = 300, height = 200 } = chartElement;
 
 				pdf.saveGraphicsState();
 
 				// Pozadie grafu
-				if (
-					chartElement.backgroundColor &&
-					chartElement.backgroundColor !== "transparent"
-				) {
+				if (chartElement.backgroundColor && chartElement.backgroundColor !== "transparent") {
 					const rgb = hexToRgb(chartElement.backgroundColor);
 					pdf.setFillColor(rgb.r, rgb.g, rgb.b);
 					pdf.rect(x, y, width, height, "F");
+				}
+
+				// Titulok
+				if (chartElement.title) {
+					pdf.setFontSize(12);
+					pdf.setFont("Helvetica", "bold");
+					pdf.setTextColor(0, 0, 0);
+					pdf.text(chartElement.title, x + width / 2, y + 15, { align: "center" });
 				}
 
 				const padding = 40;
 				const innerWidth = width - padding * 2;
 				const innerHeight = height - padding * 2;
 
-				// Konvertuj dáta do spoločného formátu
-				let chartData: Array<{
-					value: number;
-					label?: string;
-					color?: string;
-				}> = [];
+				// Spracovanie dát
+				let chartData: Array<{ value: number; label?: string; color?: string }> = [];
+				const seriesColors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-				if (Array.isArray(data)) {
-					chartData = data;
-				} else if (data && "datasets" in data && data.datasets.length > 0) {
-					// Konvertuj nový formát na starý
-					const dataset = data.datasets[0];
-					chartData = dataset.data.map((value, index) => ({
-						value,
-						label: data.labels?.[index] || `Item ${index + 1}`,
-						color:
-							dataset.backgroundColor ||
-							seriesColors[index % seriesColors.length],
+				if (chartElement.data && "datasets" in chartElement.data && chartElement.data.datasets.length > 0) {
+					const dataset = chartElement.data.datasets[0];
+					chartData = dataset.data.map((value: any, index: number) => ({
+						value: typeof value === "object" ? value.y : value,
+						label: chartElement.data.labels?.[index] || `Item ${index + 1}`,
+						color: Array.isArray(dataset.backgroundColor)
+							? dataset.backgroundColor[index]
+							: dataset.backgroundColor || seriesColors[index % seriesColors.length],
 					}));
 				}
 
-				const maxValue =
-					chartData.length > 0
-						? Math.max(...chartData.map((d) => d.value || 0), 10)
-						: 100;
+				const maxValue = chartData.length > 0 ? Math.max(...chartData.map((d) => d.value || 0), 10) : 100;
 
-				// Mriežka a osi
-				if (chartType !== "pie") {
-					if (chartElement.showGrid) {
-						const gridColor = chartElement.gridColor || "#e5e7eb";
-						const rgb = hexToRgb(gridColor);
-						pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
-						pdf.setLineWidth(0.5);
-						for (let i = 0; i <= 5; i++) {
-							const gridY = y + padding + (i * innerHeight) / 5;
-							pdf.line(x + padding, gridY, x + width - padding, gridY);
-						}
-					}
-
-					if (chartElement.showAxes !== false) {
-						const axesColor = chartElement.axesColor || "#9ca3af";
-						const rgb = hexToRgb(axesColor);
-						pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
-						pdf.setLineWidth(1);
-						pdf.line(
-							x + padding,
-							y + padding,
-							x + padding,
-							y + height - padding,
-						);
-						pdf.line(
-							x + padding,
-							y + height - padding,
-							x + width - padding,
-							y + height - padding,
-						);
-					}
-				}
-
-				// Nakresli graf podľa typu
-				if (chartType === "bar") {
+				// Vykreslenie grafu podľa typu
+				if (chartElement.chartType === "bar") {
 					const barWidth = innerWidth / chartData.length;
 					chartData.forEach((d, i) => {
 						const barHeight = ((d.value || 0) / maxValue) * innerHeight;
@@ -442,81 +517,46 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 						const barY = y + height - padding - barHeight;
 						const color = d.color || seriesColors[i % seriesColors.length];
 						const rgb = hexToRgb(color);
-
 						pdf.setFillColor(rgb.r, rgb.g, rgb.b);
 						pdf.rect(barX, barY, barWidth * 0.8, barHeight, "F");
 					});
-				} else if (chartType === "line") {
-					if (chartData.length > 1) {
-						const step = innerWidth / (chartData.length - 1);
-						const primaryColor = seriesColors[0];
-						const rgb = hexToRgb(primaryColor);
+				} else if (chartElement.chartType === "line" && chartData.length > 1) {
+					const step = innerWidth / (chartData.length - 1);
+					const rgb = hexToRgb(seriesColors[0]);
+					pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
+					pdf.setLineWidth(2);
 
-						pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
-						pdf.setLineWidth(2);
-
-						for (let i = 1; i < chartData.length; i++) {
-							const x1 = x + padding + (i - 1) * step;
-							const y1 =
-								y +
-								height -
-								padding -
-								((chartData[i - 1].value || 0) / maxValue) * innerHeight;
-							const x2 = x + padding + i * step;
-							const y2 =
-								y +
-								height -
-								padding -
-								((chartData[i].value || 0) / maxValue) * innerHeight;
-							pdf.line(x1, y1, x2, y2);
-						}
-
-						// Bodky
-						chartData.forEach((d, i) => {
-							const pX = x + padding + i * step;
-							const pY =
-								y +
-								height -
-								padding -
-								((d.value || 0) / maxValue) * innerHeight;
-							const color = d.color || seriesColors[0];
-							const rgb = hexToRgb(color);
-
-							pdf.setFillColor(rgb.r, rgb.g, rgb.b);
-							pdf.circle(pX, pY, 3, "F");
-						});
+					for (let i = 1; i < chartData.length; i++) {
+						const x1 = x + padding + (i - 1) * step;
+						const y1 = y + height - padding - ((chartData[i - 1].value || 0) / maxValue) * innerHeight;
+						const x2 = x + padding + i * step;
+						const y2 = y + height - padding - ((chartData[i].value || 0) / maxValue) * innerHeight;
+						pdf.line(x1, y1, x2, y2);
 					}
-				} else if (chartType === "pie") {
+				} else if (chartElement.chartType === "pie") {
 					const total = chartData.reduce((sum, d) => sum + (d.value || 0), 0);
 					if (total > 0) {
 						const centerX = x + width / 2;
-						const centerY = y + height / 2;
-						const radius = Math.min(innerWidth, innerHeight) / 2;
+						const centerY = y + height / 2 + 10;
+						const radius = Math.min(innerWidth, innerHeight - 20) / 2;
 						let startAngle = 0;
 
 						chartData.forEach((d, i) => {
 							const sliceAngle = ((d.value || 0) / total) * 360;
 							const color = d.color || seriesColors[i % seriesColors.length];
 							const rgb = hexToRgb(color);
-
 							pdf.setFillColor(rgb.r, rgb.g, rgb.b);
 
 							const segments = Math.max(2, Math.floor(sliceAngle / 5));
 							for (let s = 0; s < segments; s++) {
-								const a1 =
-									((startAngle + (s * sliceAngle) / segments) * Math.PI) / 180;
-								const a2 =
-									((startAngle + ((s + 1) * sliceAngle) / segments) * Math.PI) /
-									180;
-
+								const a1 = ((startAngle + (s * sliceAngle) / segments) * Math.PI) / 180;
+								const a2 = ((startAngle + ((s + 1) * sliceAngle) / segments) * Math.PI) / 180;
 								const x1 = centerX + radius * Math.cos(a1);
 								const y1 = centerY + radius * Math.sin(a1);
 								const x2 = centerX + radius * Math.cos(a2);
 								const y2 = centerY + radius * Math.sin(a2);
-
 								pdf.triangle(centerX, centerY, x1, y1, x2, y2, "F");
 							}
-
 							startAngle += sliceAngle;
 						});
 					}
@@ -526,31 +566,8 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 			}
 		} catch (error) {
 			console.error(`Error adding element ${element.type} to PDF:`, error);
-			// Pokračuj s ďalšími elementami
 		}
 	}
-};
-
-// Pomocná funkcia na konverziu hex farby na RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-	// Odstráň # ak existuje
-	hex = hex.replace(/^#/, "");
-
-	// Konvertuj 3-digit hex na 6-digit
-	if (hex.length === 3) {
-		hex = hex
-			.split("")
-			.map((c) => c + c)
-			.join("");
-	}
-
-	// Konvertuj 6-digit hex na RGB
-	const num = Number.parseInt(hex, 16);
-	return {
-		r: (num >> 16) & 255,
-		g: (num >> 8) & 255,
-		b: num & 255,
-	};
 };
 
 export const generatePDF = async (
@@ -559,28 +576,15 @@ export const generatePDF = async (
 ) => {
 	let format: string | [number, number] = "a4";
 
-	// Nastav formát podľa pageSize
-	if (
-		["a3", "a4", "a5", "letter", "legal", "tabloid", "executive"].includes(
-			document.pageSize,
-		)
-	) {
+	if (["a3", "a4", "a5", "letter", "legal", "tabloid", "executive"].includes(document.pageSize)) {
 		format = document.pageSize;
-	} else if (
-		document.pageSize === "custom" &&
-		document.customWidth &&
-		document.customHeight
-	) {
-		const width = document.customWidth * 2.83465; // Konvertuj mm na points (1 mm = 2.83465 points)
+	} else if (document.pageSize === "custom" && document.customWidth && document.customHeight) {
+		const width = document.customWidth * 2.83465;
 		const height = document.customHeight * 2.83465;
 		format = [width, height];
-	} else {
-		// Default na A4
-		format = "a4";
 	}
 
 	const orientation = document.orientation === "portrait" ? "p" : "l";
-
 	const pdf = new jsPDF({
 		orientation,
 		unit: "pt",
@@ -588,7 +592,6 @@ export const generatePDF = async (
 		compress: options.compress,
 	});
 
-	// Nastav metadáta PDF
 	pdf.setProperties({
 		title: document.title || "Untitled Document",
 		subject: "Created with PDF Crafter",
@@ -596,19 +599,13 @@ export const generatePDF = async (
 		author: document.metadata?.author || "PDF Crafter User",
 	});
 
-	// Pridaj elementy z každej stránky
 	document.pages.forEach((page, index) => {
 		if (index > 0) {
 			pdf.addPage(format, orientation);
 		}
-
 		addPageElementsToPDF(pdf, page.elements || []);
 	});
 
-	// Ulož PDF
-	const fileName =
-		(document.title || "document")
-			.replace(/[^\w\s]/gi, "_")
-			.replace(/\s+/g, "_") + ".pdf";
+	const fileName = (document.title || "document").replace(/[^\w\s]/gi, "_").replace(/\s+/g, "_") + ".pdf";
 	pdf.save(fileName);
 };

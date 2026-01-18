@@ -37,7 +37,7 @@ export const PencilColorPicker: FC<DrawingToolColorPickerProps> = ({
 
 	return (
 		<div
-			className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg p-4 flex flex-col items-center space-y-4 z-50"
+			className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-lg rounded-lg p-4 flex flex-col items-center space-y-4 z-50"
 			onClick={handleClick}
 			onMouseDown={(e) => e.stopPropagation()}
 		>
@@ -46,11 +46,10 @@ export const PencilColorPicker: FC<DrawingToolColorPickerProps> = ({
 				{predefinedColors.map((presetColor) => (
 					<button
 						key={presetColor}
-						className={`w-8 h-8 rounded-full border ${
-							color === presetColor
+						className={`w-8 h-8 rounded-full border ${color === presetColor
 								? "ring-2 ring-offset-2 ring-editor-primary"
-								: "border-gray-300"
-						}`}
+								: "border-gray-300 dark:border-gray-700"
+							}`}
 						style={{ backgroundColor: presetColor }}
 						onClick={(e) => {
 							e.stopPropagation();
@@ -64,18 +63,17 @@ export const PencilColorPicker: FC<DrawingToolColorPickerProps> = ({
 				{strokeWidths.map((width) => (
 					<button
 						key={width}
-						className={`w-8 h-8 rounded-full border flex items-center justify-center ${
-							strokeWidth === width
+						className={`w-8 h-8 rounded-full border flex items-center justify-center ${strokeWidth === width
 								? "ring-2 ring-offset-2 ring-editor-primary"
-								: "border-gray-300"
-						}`}
+								: "border-gray-300 dark:border-gray-700"
+							}`}
 						onClick={(e) => {
 							e.stopPropagation();
 							onStrokeWidthChange(width);
 						}}
 					>
 						<div
-							className="bg-black rounded-full"
+							className="bg-black dark:bg-white rounded-full"
 							style={{
 								width: `${width * 2}px`,
 								height: `${width * 2}px`,

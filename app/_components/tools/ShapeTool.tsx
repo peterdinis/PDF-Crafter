@@ -63,6 +63,94 @@ export const ShapeTool: FC<ShapeToolProps> = ({
 					}}
 				/>
 			);
+		} else if (shapeType === "triangle") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="50,5 95,95 5,95"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "diamond") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="50,5 95,50 50,95 5,50"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "star") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<path
+						d="M50,5 L63,35 L95,35 L70,55 L80,85 L50,65 L20,85 L30,55 L5,35 L37,35 Z"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "arrow") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 60" preserveAspectRatio="none">
+					<path
+						d="M5,20 L65,20 L65,5 L95,30 L65,55 L65,40 L5,40 Z"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "heart") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<path
+						d="M50,85 C50,85 10,60 10,35 C10,15 25,5 40,5 C50,5 50,15 50,15 C50,15 50,5 60,5 C75,5 90,15 90,35 C90,60 50,85 50,85"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "hexagon") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+					<polygon
+						points="50,5 95,27 95,73 50,95 5,73 5,27"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "cloud") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 60" preserveAspectRatio="none">
+					<path
+						d="M25,50 C15,50 5,42 5,32 C5,22 12,15 20,15 C22,8 30,5 40,5 C55,5 65,15 65,15 C70,10 80,10 85,18 C92,20 95,25 95,35 C95,45 85,50 75,50 Z"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
+		} else if (shapeType === "speech_bubble") {
+			return (
+				<svg width="100%" height="100%" viewBox="0 0 100 80" preserveAspectRatio="none">
+					<path
+						d="M5,5 L95,5 L95,55 L70,55 L60,75 L50,55 L5,55 Z"
+						fill={fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+					/>
+				</svg>
+			);
 		}
 
 		return null;
