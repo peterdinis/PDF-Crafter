@@ -230,8 +230,17 @@ export const TextEditor: FC<TextEditorProps> = ({
 							fontSize: `${element.fontSize}px`,
 							fontFamily: element.fontFamily,
 							fontWeight: element.fontWeight,
-							fontStyle: element.fontStyle === "underline" || element.fontStyle === "strikethrough" ? "normal" : element.fontStyle,
-							textDecoration: element.fontStyle === "underline" ? "underline" : element.fontStyle === "strikethrough" ? "line-through" : "none",
+							fontStyle:
+								element.fontStyle === "underline" ||
+								element.fontStyle === "strikethrough"
+									? "normal"
+									: element.fontStyle,
+							textDecoration:
+								element.fontStyle === "underline"
+									? "underline"
+									: element.fontStyle === "strikethrough"
+										? "line-through"
+										: "none",
 							color: element.color,
 							width: "100%",
 							minHeight: `${element.height}px`,
@@ -366,8 +375,17 @@ export const TextEditor: FC<TextEditorProps> = ({
 							fontSize: `${element.fontSize}px`,
 							fontFamily: element.fontFamily,
 							fontWeight: element.fontWeight,
-							fontStyle: element.fontStyle === "underline" || element.fontStyle === "strikethrough" ? "normal" : element.fontStyle,
-							textDecoration: element.fontStyle === "underline" ? "underline" : element.fontStyle === "strikethrough" ? "line-through" : "none",
+							fontStyle:
+								element.fontStyle === "underline" ||
+								element.fontStyle === "strikethrough"
+									? "normal"
+									: element.fontStyle,
+							textDecoration:
+								element.fontStyle === "underline"
+									? "underline"
+									: element.fontStyle === "strikethrough"
+										? "line-through"
+										: "none",
 							color: element.color,
 						}}
 						className={cn(

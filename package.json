@@ -6,7 +6,9 @@
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
-		"format": "pnpm biome check --write ."
+		"format": "bunx @biomejs/biome check --write .",
+		"lint": "bunx @biomejs/biome lint --write .",
+		"type-check": "bunx tsc --noEmit"
 	},
 	"dependencies": {
 		"@radix-ui/react-alert-dialog": "^1.1.15",

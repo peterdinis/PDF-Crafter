@@ -20,9 +20,12 @@ const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
 	if (!hex || hex === "transparent") return { r: 0, g: 0, b: 0 };
 	hex = hex.replace(/^#/, "");
 	if (hex.length === 3) {
-		hex = hex.split("").map((c) => c + c).join("");
+		hex = hex
+			.split("")
+			.map((c) => c + c)
+			.join("");
 	}
-	const num = parseInt(hex, 16);
+	const num = Number.parseInt(hex, 16);
 	return {
 		r: (num >> 16) & 255,
 		g: (num >> 8) & 255,
@@ -36,11 +39,11 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 			if (element.type === "text") {
 				const textElement = element as TextElement;
 				const style = textElement.style || "normal";
-				
+
 				// Určenie font štýlu na základe text štýlu
 				let fontWeight = textElement.fontWeight || "normal";
 				let fontStyle = textElement.fontStyle || "normal";
-				
+
 				if (style === "bold") {
 					fontWeight = "bold";
 				} else if (style === "italic") {
@@ -50,7 +53,7 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				} else if (style.startsWith("h")) {
 					fontWeight = "bold";
 				}
-				
+
 				const fontStyleStr = getFontStyle(fontWeight, fontStyle);
 
 				try {
@@ -59,9 +62,10 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					pdf.setFont("Helvetica", fontStyleStr);
 				}
 
-				const fontSize = typeof textElement.fontSize === "string"
-					? parseInt(textElement.fontSize, 10)
-					: textElement.fontSize || 12;
+				const fontSize =
+					typeof textElement.fontSize === "string"
+						? Number.parseInt(textElement.fontSize, 10)
+						: textElement.fontSize || 12;
 				pdf.setFontSize(fontSize);
 
 				if (textElement.color) {
@@ -78,17 +82,19 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				// Špecifické vykreslenie pre rôzne štýly
 				if (style === "list" || style === "numbered") {
 					// Zoznam s bodkami alebo číslami
-					const lines = content.split('\n');
+					const lines = content.split("\n");
 					let currentY = y + fontSize;
-					
+
 					lines.forEach((line, index) => {
 						if (line.trim()) {
 							// Odstránime existujúce bodky/čísla ak sú v texte
-							const cleanLine = line.replace(/^[•\-\*]\s*/, '').replace(/^\d+\.\s*/, '');
-							
+							const cleanLine = line
+								.replace(/^[•\-\*]\s*/, "")
+								.replace(/^\d+\.\s*/, "");
+
 							if (style === "list") {
 								// Bullet list
-								pdf.circle(x + 5, currentY - fontSize/3, 2, "F");
+								pdf.circle(x + 5, currentY - fontSize / 3, 2, "F");
 								pdf.text(cleanLine, x + 15, currentY);
 							} else {
 								// Numbered list
@@ -103,14 +109,17 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					pdf.setDrawColor(100, 100, 100);
 					pdf.setLineWidth(3);
 					pdf.line(x, y, x, y + textElement.height);
-					
-					const lines = pdf.splitTextToSize(content, (textElement.width || 200) - 20);
+
+					const lines = pdf.splitTextToSize(
+						content,
+						(textElement.width || 200) - 20,
+					);
 					pdf.text(lines, x + 15, y + fontSize);
 				} else if (style === "underline") {
 					// Podčiarknutý text
 					const lines = pdf.splitTextToSize(content, textElement.width || 200);
 					pdf.text(lines, x, y + fontSize);
-					
+
 					// Pridáme podčiarknutie
 					const textWidth = pdf.getTextWidth(content);
 					pdf.setDrawColor(0, 0, 0);
@@ -121,7 +130,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					const lines = pdf.splitTextToSize(content, textElement.width || 200);
 					pdf.text(lines, x, y + fontSize);
 				}
-
 			} else if (element.type === "image") {
 				const imageElement = element as ImageElement;
 				if (!imageElement.src || imageElement.src.trim() === "") {
@@ -142,9 +150,14 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					console.error("Failed to add image to PDF:", error);
 					pdf.setDrawColor(200, 200, 200);
 					pdf.setFillColor(240, 240, 240);
-					pdf.rect(imageElement.x || 0, imageElement.y || 0, imageElement.width || 100, imageElement.height || 100, "FD");
+					pdf.rect(
+						imageElement.x || 0,
+						imageElement.y || 0,
+						imageElement.width || 100,
+						imageElement.height || 100,
+						"FD",
+					);
 				}
-
 			} else if (element.type === "shape") {
 				const shapeElement = element as ShapeElement;
 				pdf.saveGraphicsState();
@@ -201,10 +214,18 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 						const points = [
 							[x + w / 2, y],
 							[x + w, y + h],
-							[x, y + h]
+							[x, y + h],
 						];
 						if (fillColor && fillColor !== "transparent") {
-							pdf.triangle(points[0][0], points[0][1], points[1][0], points[1][1], points[2][0], points[2][1], "F");
+							pdf.triangle(
+								points[0][0],
+								points[0][1],
+								points[1][0],
+								points[1][1],
+								points[2][0],
+								points[2][1],
+								"F",
+							);
 						}
 						if (strokeColor && strokeColor !== "transparent") {
 							pdf.line(points[0][0], points[0][1], points[1][0], points[1][1]);
@@ -236,10 +257,15 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				}
 
 				pdf.restoreGraphicsState();
-
 			} else if (element.type === "table") {
 				const tableElement = element as TableElement;
-				const { x = 0, y = 0, width = 300, height = 200, data = { headers: [], rows: [] } } = tableElement;
+				const {
+					x = 0,
+					y = 0,
+					width = 300,
+					height = 200,
+					data = { headers: [], rows: [] },
+				} = tableElement;
 
 				const columns = data.headers?.length || 2;
 				const rows = (data.rows?.length || 0) + 1; // +1 pre header
@@ -271,13 +297,13 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 						const cellX = x + col * cellWidth;
 						const text = pdf.splitTextToSize(header, cellWidth - 4);
 						pdf.text(text, cellX + 2, y + cellHeight / 2 + 3);
-						
+
 						// Vertikálne čiary
 						if (tableElement.style === "bordered") {
 							pdf.line(cellX, y, cellX, y + cellHeight);
 						}
 					});
-					
+
 					// Horizontálna čiara pod headerom
 					pdf.line(x, y + cellHeight, x + width, y + cellHeight);
 				}
@@ -317,7 +343,6 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				// Vonkajší rámec
 				pdf.rect(x, y, width, height, "D");
 				pdf.restoreGraphicsState();
-
 			} else if (element.type === "drawing") {
 				const drawingElement = element as any;
 				if (drawingElement.paths && drawingElement.paths.length > 0) {
@@ -334,44 +359,71 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 									(element.x || 0) + p1.x,
 									(element.y || 0) + p1.y,
 									(element.x || 0) + p2.x,
-									(element.y || 0) + p2.y
+									(element.y || 0) + p2.y,
 								);
 							}
 						}
 					});
 				}
-
 			} else if (element.type === "qrcode") {
 				const qrcodeElement = element as any;
 				// QR kód vykreslíme ako placeholder, pretože jsPDF nepodporuje QR kódy natívne
 				pdf.setDrawColor(0, 0, 0);
 				pdf.setFillColor(255, 255, 255);
-				pdf.rect(qrcodeElement.x || 0, qrcodeElement.y || 0, qrcodeElement.width || 100, qrcodeElement.height || 100, "FD");
+				pdf.rect(
+					qrcodeElement.x || 0,
+					qrcodeElement.y || 0,
+					qrcodeElement.width || 100,
+					qrcodeElement.height || 100,
+					"FD",
+				);
 				pdf.setFontSize(8);
 				pdf.setTextColor(100, 100, 100);
-				pdf.text("QR Code", (qrcodeElement.x || 0) + 10, (qrcodeElement.y || 0) + 50);
-				pdf.text(qrcodeElement.content || "", (qrcodeElement.x || 0) + 10, (qrcodeElement.y || 0) + 60);
-
+				pdf.text(
+					"QR Code",
+					(qrcodeElement.x || 0) + 10,
+					(qrcodeElement.y || 0) + 50,
+				);
+				pdf.text(
+					qrcodeElement.content || "",
+					(qrcodeElement.x || 0) + 10,
+					(qrcodeElement.y || 0) + 60,
+				);
 			} else if (element.type === "barcode") {
 				const barcodeElement = element as any;
 				// Barcode vykreslíme ako placeholder
 				pdf.setDrawColor(0, 0, 0);
 				pdf.setFillColor(255, 255, 255);
-				pdf.rect(barcodeElement.x || 0, barcodeElement.y || 0, barcodeElement.width || 200, barcodeElement.height || 80, "FD");
-				
+				pdf.rect(
+					barcodeElement.x || 0,
+					barcodeElement.y || 0,
+					barcodeElement.width || 200,
+					barcodeElement.height || 80,
+					"FD",
+				);
+
 				// Simulácia čiarového kódu
 				const barWidth = (barcodeElement.width || 200) / 12;
 				for (let i = 0; i < 12; i++) {
 					if (i % 2 === 0) {
 						pdf.setFillColor(0, 0, 0);
-						pdf.rect((barcodeElement.x || 0) + i * barWidth, (barcodeElement.y || 0) + 10, barWidth * 0.8, (barcodeElement.height || 80) - 30, "F");
+						pdf.rect(
+							(barcodeElement.x || 0) + i * barWidth,
+							(barcodeElement.y || 0) + 10,
+							barWidth * 0.8,
+							(barcodeElement.height || 80) - 30,
+							"F",
+						);
 					}
 				}
-				
+
 				pdf.setFontSize(10);
 				pdf.setTextColor(0, 0, 0);
-				pdf.text(barcodeElement.value || "", (barcodeElement.x || 0) + 10, (barcodeElement.y || 0) + (barcodeElement.height || 80) - 5);
-
+				pdf.text(
+					barcodeElement.value || "",
+					(barcodeElement.x || 0) + 10,
+					(barcodeElement.y || 0) + (barcodeElement.height || 80) - 5,
+				);
 			} else if (element.type === "signature") {
 				const signatureElement = element as any;
 				pdf.setDrawColor(200, 200, 200);
@@ -380,45 +432,47 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					signatureElement.x || 0,
 					(signatureElement.y || 0) + (signatureElement.height || 100) - 5,
 					(signatureElement.x || 0) + (signatureElement.width || 200),
-					(signatureElement.y || 0) + (signatureElement.height || 100) - 5
+					(signatureElement.y || 0) + (signatureElement.height || 100) - 5,
 				);
 				pdf.setFontSize(10);
 				pdf.setTextColor(150, 150, 150);
 				pdf.text(
 					signatureElement.placeholder || "Sign here",
 					(signatureElement.x || 0) + 10,
-					(signatureElement.y || 0) + (signatureElement.height || 100) / 2
+					(signatureElement.y || 0) + (signatureElement.height || 100) / 2,
 				);
-
 			} else if (element.type === "divider") {
 				const dividerElement = element as any;
 				const rgb = hexToRgb(dividerElement.color || "#d1d5db");
 				pdf.setDrawColor(rgb.r, rgb.g, rgb.b);
 				pdf.setLineWidth(dividerElement.thickness || 1);
-				
+
 				if (dividerElement.style === "dashed") {
 					pdf.setLineDash([5, 5]);
 				} else if (dividerElement.style === "dotted") {
 					pdf.setLineDash([1, 3]);
 				}
-				
+
 				pdf.line(
 					dividerElement.x || 0,
 					(dividerElement.y || 0) + (dividerElement.height || 2) / 2,
 					(dividerElement.x || 0) + (dividerElement.width || 400),
-					(dividerElement.y || 0) + (dividerElement.height || 2) / 2
+					(dividerElement.y || 0) + (dividerElement.height || 2) / 2,
 				);
-				
-				pdf.setLineDash([]);
 
+				pdf.setLineDash([]);
 			} else if (element.type === "form") {
 				const formElement = element as any;
-				
+
 				// Label
 				pdf.setFontSize(10);
 				pdf.setTextColor(0, 0, 0);
-				pdf.text(formElement.label || "", formElement.x || 0, (formElement.y || 0) - 5);
-				
+				pdf.text(
+					formElement.label || "",
+					formElement.x || 0,
+					(formElement.y || 0) - 5,
+				);
+
 				// Pole
 				pdf.setDrawColor(200, 200, 200);
 				pdf.setFillColor(255, 255, 255);
@@ -427,21 +481,20 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					formElement.y || 0,
 					formElement.width || 200,
 					formElement.height || 40,
-					"FD"
+					"FD",
 				);
-				
+
 				// Placeholder text
 				pdf.setFontSize(9);
 				pdf.setTextColor(150, 150, 150);
 				pdf.text(
 					formElement.placeholder || "",
 					(formElement.x || 0) + 5,
-					(formElement.y || 0) + 20
+					(formElement.y || 0) + 20,
 				);
-
 			} else if (element.type === "code") {
 				const codeElement = element as any;
-				
+
 				// Pozadie kódu
 				pdf.setFillColor(30, 41, 59);
 				pdf.rect(
@@ -449,23 +502,24 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					codeElement.y || 0,
 					codeElement.width || 400,
 					codeElement.height || 200,
-					"F"
+					"F",
 				);
-				
+
 				// Text kódu
 				pdf.setFontSize(codeElement.fontSize || 10);
 				pdf.setFont("Courier", "normal");
 				pdf.setTextColor(203, 213, 225);
-				
+
 				const lines = (codeElement.content || "").split("\n");
 				lines.forEach((line: string, index: number) => {
 					pdf.text(
 						line,
 						(codeElement.x || 0) + 10,
-						(codeElement.y || 0) + 20 + index * (codeElement.fontSize || 10) * 1.5
+						(codeElement.y || 0) +
+							20 +
+							index * (codeElement.fontSize || 10) * 1.5,
 					);
 				});
-
 			} else if (element.type === "chart") {
 				const chartElement = element as ChartElement;
 				const { x = 0, y = 0, width = 300, height = 200 } = chartElement;
@@ -473,7 +527,10 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				pdf.saveGraphicsState();
 
 				// Pozadie grafu
-				if (chartElement.backgroundColor && chartElement.backgroundColor !== "transparent") {
+				if (
+					chartElement.backgroundColor &&
+					chartElement.backgroundColor !== "transparent"
+				) {
 					const rgb = hexToRgb(chartElement.backgroundColor);
 					pdf.setFillColor(rgb.r, rgb.g, rgb.b);
 					pdf.rect(x, y, width, height, "F");
@@ -484,7 +541,9 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 					pdf.setFontSize(12);
 					pdf.setFont("Helvetica", "bold");
 					pdf.setTextColor(0, 0, 0);
-					pdf.text(chartElement.title, x + width / 2, y + 15, { align: "center" });
+					pdf.text(chartElement.title, x + width / 2, y + 15, {
+						align: "center",
+					});
 				}
 
 				const padding = 40;
@@ -492,21 +551,39 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 				const innerHeight = height - padding * 2;
 
 				// Spracovanie dát
-				let chartData: Array<{ value: number; label?: string; color?: string }> = [];
-				const seriesColors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+				let chartData: Array<{
+					value: number;
+					label?: string;
+					color?: string;
+				}> = [];
+				const seriesColors = [
+					"#3b82f6",
+					"#10b981",
+					"#f59e0b",
+					"#ef4444",
+					"#8b5cf6",
+				];
 
-				if (chartElement.data && "datasets" in chartElement.data && chartElement.data.datasets.length > 0) {
+				if (
+					chartElement.data &&
+					"datasets" in chartElement.data &&
+					chartElement.data.datasets.length > 0
+				) {
 					const dataset = chartElement.data.datasets[0];
 					chartData = dataset.data.map((value: any, index: number) => ({
 						value: typeof value === "object" ? value.y : value,
 						label: chartElement.data.labels?.[index] || `Item ${index + 1}`,
 						color: Array.isArray(dataset.backgroundColor)
 							? dataset.backgroundColor[index]
-							: dataset.backgroundColor || seriesColors[index % seriesColors.length],
+							: dataset.backgroundColor ||
+								seriesColors[index % seriesColors.length],
 					}));
 				}
 
-				const maxValue = chartData.length > 0 ? Math.max(...chartData.map((d) => d.value || 0), 10) : 100;
+				const maxValue =
+					chartData.length > 0
+						? Math.max(...chartData.map((d) => d.value || 0), 10)
+						: 100;
 
 				// Vykreslenie grafu podľa typu
 				if (chartElement.chartType === "bar") {
@@ -528,9 +605,17 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 
 					for (let i = 1; i < chartData.length; i++) {
 						const x1 = x + padding + (i - 1) * step;
-						const y1 = y + height - padding - ((chartData[i - 1].value || 0) / maxValue) * innerHeight;
+						const y1 =
+							y +
+							height -
+							padding -
+							((chartData[i - 1].value || 0) / maxValue) * innerHeight;
 						const x2 = x + padding + i * step;
-						const y2 = y + height - padding - ((chartData[i].value || 0) / maxValue) * innerHeight;
+						const y2 =
+							y +
+							height -
+							padding -
+							((chartData[i].value || 0) / maxValue) * innerHeight;
 						pdf.line(x1, y1, x2, y2);
 					}
 				} else if (chartElement.chartType === "pie") {
@@ -549,8 +634,11 @@ const addPageElementsToPDF = (pdf: jsPDF, elements: PDFElement[]) => {
 
 							const segments = Math.max(2, Math.floor(sliceAngle / 5));
 							for (let s = 0; s < segments; s++) {
-								const a1 = ((startAngle + (s * sliceAngle) / segments) * Math.PI) / 180;
-								const a2 = ((startAngle + ((s + 1) * sliceAngle) / segments) * Math.PI) / 180;
+								const a1 =
+									((startAngle + (s * sliceAngle) / segments) * Math.PI) / 180;
+								const a2 =
+									((startAngle + ((s + 1) * sliceAngle) / segments) * Math.PI) /
+									180;
 								const x1 = centerX + radius * Math.cos(a1);
 								const y1 = centerY + radius * Math.sin(a1);
 								const x2 = centerX + radius * Math.cos(a2);
@@ -576,9 +664,17 @@ export const generatePDF = async (
 ) => {
 	let format: string | [number, number] = "a4";
 
-	if (["a3", "a4", "a5", "letter", "legal", "tabloid", "executive"].includes(document.pageSize)) {
+	if (
+		["a3", "a4", "a5", "letter", "legal", "tabloid", "executive"].includes(
+			document.pageSize,
+		)
+	) {
 		format = document.pageSize;
-	} else if (document.pageSize === "custom" && document.customWidth && document.customHeight) {
+	} else if (
+		document.pageSize === "custom" &&
+		document.customWidth &&
+		document.customHeight
+	) {
 		const width = document.customWidth * 2.83465;
 		const height = document.customHeight * 2.83465;
 		format = [width, height];
@@ -606,6 +702,9 @@ export const generatePDF = async (
 		addPageElementsToPDF(pdf, page.elements || []);
 	});
 
-	const fileName = (document.title || "document").replace(/[^\w\s]/gi, "_").replace(/\s+/g, "_") + ".pdf";
+	const fileName =
+		(document.title || "document")
+			.replace(/[^\w\s]/gi, "_")
+			.replace(/\s+/g, "_") + ".pdf";
 	pdf.save(fileName);
 };

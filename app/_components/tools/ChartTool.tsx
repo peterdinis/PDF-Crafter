@@ -295,13 +295,15 @@ export const ChartTool: FC<ChartToolProps> = ({
 		const radius = Math.min(innerWidth, innerHeight) / 2;
 		const angleStep = (2 * Math.PI) / values.length;
 
-		const points = values.map((value, i) => {
-			const angle = i * angleStep - Math.PI / 2; // Start from top
-			const r = (value / maxValue) * radius;
-			const x = centerX + r * Math.cos(angle);
-			const y = centerY + r * Math.sin(angle);
-			return `${x},${y}`;
-		}).join(" ");
+		const points = values
+			.map((value, i) => {
+				const angle = i * angleStep - Math.PI / 2; // Start from top
+				const r = (value / maxValue) * radius;
+				const x = centerX + r * Math.cos(angle);
+				const y = centerY + r * Math.sin(angle);
+				return `${x},${y}`;
+			})
+			.join(" ");
 
 		const gridPoints = values.map((_, i) => {
 			const angle = i * angleStep - Math.PI / 2;
@@ -314,7 +316,7 @@ export const ChartTool: FC<ChartToolProps> = ({
 			<>
 				{/* Background Grid */}
 				<polygon
-					points={gridPoints.map(p => `${p.x},${p.y}`).join(" ")}
+					points={gridPoints.map((p) => `${p.x},${p.y}`).join(" ")}
 					fill="none"
 					stroke={gridColor}
 					strokeWidth="1"
@@ -381,7 +383,13 @@ export const ChartTool: FC<ChartToolProps> = ({
 					strokeLinecap="round"
 				/>
 				<circle cx={centerX} cy={centerY} r="8" fill={seriesColors[0]} />
-				<text x={centerX} y={centerY + 25} textAnchor="middle" fontSize="16" fontWeight="bold">
+				<text
+					x={centerX}
+					y={centerY + 25}
+					textAnchor="middle"
+					fontSize="16"
+					fontWeight="bold"
+				>
 					{Math.round(value)}
 				</text>
 			</>

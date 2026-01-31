@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, X, AlertTriangle, Info, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, AlertTriangle, CheckCircle, Info, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 export type ErrorType = "error" | "warning" | "info" | "success";
 
@@ -190,7 +191,7 @@ const Error: React.FC<ErrorProps> = ({
 								}}
 								transition={{
 									duration: 2,
-									repeat: Infinity,
+									repeat: Number.POSITIVE_INFINITY,
 									repeatType: "loop",
 									delay: i * 0.3,
 									ease: "easeInOut",

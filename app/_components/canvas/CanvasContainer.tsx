@@ -9,6 +9,7 @@ import type {
 	TextElement,
 	Tool,
 } from "@/types/global";
+import { PAPER_SIZES } from "@/lib/constants";
 import { Trash2 } from "lucide-react";
 import {
 	type FC,
@@ -40,20 +41,6 @@ interface CanvasContainerProps {
 	currentDrawingId: string | null;
 	setCurrentDrawingId: (id: string | null) => void;
 }
-
-const paperSizesPoints: Record<string, { width: number; height: number }> = {
-	a3: { width: 842, height: 1191 },
-	a4: { width: 595, height: 842 },
-	a5: { width: 420, height: 595 },
-	letter: { width: 612, height: 792 },
-	legal: { width: 612, height: 1008 },
-	tabloid: { width: 792, height: 1224 },
-	executive: { width: 522, height: 756 },
-	b5: { width: 499, height: 709 },
-	b4: { width: 709, height: 1002 },
-	jisb4: { width: 729, height: 1032 },
-	jisb5: { width: 516, height: 729 },
-};
 
 export const CanvasContainer: FC<CanvasContainerProps> = ({
 	document: pdfDocument, // Renamed to avoid conflict with global document
@@ -104,11 +91,17 @@ export const CanvasContainer: FC<CanvasContainerProps> = ({
 			height = Math.round(pdfDocument.customHeight * 2.83465);
 		} else {
 			const sizeKey = pdfDocument.pageSize;
-			const defaultSize = { width: 595, height: 842 };
-			const size = paperSizesPoints[sizeKey] || defaultSize;
+			const foundSize = PAPER_SIZES.find(s => s.value === sizeKey);
 
-			width = size.width;
-			height = size.height;
+			if (foundSize) {
+				// Convert mm to points (1 mm = 2.83465 pt)
+				width = Math.round(foundSize.width * 2.83465);
+				height = Math.round(foundSize.height * 2.83465);
+			} else {
+				// Default to A4 if not found
+				width = 595;
+				height = 842;
+			}
 		}
 
 		if (pdfDocument.orientation === "landscape") {
