@@ -10,18 +10,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { ALL_FONTS } from "@/lib/constants";
 import type {
-	BarcodeElement,
 	ChartElement,
 	CodeElement,
 	FormElement,
 	ImageElement,
 	PDFElement,
-	PencilElement,
 	QRCodeElement,
-	ShapeElement,
+	BarcodeElement,
 	SignatureElement,
+	PencilElement,
+	ShapeElement,
 	TableElement,
 	TextElement,
 } from "@/types/global";
@@ -80,12 +79,13 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 						<SelectTrigger>
 							<SelectValue />
 						</SelectTrigger>
-						<SelectContent className="max-h-60">
-							{ALL_FONTS.map((font) => (
-								<SelectItem key={font.value} value={font.value}>
-									<span style={{ fontFamily: font.value }}>{font.label}</span>
-								</SelectItem>
-							))}
+						<SelectContent>
+							<SelectItem value="Arial">Arial</SelectItem>
+							<SelectItem value="Times-Roman">Times New Roman</SelectItem>
+							<SelectItem value="Courier">Courier</SelectItem>
+							<SelectItem value="Helvetica">Helvetica</SelectItem>
+							<SelectItem value="Georgia">Georgia</SelectItem>
+							<SelectItem value="Verdana">Verdana</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
@@ -927,9 +927,7 @@ export const PropertiesPanel: FC<PropertiesPanelProps> = ({
 				<Label>Error Correction Level</Label>
 				<Select
 					value={el.errorCorrection || "M"}
-					onValueChange={(value) =>
-						onUpdate({ ...el, errorCorrection: value as "L" | "M" | "Q" | "H" })
-					}
+					onValueChange={(value) => onUpdate({ ...el, errorCorrection: value as "L" | "M" | "Q" | "H" })}
 				>
 					<SelectTrigger>
 						<SelectValue />

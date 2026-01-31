@@ -36,7 +36,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
 import { PdfSettings } from "../pdf/PdfSettings";
-import { useFontLoader } from "@/app/_hooks/useFontLoader";
 import { ScrollToTop } from "../shared/ScrollToTop";
 import { PropertiesPanel } from "./PropertiesPanel";
 import { Toolbar } from "./Toolbar";
@@ -52,8 +51,6 @@ const PDFEditor = () => {
     pages: [{ id: crypto.randomUUID(), elements: [] }],
     currentPage: 0,
   });
-
-  useFontLoader(document);
 
   const [activeTool, setActiveTool] = useState<Tool>("select");
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
