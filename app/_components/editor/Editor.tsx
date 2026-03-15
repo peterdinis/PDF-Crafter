@@ -485,7 +485,7 @@ const PDFEditor = () => {
         <div className="p-4 border-b border-editor-border dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900">
           <h1 className="text-lg font-medium text-gray-900 dark:text-white">{document.title}</h1>
           <div className="flex items-center gap-2">
-            <Button onClick={() => setShowClearPageDialog(true)} variant="outline"
+            <Button onClick={() => setShowClearPageDialog(true)} variant="ghost"
               className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400">
               <Trash2 size={16} />Clear Page
             </Button>
