@@ -1,14 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -20,9 +11,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { TableElement } from "@/types/global";
-import { Minus, Plus, Trash2 } from "lucide-react";
 import { type FC, type MouseEvent, useEffect, useRef, useState } from "react";
-import { ColorPicker } from "../shared/pickers/ColorPicker";
 
 interface TableToolProps {
 	element: TableElement;

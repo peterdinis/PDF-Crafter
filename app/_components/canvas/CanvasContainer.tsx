@@ -2,7 +2,6 @@
 
 import type {
 	ChartElement,
-	PDFDocument,
 	PDFElement,
 	ShapeElement,
 	TableElement,

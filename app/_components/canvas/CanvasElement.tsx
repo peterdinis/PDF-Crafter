@@ -6,7 +6,6 @@ import type {
 	ChartElement,
 	CodeElement,
 	DividerElement,
-	DrawingElement,
 	FormElement,
 	PDFElement,
 	QRCodeElement,

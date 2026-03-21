@@ -2,7 +2,6 @@
 
 import { useCanvasKeyboardHandler } from "@/app/_hooks/useCanvasKeyboardHandler";
 import type {
-	DrawingElement,
 	PDFDocument,
 	PDFElement,
 	ShapeElement,

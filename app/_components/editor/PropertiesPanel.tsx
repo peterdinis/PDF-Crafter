@@ -19,7 +19,6 @@ import type {
 	QRCodeElement,
 	BarcodeElement,
 	SignatureElement,
-	PencilElement,
 	ShapeElement,
 	TableElement,
 	TextElement,

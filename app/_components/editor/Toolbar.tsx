@@ -17,8 +17,6 @@ import {
 	Circle,
 	Code,
 	Columns,
-	Eye,
-	EyeOff,
 	Grid3X3,
 	GripHorizontal,
 	Hash,
@@ -1666,7 +1664,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 					{previewType === "numbered" && (
 						<div className="space-y-1">
 							<div className="flex items-center gap-1">
-								<span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 min-w-[12px]">
+								<span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 min-w-3">
 									1.
 								</span>
 								<span className="text-xs text-gray-700 dark:text-gray-300">
@@ -1674,7 +1672,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 								</span>
 							</div>
 							<div className="flex items-center gap-1">
-								<span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 min-w-[12px]">
+								<span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 min-w-3">
 									2.
 								</span>
 								<span className="text-xs text-gray-700 dark:text-gray-300">
@@ -1682,7 +1680,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 								</span>
 							</div>
 							<div className="flex items-center gap-1">
-								<span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 min-w-[12px]">
+								<span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 min-w-3">
 									3.
 								</span>
 								<span className="text-xs text-gray-700 dark:text-gray-300">

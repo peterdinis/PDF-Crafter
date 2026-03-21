@@ -9,14 +9,12 @@ import type {
 	TextElement,
 	Tool,
 } from "@/types/global";
-import { Trash2 } from "lucide-react";
 import {
 	type DragEvent,
 	type FC,
 	type MouseEvent,
 	type ReactNode,
 	type RefObject,
-	useEffect,
 	useState,
 } from "react";
 import { toast } from "sonner";
