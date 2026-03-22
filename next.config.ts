@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
 			},
 		],
 	},
+	experimental: {
+		optimizeCss: true,
+		optimisticClientCache: true
+	}
 };
 
 export default nextConfig;
