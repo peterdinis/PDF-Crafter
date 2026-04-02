@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
 			},
 		],
 	},
+	cacheComponents: true,
 	experimental: {
 		optimizeCss: true,
 		optimisticClientCache: true
