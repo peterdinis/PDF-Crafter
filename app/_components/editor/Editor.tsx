@@ -31,14 +31,18 @@ import type {
   TextElement,
   Tool,
 } from "@/types/global";
-import { Download, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Download, Plus, Trash2, Layout, Zap, HelpCircle } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Canvas } from "../canvas/Canvas";
 import { PdfSettings } from "../pdf/PdfSettings";
 import { ScrollToTop } from "../shared/ScrollToTop";
 import { PropertiesPanel } from "./PropertiesPanel";
 import { Toolbar } from "./Toolbar";
+import { CommandPalette } from "./CommandPalette";
+import { cn } from "@/lib/utils";
+import { AnimatePresence } from "framer-motion";
+import { useTour } from "@/app/_hooks/useTour";
 
 const PDFEditor = () => {
   const [document, setDocument] = useState<PDFDocument>({
@@ -58,6 +62,9 @@ const PDFEditor = () => {
   const [showClearPageDialog, setShowClearPageDialog] = useState(false);
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
   const [enableCompression, setEnableCompression] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  const { startTour } = useTour();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -84,7 +91,12 @@ const PDFEditor = () => {
           case "i": e.preventDefault(); setActiveTool("image"); break;
           case "s": e.preventDefault(); setActiveTool("shape_rectangle"); break;
           case "l": e.preventDefault(); setActiveTool("chart_line"); break;
+          case "k": e.preventDefault(); setIsCommandPaletteOpen(true); break;
         }
+      }
+      if (e.key === "/") {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -476,76 +488,175 @@ const PDFEditor = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-editor-background dark:bg-gray-950">
-      <Toolbar activeTool={activeTool} onToolSelect={handleToolSelect} onSettingsToggle={() => setShowSettings(!showSettings)}
-        pageElements={document.pages[document.currentPage]?.elements || []} selectedElement={selectedElement}
-        onSelectElement={setSelectedElement} onMoveElement={moveElementInList} onDeleteElement={deleteElement} />
+    <div className="flex h-screen overflow-hidden bg-background">
+      <Toolbar
+        activeTool={activeTool}
+        onToolSelect={handleToolSelect}
+        onSettingsToggle={() => setShowSettings(!showSettings)}
+        pageElements={document.pages[document.currentPage]?.elements || []}
+        selectedElement={selectedElement}
+        onSelectElement={setSelectedElement}
+        onMoveElement={moveElementInList}
+        onDeleteElement={deleteElement}
+      />
 
-      <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-editor-border dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900">
-          <h1 className="text-lg font-medium text-gray-900 dark:text-white">{document.title}</h1>
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setShowClearPageDialog(true)} variant="ghost"
-              className="flex items-center gap-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400">
-              <Trash2 size={16} />Clear Page
-            </Button>
-            <div className="flex items-center gap-2 mr-2">
-              <input type="checkbox" id="compression" checked={enableCompression} onChange={(e) => {
-                setEnableCompression(e.target.checked);
-                toast[e.target.checked ? "success" : "info"](e.target.checked ? "Compression activated" : "Compression deactivated");
-              }} className="w-4 h-4 rounded border-gray-300 dark:border-gray-700" />
-              <Label htmlFor="compression" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">Compress</Label>
+      <div className="flex-1 overflow-hidden flex flex-col relative">
+        {/* Modern Premium Header */}
+        <header className="h-16 border-b border-border bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md flex items-center justify-between px-6 z-10">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-primary/10 rounded-xl text-primary">
+              <Layout size={20} />
             </div>
-            <Button onClick={handleDownload} variant="default" className="flex items-center gap-2 bg-amber-400 hover:bg-editor-primary/90">
-              <Download size={16} />Download PDF
+            <div>
+              <h1 className="text-sm font-bold tracking-tight leading-none mb-1">{document.title}</h1>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest flex items-center gap-1">
+                  <Zap size={10} className="text-amber-500 fill-amber-500" /> Auto-saved
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 mr-4 bg-muted/50 px-3 py-1.5 rounded-xl border border-border/50">
+              <input
+                type="checkbox"
+                id="compression"
+                checked={enableCompression}
+                onChange={(e) => {
+                  setEnableCompression(e.target.checked);
+                  toast[e.target.checked ? "success" : "info"](e.target.checked ? "Compression activated" : "Compression deactivated");
+                }}
+                className="w-4 h-4 rounded-md border-border bg-background text-primary focus:ring-primary"
+              />
+              <Label htmlFor="compression" className="text-xs font-bold text-muted-foreground cursor-pointer select-none">Compress PDF</Label>
+            </div>
+
+            <Button
+              id="tour-start-btn"
+              variant="ghost"
+              size="icon"
+              onClick={startTour}
+              className="rounded-xl text-primary hover:bg-primary/10 transition-all border border-primary/20 mr-2"
+              title="Quick Tour"
+            >
+              <HelpCircle size={18} />
+            </Button>
+
+            <Button
+              onClick={() => setShowClearPageDialog(true)}
+              variant="ghost"
+              className="group flex items-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl px-4 transition-all"
+            >
+              <Trash2 size={16} className="group-hover:rotate-12 transition-transform" />
+              <span className="text-xs font-bold">Clear</span>
+            </Button>
+
+            <Button
+              id="tour-download-btn"
+              onClick={handleDownload}
+              variant="default"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl px-6 py-5"
+            >
+              <Download size={18} />
+              <span className="text-xs font-bold">Download PDF</span>
             </Button>
           </div>
-        </div>
+        </header>
 
-        <div className="flex-1 overflow-auto relative bg-gray-50 dark:bg-gray-950">
-          <div className="flex items-center justify-center p-4 dark:bg-gray-900 bg-white border-b border-editor-border dark:border-gray-800">
-            <div className="flex items-center space-x-2">
+        <div className="flex-1 overflow-auto relative bg-[#f8f9fa] dark:bg-zinc-900 shadow-inner">
+          {/* Page Navigation Grid */}
+          <div className="sticky top-0 left-0 right-0 z-10 flex items-center justify-center p-3 pointer-events-none">
+            <div className="flex items-center gap-1 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md p-1.5 rounded-2xl border border-border shadow-2xl pointer-events-auto">
               {document.pages.map((page, index) => (
-                <Button key={page.id} variant={document.currentPage === index ? "default" : "outline"} size="sm"
-                  onClick={() => changePage(index)} className={`min-w-10 h-8 ${document.currentPage === index ? "bg-editor-primary hover:bg-editor-primary/90" : "border-gray-300 dark:border-gray-700"}`}>
+                <button
+                  key={page.id}
+                  onClick={() => changePage(index)}
+                  className={cn(
+                    "w-9 h-9 flex items-center justify-center text-xs font-bold rounded-xl transition-all",
+                    document.currentPage === index
+                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
                   {index + 1}
-                </Button>
+                </button>
               ))}
-              <Button variant="outline" size="sm" onClick={addPage} className="h-8 border-gray-300 dark:border-gray-700">
-                <Plus size={16} />
-              </Button>
+              <div className="w-[1px] h-4 bg-border mx-1" />
+              <button
+                onClick={addPage}
+                className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:bg-primary/10 hover:text-primary rounded-xl transition-all"
+                title="Add Page"
+              >
+                <Plus size={18} />
+              </button>
               {document.pages.length > 1 && (
-                <Button variant="outline" size="sm" onClick={() => deletePage(document.currentPage)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 h-8 border-gray-300 dark:border-gray-700">
-                  Delete
-                </Button>
+                <button
+                  onClick={() => deletePage(document.currentPage)}
+                  className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-xl transition-all"
+                  title="Delete Page"
+                >
+                  <Trash2 size={16} />
+                </button>
               )}
             </div>
           </div>
 
-          <Canvas document={document} activeTool={activeTool} selectedElement={selectedElement}
-            onSelectElement={setSelectedElement} onAddElement={addElement} onUpdateElement={updateElement} onDeleteElement={deleteElement} />
+          <div id="tour-canvas-area" className="p-8 pb-32">
+            <Canvas
+              document={document}
+              activeTool={activeTool}
+              selectedElement={selectedElement}
+              onSelectElement={setSelectedElement}
+              onAddElement={addElement}
+              onUpdateElement={updateElement}
+              onDeleteElement={deleteElement}
+            />
+          </div>
         </div>
       </div>
 
-      {showSettings && <PdfSettings document={document} onUpdate={updateDocumentSettings} onClose={() => setShowSettings(false)} />}
+      <AnimatePresence>
+        {showSettings && (
+          <PdfSettings
+            document={document}
+            onUpdate={updateDocumentSettings}
+            onClose={() => setShowSettings(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {showPropertiesPanel && selectedElementObj && (
-        <PropertiesPanel element={selectedElementObj} onUpdate={updateElement} onDelete={deleteElement}
-          onDuplicate={duplicateElement} onClose={() => { setShowPropertiesPanel(false); setSelectedElement(null); }} />
-      )}
+      <AnimatePresence>
+        {showPropertiesPanel && selectedElementObj && (
+          <PropertiesPanel
+            element={selectedElementObj}
+            onUpdate={updateElement}
+            onDelete={deleteElement}
+            onDuplicate={duplicateElement}
+            onClose={() => { setShowPropertiesPanel(false); setSelectedElement(null); }}
+          />
+        )}
+      </AnimatePresence>
+
+      <CommandPalette
+        open={isCommandPaletteOpen}
+        onOpenChange={setIsCommandPaletteOpen}
+        onToolSelect={handleToolSelect}
+      />
 
       <AlertDialog open={showClearPageDialog} onOpenChange={setShowClearPageDialog}>
-        <AlertDialogContent className="bg-white dark:bg-gray-900">
+        <AlertDialogContent className="bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-border rounded-3xl shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-900 dark:text-white">Clear Page</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
-              Are you sure you want to delete all elements from the current page? This action cannot be undone.
+            <AlertDialogTitle className="text-xl font-bold tracking-tight">Clear Page Content?</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground font-medium">
+              This will permanently delete all elements on the current page. You cannot undo this action.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-300 dark:border-gray-700">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={clearCurrentPage} className="bg-red-500 text-white hover:bg-red-600">Delete All</AlertDialogAction>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="rounded-xl border-border bg-transparent hover:bg-muted font-bold text-xs">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={clearCurrentPage} className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 font-bold text-xs px-6">
+              Delete Everything
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

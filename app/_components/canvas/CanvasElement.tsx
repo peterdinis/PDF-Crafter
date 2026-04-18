@@ -147,8 +147,8 @@ const ImageElement: FC<{
 	return (
 		<div
 			className={cn(
-				"cursor-move",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2",
+				"cursor-move border border-transparent transition-all",
+				isSelected && "ring-2 ring-primary ring-offset-2 border-primary/50 rounded-sm shadow-lg",
 			)}
 			style={{
 				width: `${element.width}px`,
@@ -178,22 +178,22 @@ const FormElementComponent: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full p-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm cursor-move",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm border border-border rounded-xl shadow-sm cursor-move",
+				isSelected && "ring-2 ring-primary ring-offset-2 border-primary/50 shadow-lg",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">
+			<label className="block text-[10px] font-bold uppercase tracking-wider mb-2 text-muted-foreground">
 				{element.label}
-				{element.required && <span className="text-red-500 ml-1">*</span>}
+				{element.required && <span className="text-destructive ml-1">*</span>}
 			</label>
 
 			{element.formType === "text" && (
 				<input
 					type="text"
 					placeholder={element.placeholder}
-					className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+					className="w-full px-3 py-2 border border-border rounded-lg bg-muted/30 text-xs text-foreground focus:ring-2 focus:ring-primary/30 outline-none"
 					readOnly
 				/>
 			)}
@@ -201,22 +201,22 @@ const FormElementComponent: FC<{
 			{element.formType === "textarea" && (
 				<textarea
 					placeholder={element.placeholder}
-					className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 resize-none"
+					className="w-full px-3 py-2 border border-border rounded-lg bg-muted/30 text-xs text-foreground focus:ring-2 focus:ring-primary/30 outline-none resize-none"
 					rows={3}
 					readOnly
 				/>
 			)}
 
 			{element.formType === "button" && (
-				<button className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-md shadow transition-colors">
+				<button className="w-full px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg shadow-sm transition-all shadow-primary/20">
 					{element.label}
 				</button>
 			)}
 
 			{element.formType === "checkbox" && (
 				<div className="flex items-center gap-3">
-					<div className="w-5 h-5 border-2 border-gray-400 dark:border-gray-500 rounded bg-white dark:bg-gray-700"></div>
-					<span className="text-sm text-gray-700 dark:text-gray-300">{element.placeholder || "Checkbox option"}</span>
+					<div className="w-5 h-5 border-2 border-border rounded-md bg-white dark:bg-zinc-800"></div>
+					<span className="text-xs font-medium text-muted-foreground">{element.placeholder || "Checkbox option"}</span>
 				</div>
 			)}
 
@@ -224,8 +224,8 @@ const FormElementComponent: FC<{
 				<div className="space-y-2">
 					{element.options?.map((opt, idx) => (
 						<div key={idx} className="flex items-center gap-3">
-							<div className="w-5 h-5 border-2 border-gray-400 dark:border-gray-500 rounded-full bg-white dark:bg-gray-700"></div>
-							<span className="text-sm text-gray-700 dark:text-gray-300">{opt}</span>
+							<div className="w-5 h-5 border-2 border-border rounded-full bg-white dark:bg-zinc-800"></div>
+							<span className="text-xs font-medium text-muted-foreground">{opt}</span>
 						</div>
 					))}
 				</div>
@@ -233,14 +233,14 @@ const FormElementComponent: FC<{
 
 			{element.formType === "dropdown" && (
 				<div className="relative">
-					<select className="w-full px-3 py-2 pr-8 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 appearance-none cursor-pointer">
+					<select className="w-full px-3 py-2 pr-8 border border-border rounded-lg bg-muted/30 text-xs text-foreground appearance-none cursor-pointer outline-none">
 						<option>{element.placeholder || "Select an option"}</option>
 						{element.options?.map((opt, idx) => (
 							<option key={idx} value={opt}>{opt}</option>
 						))}
 					</select>
-					<div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-						<svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+						<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 						</svg>
 					</div>
@@ -250,7 +250,7 @@ const FormElementComponent: FC<{
 			{element.formType === "date" && (
 				<input
 					type="date"
-					className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+					className="w-full px-3 py-2 border border-border rounded-lg bg-muted/30 text-xs text-foreground focus:ring-2 focus:ring-primary/30 outline-none"
 					readOnly
 				/>
 			)}
@@ -262,22 +262,21 @@ const FormElementComponent: FC<{
 						min="0"
 						max="100"
 						defaultValue="50"
-						className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer"
+						className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
 					/>
-					<div className="flex justify-between text-xs text-gray-500">
-						<span>0</span>
-						<span>50</span>
-						<span>100</span>
+					<div className="flex justify-between text-[10px] text-muted-foreground font-medium">
+						<span>Min</span>
+						<span>Max</span>
 					</div>
 				</div>
 			)}
 
 			{element.formType === "switch" && (
 				<div className="flex items-center gap-3">
-					<div className="relative inline-block w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full">
-						<div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+					<div className="relative inline-block w-10 h-5 bg-muted border border-border rounded-full">
+						<div className="absolute left-0.5 top-0.5 w-3.5 h-3.5 bg-white dark:bg-zinc-400 rounded-full shadow-sm transition-transform"></div>
 					</div>
-					<span className="text-sm text-gray-700 dark:text-gray-300">{element.placeholder || "Toggle option"}</span>
+					<span className="text-xs text-muted-foreground font-medium">{element.placeholder || "Toggle option"}</span>
 				</div>
 			)}
 		</div>
@@ -294,24 +293,24 @@ const CodeElementComponent: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full rounded-lg overflow-hidden cursor-move shadow-lg",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2",
+				"w-full h-full rounded-xl overflow-hidden cursor-move shadow-lg border border-border transition-all",
+				isSelected && "ring-2 ring-primary ring-offset-2 border-primary/50 shadow-xl",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
-			<div className="bg-gray-800 px-4 py-2 flex items-center justify-between border-b border-gray-700">
+			<div className="bg-zinc-900 px-4 py-2 flex items-center justify-between border-b border-white/5">
 				<div className="flex items-center gap-2">
 					<div className="flex gap-1.5">
-						<div className="w-3 h-3 rounded-full bg-red-500"></div>
-						<div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-						<div className="w-3 h-3 rounded-full bg-green-500"></div>
+						<div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+						<div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+						<div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
 					</div>
-					<span className="text-xs text-gray-400 ml-2">{element.language || "code"}</span>
+					<span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-3">{element.language || "code"}</span>
 				</div>
 			</div>
-			<div className="bg-gray-900 p-4 overflow-auto" style={{ height: 'calc(100% - 40px)' }}>
-				<pre className="text-sm text-gray-100 font-mono whitespace-pre-wrap leading-relaxed">
+			<div className="bg-zinc-950 p-5 overflow-auto custom-scrollbar" style={{ height: 'calc(100% - 40px)' }}>
+				<pre className="text-xs text-zinc-300 font-mono whitespace-pre-wrap leading-relaxed">
 					<code>{element.content || "// Your code here"}</code>
 				</pre>
 			</div>
@@ -331,8 +330,8 @@ const DividerElementComponent: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full flex items-center cursor-move px-2",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 rounded",
+				"w-full h-full flex items-center cursor-move p-1 transition-all",
+				isSelected && "ring-2 ring-primary ring-offset-2 rounded-lg border-primary/30",
 			)}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
@@ -359,10 +358,10 @@ const QRCodeElementComponent: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full flex flex-col items-center justify-center rounded-lg cursor-move shadow-md overflow-hidden",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full flex flex-col items-center justify-center rounded-2xl cursor-move shadow-md overflow-hidden bg-white dark:bg-zinc-900 border border-border transition-all",
+				isSelected && "ring-2 ring-primary ring-offset-2 border-primary/50 shadow-xl",
 			)}
-			style={{ backgroundColor: element.backgroundColor !== "transparent" ? element.backgroundColor : "#ffffff" }}
+			style={{ backgroundColor: element.backgroundColor !== "transparent" ? element.backgroundColor : undefined }}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
@@ -389,10 +388,10 @@ const BarcodeElementComponent: FC<{
 	return (
 		<div
 			className={cn(
-				"w-full h-full flex flex-col items-center justify-center rounded-lg p-2 cursor-move shadow-md overflow-hidden",
-				isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+				"w-full h-full flex flex-col items-center justify-center rounded-2xl p-2 cursor-move shadow-md overflow-hidden bg-white dark:bg-zinc-900 border border-border transition-all",
+				isSelected && "ring-2 ring-primary ring-offset-2 border-primary/50 shadow-xl",
 			)}
-			style={{ backgroundColor: element.backgroundColor !== "transparent" ? element.backgroundColor : "#ffffff" }}
+			style={{ backgroundColor: element.backgroundColor !== "transparent" ? element.backgroundColor : undefined }}
 			onMouseDown={onMouseDown}
 			onContextMenu={onContextMenu}
 		>
@@ -431,8 +430,8 @@ const SignatureElementComponent: FC<{
 		<>
 			<div
 				className={cn(
-					"w-full h-full border-2 border-dashed border-gray-400 dark:border-gray-500 rounded-lg flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 cursor-move p-4",
-					isSelected && "ring-2 ring-editor-primary ring-offset-2 border-blue-500",
+					"w-full h-full border-2 border-dashed border-muted-foreground/30 rounded-2xl flex flex-col items-center justify-center bg-muted/20 cursor-move p-4 transition-all hover:bg-muted/30",
+					isSelected && "ring-2 ring-primary ring-offset-2 border-primary/50 bg-primary/5",
 				)}
 				onMouseDown={onMouseDown}
 				onContextMenu={onContextMenu}
@@ -440,7 +439,7 @@ const SignatureElementComponent: FC<{
 					e.stopPropagation();
 					if (onUpdate) setShowDialog(true);
 				}}
-				style={{ backgroundColor: element.backgroundColor || "transparent" }}
+				style={{ backgroundColor: element.backgroundColor || undefined }}
 			>
 				{element.signatureData ? (
 					<div className="w-full h-full flex items-center justify-center">

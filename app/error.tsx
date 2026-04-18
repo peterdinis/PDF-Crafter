@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, AlertTriangle, CheckCircle, Info, X } from "lucide-react";
-import type React from "react";
 import { useEffect, useState } from "react";
 
 export type ErrorType = "error" | "warning" | "info" | "success";
